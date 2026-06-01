@@ -1,3 +1,9 @@
+/* Fuente */
+@font-face {
+    font-family: 'CWC';
+    src: url(./fonts/Lexend-VariableFont_wght.ttf) format('truetype');
+}
+
 /* Esta madre es para que el mugre forms no tega bordes */
 *{
     margin: 0;
@@ -10,4 +16,16 @@ html, body, #root{
     width: 100%;
     min-height: 100vh;
     background-color: rgb(44, 44, 44);
+}
+
+h1, h2, h3, h4, h5, h6{
+    font-family: 'CWC', sans-serif;
+}
+
+p, span, a, button{
+    font-family: 'CWC', sans-serif;
+}
+
+input, select, textarea{
+    font-family: 'CWC', sans-serif;
 }

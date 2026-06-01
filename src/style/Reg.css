@@ -1,0 +1,16 @@
+.reg{
+
+    /* estilos */
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
+
+}
+
+.form-title {
+    color: #fff;
+    font-size: 2.5rem;
+    margin-bottom: 20px;
+}

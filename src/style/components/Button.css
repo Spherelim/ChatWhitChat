@@ -1,0 +1,46 @@
+*{
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+
+.btn {
+
+    /* Estilos */
+
+    background-color: #4e9fbe;
+    color: #fff;
+    border-radius: 30px;
+
+    padding: 10px 20px;
+    font-size: 1.2rem;
+    cursor: pointer;
+
+    transition: all 0.3s ease-in-out;
+
+    /* Dejar un espacio alrededor */
+    margin: 10px;
+    /* Dejar un espacio debajo */
+    margin-bottom: 10px;
+
+}
+
+.btn:hover {
+    background-color: #49b9fa;
+    color: #fff;
+    transform: scale(1.1);
+}
+
+.btn:active {
+    background-color: #49b9fa;
+    color: #fff;
+    transform: scale(0.9);
+}
+
+.btn:disabled {
+    background-color: #49b9fa;
+    color: #fff;
+    cursor: not-allowed;
+    transform: scale(1);
+}
