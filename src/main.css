@@ -1,0 +1,13 @@
+/* Esta madre es para que el mugre forms no tega bordes */
+*{
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+/* Aqui hice que el fondo de la app siempre este en gris oscuro */
+html, body, #root{
+    width: 100%;
+    min-height: 100vh;
+    background-color: rgb(44, 44, 44);
+}

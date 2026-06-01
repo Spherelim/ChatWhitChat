@@ -1,0 +1,1 @@
+import '../style/includes/NavBar.css'

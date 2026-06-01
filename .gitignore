@@ -22,3 +22,8 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# Variable de Entorno
+.env
+*.env
+*.env*
