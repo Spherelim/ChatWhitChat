@@ -22,18 +22,31 @@ router.post("/register", (req,res)=>{
 });
 
 router.post("/login", (req,res)=>{
-    const {email, password} = req.body;
-    const sql = "SELECT * FROM usuario WHERE Correo = ? AND Contra = ? AND Activo = 1";
+    const {username, password} = req.body;
 
-    db.query(sql, [email, password], (err, result) => {
+    // console.log("Login attempt:", { username, password });
+
+    const sql = "SELECT * FROM usuario WHERE UserName = ? AND Contra = ? AND Activo = 1";
+
+    db.query(sql, [username, password], (err, result) => {
         if (err) {
             console.error("Error logging in:", err);
             res.status(500).json({ success: false, error: err.message, code: err.code });
         } else {
             if (result.length > 0) {
-                res.status(200).json({ success: true, message: "Login successful" });
+                res.status(200).json({ 
+                    success: true, 
+                    message: "Login successful",
+                    user:{
+                        id: result[0].id_Usuario,
+                        username: result[0].UserName,
+                        email: result[0].Correo,
+                        rol: result[0].id_Rol
+                    }
+                });
             } else {
-                res.status(401).json({ success: false, error: "Invalid credentials" });
+                console.error("Invalid credentials");
+                res.status(401).json({ success: false, error: "Invalid credentials", code: "INVALID_CREDENTIALS" });
             }
         }
     });

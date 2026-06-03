@@ -3,22 +3,38 @@ import '../style/Log.css'
 import Button from '../components/Button.jsx'
 
 import { login } from '../services/authService.js'
+import { useAuth } from '../context/AuthContext.jsx'
 
 export default function Log() {
+    const { login: authLogin } = useAuth();
 
     const handleLogin = async () => {
 
-        const correo = document.querySelector("input[placeholder='Username']").value;
+        const username = document.querySelector("input[placeholder='Username']").value;
         const password = document.querySelector("input[placeholder='Password']").value;
 
-        const data = await login(correo, password);
-        console.log(data);
+        console.log("Enviando:", { username, password });
+
+        const data = await login(username, password);
+        console.log("Respuesta completa:", data);
 
         if(data.success){
+
+            console.log("Usuario autenticado:", data.user);
+            console.log("Username del backend:", data.user?.username);
+
+            authLogin({
+                username: data.user.username,
+                email: data.user.email,
+                id: data.user.id,
+                rol: data.user.rol
+            });
+
             alert("Login successful");
+            window.location.href = "/";
         }
         else{
-            alert("Invalid credentials");
+            alert("Invalid credentials" + (data.error ? ": " + data.error : ""));
         }
     }
 
