@@ -2,7 +2,26 @@ import '../style/Log.css'
 
 import Button from '../components/Button.jsx'
 
+import { login } from '../services/authService.js'
+
 export default function Log() {
+
+    const handleLogin = async () => {
+
+        const correo = document.querySelector("input[placeholder='Username']").value;
+        const password = document.querySelector("input[placeholder='Password']").value;
+
+        const data = await login(correo, password);
+        console.log(data);
+
+        if(data.success){
+            alert("Login successful");
+        }
+        else{
+            alert("Invalid credentials");
+        }
+    }
+
     return (
         <>
             <div className='log'>
@@ -14,7 +33,7 @@ export default function Log() {
                     {/* Registrarse si no tiene cuenta */}
                     <p className='form-link'>¿No tienes una cuenta? <a href="/register" className='form-link'>Registrate</a></p>
 
-                    <Button className='btn btn-primary' onClick={() => {}}>
+                    <Button className='btn btn-primary' onClick={handleLogin}>
                         Login
                     </Button>
                 </div>
