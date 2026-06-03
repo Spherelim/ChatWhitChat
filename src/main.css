@@ -29,3 +29,25 @@ p, span, a, button{
 input, select, textarea{
     font-family: 'CWC', sans-serif;
 }
+
+.fade-enter {
+    opacity: 0;
+    transform: translateX(100%);
+}
+
+.fade-enter-active {
+    opacity: 1;
+    transform: translateX(0);
+    transition: all 300ms ease-in-out;
+}
+
+.fade-exit {
+    opacity: 1;
+    transform: translateX(0);
+}
+
+.fade-exit-active {
+    opacity: 0;
+    transform: translateX(-100%);
+    transition: all 300ms ease-in-out;
+}

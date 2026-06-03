@@ -1,0 +1,75 @@
+*{
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'CWC', sans-serif;
+}
+
+.navbar{
+    width: 100%;
+    height: 60px;
+    background-color: #4e9fbe;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 20px;
+
+    /* ponerlo fijo para que siempre este visible */
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 1000;
+
+}
+
+.navbar-logo{
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: white;
+}
+
+.navbar-logo:hover{
+    color: #3b4246;
+    transition: color 0.3s ease;
+    cursor: default;
+    /* no puede seleccionar el texto */
+    user-select: none;
+}
+
+.navbar-menu{
+    display: flex;
+    gap: 20px;
+}
+
+.navbar-menu a{
+    color: white;
+    text-decoration: none;
+    font-size: 1rem;
+    transition: color 0.3s ease;
+}
+
+.btn{
+    padding: 10px 20px;
+    border: none;
+    border-radius: 30px;
+    background-color: #3b4246;
+    color: #fff;
+    font-size: 1rem;
+    transition: all 0.3s ease-in-out;
+}
+
+.btn:hover{
+    background-color: #366d83;
+    cursor: pointer;
+    transform: scale(1.05);
+}
+
+.btn:active{
+    transform: scale(0.95);
+}
+
+.btn:focus{
+    outline: none;
+    box-shadow: 0 0 5px #3b4246;
+}
