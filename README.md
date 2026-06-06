@@ -6,6 +6,17 @@
 
 <br>
 
+<div align=center>
+    <h1>Instrucciones de Ejecución</h1>
+    <p> Primera mente Debes de tener la Base de Datos Junto a Sus Tablas 
+    Esta Información la Posee el Creador del Repositorio.</p>
+    <p> Bueno ya que Obtuviste la DB tienes que crear tus variables de entorno en las carpeta del proyecto y en Backend.</p>
+    <p> Despues de Todo, ahora tendras que ejecutar "pnpm install". </p>
+    <h3> Ejecutar Servidor </h3>
+    <p> Lo que normalmente hago es abrir un cmd en la carpeta de Backend y escribir el comando "node server.js", deberia de mandar un mensaje como: "Server running on port 3000 Connected to the database."</p>
+    <h3> Ejecutar Front </h3>
+    <p> Si por alguna razón no sabes ejecutar el front, solamente pon en la consola de VSC "pnpm dev" y con normalidad deberia de aparecer la ruta "localhost:5173".</p>
+</div>
 
 # React + Vite
 
