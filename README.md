@@ -1,4 +1,7 @@
-<img src="./public/CwC_2.png" width=50% align=center/>
+<div align=center>
+    <img src="./public/CwC_2.png" width=50% />    
+</div>
+
 
 <h1 align=center>ChatWhitChat</h1>
 
