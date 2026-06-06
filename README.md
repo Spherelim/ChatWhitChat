@@ -1,3 +1,5 @@
+<img src="./public/CwC_2.png" align=center/>
+
 <h1 align=center>ChatWhitChat</h1>
 
 <p> Proyecto personal, solo para practicar y desarrollar una pagina web </p>
