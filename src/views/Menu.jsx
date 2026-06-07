@@ -12,10 +12,10 @@ export default function Menu() {
 
             <img src="/public/CwC_2.png" alt="Logo" className='menu-logo' />
 
-            <h1 className='form-title'>Menú</h1>
-            {
-                user && <p className='Bienvenida'>Bienvenido, {user.username}!</p>
-            }
+                <h1 className='form-title'>Menú</h1>
+                {
+                    user && <p className='Bienvenida'>Bienvenido, {user.username}!</p>
+                }
 
         </div>
     )
