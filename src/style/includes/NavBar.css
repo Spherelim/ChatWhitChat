@@ -27,6 +27,7 @@
     font-size: 1.5rem;
     font-weight: bold;
     color: white;
+    transition: color 0.3s ease;
 }
 
 .navbar-logo:hover{
@@ -63,13 +64,45 @@
     background-color: #366d83;
     cursor: pointer;
     transform: scale(1.05);
+    transition: all 0.3s ease;
 }
 
 .btn:active{
     transform: scale(0.95);
+    transition: all 0.3s ease;
 }
 
 .btn:focus{
     outline: none;
     box-shadow: 0 0 5px #3b4246;
+}
+
+.navbar-WebName{
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    transition: all 0.3s ease;
+}
+
+.navbar-WebName:hover{
+    cursor: default;
+    transform: scale(1.1);
+    transition: all 0.3s ease;
+}
+
+.navbar-logo-img{
+    width: 30px;
+    height: 30px;
+    transition: all 0.3s ease;
+}
+
+.navbar-logo-img:hover{
+    content: url('/public/CwC_Hover_2.png');
+    transform: rotate(-20deg) scale(1.2);
+    transition: all 0.3s ease;
+}
+
+.navbar-WebName:hover .navbar-logo-img{
+    transform: rotate(-20deg) scale(1.2);
+    transition: all 0.3s ease;
 }

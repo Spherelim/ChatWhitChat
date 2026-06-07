@@ -27,7 +27,10 @@ export default function Log() {
                 username: data.user.username,
                 email: data.user.email,
                 id: data.user.id,
-                rol: data.user.rol
+                rol: data.user.rol,
+                foto: data.user.foto,
+                banner: data.user.banner,
+                bio: data.user.bio
             });
 
             alert("Login successful");

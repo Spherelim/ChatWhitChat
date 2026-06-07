@@ -18,6 +18,7 @@ html, body, #root{
     background-color: rgb(44, 44, 44);
 }
 
+/* Me aseguiro que toda la pagina tenga la Fuente deseada */
 h1, h2, h3, h4, h5, h6{
     font-family: 'CWC', sans-serif;
 }
@@ -29,7 +30,10 @@ p, span, a, button{
 input, select, textarea{
     font-family: 'CWC', sans-serif;
 }
+/* Fin de las Fuentes */
 
+/* Animaciones para las transiciones de las paginas */
+/* Bueno disque transiciones */
 .fade-enter {
     opacity: 0;
     transform: translateX(100%);
