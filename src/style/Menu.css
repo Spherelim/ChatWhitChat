@@ -16,9 +16,36 @@
 .form-title{
     font-size: 2rem;
     font-weight: bold;
+    user-select: none;
 }
 
 .Bienvenida{
     font-size: 1.5rem;
     margin-top: 20px;
+    cursor: default;
+    Transition: all 0.3s ease-in-out;
+    transform: scale(0.95);
+    user-select: none;
+}
+
+.Bienvenida:hover{
+    color: #4e9fbe;
+    transform: scale(1);
+}
+
+.menu-logo{
+    width: 150px;
+    height: 150px;
+    margin-bottom: 20px;
+    transition: all 0.5s ;
+}
+
+.menu-logo:hover{
+    transform: translateX(-10px) rotate(-10deg) scale(1.1);
+    transition: all 0.5s;
+}
+
+.menu-logo:active{
+    transform: scale(0.9);
+    transition: all 0.5s ;
 }

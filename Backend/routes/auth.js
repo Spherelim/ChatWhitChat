@@ -41,6 +41,9 @@ router.post("/login", (req,res)=>{
                         id: result[0].id_Usuario,
                         username: result[0].UserName,
                         email: result[0].Correo,
+                        foto: result[0].Foto,
+                        banner: result[0].Banner,
+                        bio: result[0].Biografia,
                         rol: result[0].id_Rol
                     }
                 });

@@ -1,0 +1,146 @@
+.dropdown {
+    position: relative;
+    display: inline-block;
+}
+
+.img-user {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    cursor: pointer;
+    object-fit: cover;
+    border: 2px solid #4a90e2;
+    transition: all 0.2s ease;
+}
+
+.img-user:hover {
+    transform: scale(1.05);
+    border-color: #6ba5f0;
+}
+
+.img-user:active {
+    transform: scale(0.95);
+}
+
+/* Menú desplegable */
+.dropdown-menu {
+    position: absolute;
+    top: 110%;
+    right: 0;
+    background: linear-gradient(135deg, #1e1e2e 0%, #2a2a3a 100%);
+    min-width: 280px;
+    border-radius: 12px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+    overflow: hidden;
+    z-index: 1000;
+    animation: slideDown 0.2s ease-out;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Cabecera del dropdown */
+.dropdown-header {
+    padding: 16px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    background: rgba(0, 0, 0, 0.2);
+}
+
+.dropdown-avatar {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid #4a90e2;
+}
+
+.dropdown-user-info {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    flex: 1;
+}
+
+.dropdown-username {
+    font-weight: 600;
+    color: white;
+    font-size: 0.95rem;
+}
+
+.dropdown-email {
+    font-size: 0.8rem;
+    color: #a0a0b0;
+}
+
+/* Divisor */
+.dropdown-divider {
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+    margin: 0;
+}
+
+/* Items del dropdown */
+.dropdown-item {
+    width: 100%;
+    padding: 12px 16px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    background: none;
+    border: none;
+    color: #e0e0e0;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    text-align: left;
+    font-size: 0.9rem;
+}
+
+.dropdown-item:hover {
+    background: rgba(74, 144, 226, 0.2);
+    color: white;
+}
+
+.dropdown-icon {
+    width: 20px;
+    height: 20px;
+    stroke: currentColor;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .dropdown-menu {
+        position: fixed;
+        top: auto;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        width: 100%;
+        border-radius: 20px 20px 0 0;
+        animation: slideUp 0.3s ease-out;
+    }
+    
+    @keyframes slideUp {
+        from {
+            transform: translateY(100%);
+        }
+        to {
+            transform: translateY(0);
+        }
+    }
+    
+    .img-user {
+        width: 35px;
+        height: 35px;
+    }
+}

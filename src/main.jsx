@@ -11,6 +11,7 @@ import './main.css'
 import Login from './views/Log.jsx'
 import Register from './views/Reg.jsx'
 import Menu from './views/Menu.jsx'
+import Perfil from './views/Perfil.jsx'
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
@@ -18,6 +19,7 @@ createRoot(document.getElementById('root')).render(
       <BrowserRouter>
         <Routes>
           <Route path="/" element={<Menu />} />
+          <Route path='/perfil' element={<Perfil/>}/>
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
         </Routes>
