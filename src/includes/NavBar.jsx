@@ -4,7 +4,9 @@ import '../style/includes/NavBar.css'
 import Button from '../components/Button.jsx'
 import { useAuth } from '../context/AuthContext.jsx'
 
-import DefaultImage from '../images/Cat.jpg'
+import DropdownMenu from '../components/DropdownMenu.jsx';
+
+// import DefaultImage from '../images/Cat.jpg'
 
 export default function NavBar() {
     const navigate = useNavigate();
@@ -46,11 +48,18 @@ export default function NavBar() {
                 {user.username}
             </Button> */}
 
-            <img className='img-user' src={user?.foto || DefaultImage} onClick={()=> window.location.href = "/Perfil"} />
+            {/* <img className='img-user' src={user?.foto || DefaultImage} onClick={()=> window.location.href = "/Perfil"} /> */}
             {/* Este logOut proximamente lo voy a quitar y lo voy a cambiar por un dropdown menu con opciones como "Perfil", "Configuración", "Cerrar sesión", etc. */}
             {/* <Button className='btn btn-logout' onClick={handleLogout}>
                 Logout
             </Button> */}
+
+            <DropdownMenu 
+                user={user}
+                onProfile={handleProfile}
+                onLogout={handleLogout}
+            />
+
         </>
     ) : (
         <>
