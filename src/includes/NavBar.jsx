@@ -83,7 +83,7 @@ export default function NavBar() {
                 <img src="/public/CwC_Hover_1.png" alt="Logo" className='navbar-logo-img' />
                 {/* Nombre de la pagina */}
                 <h1 className='navbar-logo'>
-                    ChatWhitChat
+                    ChatWithChat
                 </h1>                
             </div>
             {/* visualizacion de botones dependiendo si esta logueado o no */}
