@@ -4,6 +4,9 @@ import '../style/includes/NavBar.css'
 import Button from '../components/Button.jsx'
 import { useAuth } from '../context/AuthContext.jsx'
 
+import Alert from './Alerts.jsx';
+import { useAlert } from '../hook/useAlert.jsx';
+
 import DropdownMenu from '../components/DropdownMenu.jsx';
 
 // import DefaultImage from '../images/Cat.jpg'
@@ -11,6 +14,8 @@ import DropdownMenu from '../components/DropdownMenu.jsx';
 export default function NavBar() {
     const navigate = useNavigate();
     const { user, logout } = useAuth();
+
+    const { showAlert, AlertComponent} = useAlert();
 
     console.log("Usuario en NavBar:", user);
 
@@ -35,14 +40,24 @@ export default function NavBar() {
         navigate('/perfil');
     }
 
+    // Agregar Pagina para agregar y buscar amigos
+    const handleFriend = () => {
+        navigate('/Friends');
+    }
+
     const handleHome = () => {
         navigate('/');
+    }
+
+    const AlertInformation = (message) => {
+        showAlert(message,'info',3000);
     }
 
     // Cambiar acpecto si esta logueado o no
     // const isLoggedIn = false; 
     const VisualLog = user ? (
         <>
+            {AlertComponent}
             {/* Aqui despues lo cambio para que meustre la foto del usuario. */}
             {/* <Button className='btn btn-profile' onClick={handleProfile} onClick={()=> window.location.href = "/Perfil"}>
                 {user.username}
@@ -57,6 +72,8 @@ export default function NavBar() {
             <DropdownMenu 
                 user={user}
                 onProfile={handleProfile}
+                onFriend={() => AlertInformation("No disponible, En Proceso...")}
+                // onFriend={handleFriend}
                 onLogout={handleLogout}
             />
 

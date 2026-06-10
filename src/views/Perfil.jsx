@@ -32,8 +32,8 @@ export default  function Perfil(){
                                 <h1 className='username'>{user?.username || "UserName"}</h1>
                                 
                                 <div className='Social-Media'>
-                                    <img src={YT_Logo} alt="MediaSocial"/>
-                                    <img src={IG_Logo} alt="MediaSocial"/>
+                                    <img src={YT_Logo} alt="MediaSocial" onClick={() => window.open("https://www.youtube.com/@Gsound1","_blank")}/>
+                                    <img src={IG_Logo} alt="MediaSocial" />
                                     <img src={FB_Logo} alt="MediaSocial"/>
                                 </div>
 
