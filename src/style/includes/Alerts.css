@@ -14,7 +14,8 @@
 }
 
 .alert-card {
-    background: linear-gradient(135deg, #1e1e2e 0%, #2a2a3a 100%);
+    /* background: linear-gradient(135deg, #2e2b2b 0%, #494949 100%); */
+    background: rgb(44, 44, 44);
     border-radius: 20px;
     padding: 25px 30px;
     min-width: 320px;

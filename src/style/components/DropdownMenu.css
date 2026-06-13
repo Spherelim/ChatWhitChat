@@ -28,7 +28,7 @@
     top: 110%;
     right: 0;
     background: linear-gradient(135deg, #1e1e2e 0%, #2a2a3a 100%);
-    min-width: 280px;
+    min-width: 260px;
     border-radius: 12px;
     box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
     overflow: hidden;
@@ -50,37 +50,43 @@
 
 /* Cabecera del dropdown */
 .dropdown-header {
-    padding: 16px;
+    padding: 10px;
     display: flex;
     align-items: center;
     gap: 12px;
-    background: rgba(0, 0, 0, 0.2);
+    background: #4e9ebe48;
 }
 
 .dropdown-avatar {
-    width: 48px;
-    height: 48px;
+    width: 45px;
+    height: 45px;
     border-radius: 50%;
     object-fit: cover;
     border: 2px solid #4a90e2;
+
+    transition: all 0.3s ease;
 }
 
 .dropdown-user-info {
     display: flex;
     flex-direction: column;
-    gap: 4px;
+    gap: 3px;
     flex: 1;
+
+    transition: all 0.3s ease;
 }
 
 .dropdown-username {
     font-weight: 600;
     color: white;
     font-size: 0.95rem;
+    transition: all 0.3s ease;
 }
 
 .dropdown-email {
-    font-size: 0.8rem;
+    font-size: 0.75rem;
     color: #a0a0b0;
+    transition: all 0.3s ease;
 }
 
 /* Divisor */
@@ -93,7 +99,7 @@
 /* Items del dropdown */
 .dropdown-item {
     width: 100%;
-    padding: 12px 16px;
+    padding: 10px 10px;
     display: flex;
     align-items: center;
     gap: 12px;
@@ -103,18 +109,22 @@
     cursor: pointer;
     transition: all 0.2s ease;
     text-align: left;
-    font-size: 0.9rem;
+    font-size: 0.8rem;
+    background: #397597b7;
 }
 
 .dropdown-item:hover {
-    background: rgba(74, 144, 226, 0.2);
+    background: #278dbdd0;
     color: white;
+    transition: all 0.3s ease;
+
 }
 
 .dropdown-icon {
-    width: 20px;
-    height: 20px;
+    width: 18px;
+    height: 18px;
     stroke: currentColor;
+    transition: all 0.3s ease;
 }
 
 /* Responsive */

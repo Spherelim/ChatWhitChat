@@ -9,7 +9,7 @@ router.post("/register", (req,res)=>{
         console.log("Datos recibidos:", { username, email, password });
 
         const sql = `
-            INSERT INTO usuario (UserName, Correo, Contra, id_Rol) VALUES (?, ?, ?, 3)
+            CALL SP_Register(?,?,?);
         `;
         db.query(sql, [username, email, password], (err, result) => {
             if (err) {
@@ -26,7 +26,7 @@ router.post("/login", (req,res)=>{
 
     // console.log("Login attempt:", { username, password });
 
-    const sql = "SELECT * FROM usuario WHERE UserName = ? AND Contra = ? AND Activo = 1";
+    const sql = "SELECT id,Foto,Banner,Nombre_De_Usuario,Correo,Contra,Bio,Tipo FROM V_usuarios_Login WHERE Nombre_De_Usuario = ? AND Contra = ?";
 
     db.query(sql, [username, password], (err, result) => {
         if (err) {
@@ -38,13 +38,13 @@ router.post("/login", (req,res)=>{
                     success: true, 
                     message: "Login successful",
                     user:{
-                        id: result[0].id_Usuario,
-                        username: result[0].UserName,
+                        id: result[0].id,
+                        username: result[0].Nombre_De_Usuario,
                         email: result[0].Correo,
                         foto: result[0].Foto,
                         banner: result[0].Banner,
-                        bio: result[0].Biografia,
-                        rol: result[0].id_Rol
+                        bio: result[0].Bio,
+                        rol: result[0].Tipo
                     }
                 });
             } else {
