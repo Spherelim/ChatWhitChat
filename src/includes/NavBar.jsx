@@ -72,8 +72,8 @@ export default function NavBar() {
             <DropdownMenu 
                 user={user}
                 onProfile={handleProfile}
-                onFriend={() => AlertInformation("No disponible, En Proceso...")}
-                // onFriend={handleFriend}
+                // onFriend={() => AlertInformation("No disponible, En Proceso...")}
+                onFriend={handleFriend}
                 onLogout={handleLogout}
             />
 
