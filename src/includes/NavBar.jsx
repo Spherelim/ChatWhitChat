@@ -19,6 +19,10 @@ export default function NavBar() {
 
     console.log("Usuario en NavBar:", user);
 
+    const handleAdmin = () =>{
+        window.location.href = "/Admin";
+    }
+
     // Regresa al Login.
     const handleLogin = () => {
         window.location.href = "/login";
@@ -56,28 +60,42 @@ export default function NavBar() {
     // Cambiar acpecto si esta logueado o no
     // const isLoggedIn = false; 
     const VisualLog = user ? (
-        <>
-            {AlertComponent}
-            {/* Aqui despues lo cambio para que meustre la foto del usuario. */}
-            {/* <Button className='btn btn-profile' onClick={handleProfile} onClick={()=> window.location.href = "/Perfil"}>
-                {user.username}
-            </Button> */}
+        user.rol === 'Admin' ? (
+            <>
+                {AlertComponent}
+                <button className='Admin-Button' onClick={handleAdmin}>Admin</button>
+                <DropdownMenu 
+                    user={user}
+                    onProfile={handleProfile}
+                    // onFriend={() => AlertInformation("No disponible, En Proceso...")}
+                    onFriend={handleFriend}
+                    onLogout={handleLogout}
+                />
+            </>
+        ) : (
+            <>
+                {AlertComponent}
+                {/* Aqui despues lo cambio para que meustre la foto del usuario. */}
+                {/* <Button className='btn btn-profile' onClick={handleProfile} onClick={()=> window.location.href = "/Perfil"}>
+                    {user.username}
+                </Button> */}
 
-            {/* <img className='img-user' src={user?.foto || DefaultImage} onClick={()=> window.location.href = "/Perfil"} /> */}
-            {/* Este logOut proximamente lo voy a quitar y lo voy a cambiar por un dropdown menu con opciones como "Perfil", "Configuración", "Cerrar sesión", etc. */}
-            {/* <Button className='btn btn-logout' onClick={handleLogout}>
-                Logout
-            </Button> */}
+                {/* <img className='img-user' src={user?.foto || DefaultImage} onClick={()=> window.location.href = "/Perfil"} /> */}
+                {/* Este logOut proximamente lo voy a quitar y lo voy a cambiar por un dropdown menu con opciones como "Perfil", "Configuración", "Cerrar sesión", etc. */}
+                {/* <Button className='btn btn-logout' onClick={handleLogout}>
+                    Logout
+                </Button> */}
 
-            <DropdownMenu 
-                user={user}
-                onProfile={handleProfile}
-                // onFriend={() => AlertInformation("No disponible, En Proceso...")}
-                onFriend={handleFriend}
-                onLogout={handleLogout}
-            />
+                <DropdownMenu 
+                    user={user}
+                    onProfile={handleProfile}
+                    // onFriend={() => AlertInformation("No disponible, En Proceso...")}
+                    onFriend={handleFriend}
+                    onLogout={handleLogout}
+                />
 
-        </>
+            </>
+        )
     ) : (
         <>
             {/* En dado caso que entre sin estar logueado, le muestra las opciones de Login y Register. */}

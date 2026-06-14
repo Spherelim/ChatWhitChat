@@ -112,7 +112,7 @@
     width: 50px;
     height: 50px;
     border-radius: 50%;
-    border: 3px solid #366d83;
+    border: 2px solid #4e9fbe;
     transition: all 0.3s ease;
     position: relative;
     margin-top: 5px;
@@ -126,4 +126,31 @@
 
 .img-user:active{
     transform: scale(0.9);
+}
+
+.Admin-Button{
+    border-radius: 20vh;
+    width: 80px;
+    height: 40px;
+    margin-top: 5px;
+    border: none;
+    background-color: #4e9fbe;
+    border: 2px solid #ffffff;
+    color: #fff;
+    font-family: 'CWC',sans-serif;
+    /* font-size: 10px; */
+    padding: 0;
+    transition: all 0.3s ease;
+}
+
+.Admin-Button:hover{
+    transform: scale(1.05);
+    background-color:#366d83;
+    border-color: #3b4246;
+}
+
+.Admin-Button:active{
+    transform: scale(0.95);
+    background-color: #4e9fbe;
+    border-color: #fff;
 }
