@@ -23,3 +23,34 @@ export async function login(username, password){
     });
     return response.json();
 }
+
+export async function getAllUsers(){
+    const response = await fetch(`${API_URL}/friends`,{
+        method: "GET",
+        headers:{
+            "Content-Type": "application/json"
+        }
+    });
+    return response.json();
+}
+
+export async function searchUsers(searchTerm){
+    const response = await fetch(`${API_URL}/friends/search?q=${encodeURIComponent(searchTerm)}`,{
+        method:"GET",
+        headers:{
+            "Content-Type": "application/json"
+        }
+    });
+    return response.json();
+}
+
+export async function getUserProfile(id){
+    const response = await fetch(`${API_URL}/Perfil/Usuario/${id}`,{
+        method:"GET",
+        headers:{
+            "Content-Type":"application/json"
+        }
+    });
+
+    return response.json();
+}
