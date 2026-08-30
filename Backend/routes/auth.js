@@ -12,9 +12,7 @@ router.post("/register", (req,res)=>{
 
         console.log("Datos recibidos:", { username, email, password });
 
-        const sql = `
-            CALL SP_Register(?,?,?);
-        `;
+        const sql = "CALL SP_Register(?,?,?);";
         db.query(sql, [username, email, password], (err, result) => {
             if (err) {
                 console.error("Error registering user:", err);
@@ -30,25 +28,35 @@ router.post("/login", (req,res)=>{
 
     // console.log("Login attempt:", { username, password });
 
-    const sql = "SELECT id,Foto,Banner,Nombre_De_Usuario,Correo,Contra,Bio,Tipo FROM V_usuarios_Login WHERE Nombre_De_Usuario = ? AND Contra = ?";
+    // const sql = "SELECT id,Foto,Banner,Nombre_De_Usuario,Correo,Contra,Bio,Tipo FROM V_usuarios_Login WHERE Nombre_De_Usuario = ? AND Contra = ?";
+    const sql = "CALL SP_Log (?,?)";
 
     db.query(sql, [username, password], (err, result) => {
         if (err) {
             console.error("Error logging in:", err);
             res.status(500).json({ success: false, error: err.message, code: err.code });
         } else {
-            if (result.length > 0) {
+
+            const usuarios = result[0];
+
+            if (usuarios.length > 0) {
+
+                const usuario = usuarios[0];
+
+                console.log("Usuario Logueado: ");
+                console.log(usuario.id);
+
                 res.status(200).json({ 
                     success: true, 
                     message: "Login successful",
                     user:{
-                        id: result[0].id,
-                        username: result[0].Nombre_De_Usuario,
-                        email: result[0].Correo,
-                        foto: result[0].Foto,
-                        banner: result[0].Banner,
-                        bio: result[0].Bio,
-                        rol: result[0].Tipo
+                        id: usuario.id,
+                        username: usuario.Nombre_De_Usuario,
+                        email: usuario.Correo,
+                        foto: usuario.Foto,
+                        banner: usuario.Banner,
+                        bio: usuario.Bio,
+                        rol: usuario.Tipo
                     }
                 });
             } else {
