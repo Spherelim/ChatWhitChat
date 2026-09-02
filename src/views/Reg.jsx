@@ -1,14 +1,23 @@
-import '../style/Reg.css'
+import '../style/Reg.css';
 
-import Button from '../components/Button.jsx'
+import Button from '../components/Button.jsx';
 
-import Alert from '../includes/Alerts.jsx'
-import { useAlert } from '../hook/useAlert.jsx'
+import Alert from '../includes/Alerts.jsx';
+import { useAlert } from '../hook/useAlert.jsx';
 
-import { register } from '../services/authService.js'
+import { register } from '../services/authService.js';
+
+import { useState } from 'react';
+import VerificationModal from '../includes/VerificationModal.jsx';
+
+const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3000";
 
 export default function Reg() {
 
+    const [showModal,setShowModal] = useState(false);
+    const [userData, setUserData] = useState(null);    
+    const [sendingCode, setSendingCode] = useState(false);
+    
     const {showAlert,AlertComponent} = useAlert()
 
     const handleRegister = async () => {
@@ -63,7 +72,7 @@ export default function Reg() {
         }
 
         const emailDomain = email.split('@')[1];
-        const allowedDomains = ['gmail.com', 'yahoo.com', 'outlook.com', 'hotmail.com', 'aol.com'];
+        const allowedDomains = ['gmail.com', 'yahoo.com', 'outlook.com', 'outlook.es' , 'hotmail.com', 'aol.com'];
         
         if (!allowedDomains.includes(emailDomain)) {
             console.log("Email Domain: " + emailDomain);
@@ -74,31 +83,105 @@ export default function Reg() {
 
         const usuario = { username, email, password };
         console.log("API URL:", import.meta.env.VITE_API_URL);
+        setUserData(usuario);
+        setSendingCode(true);
+        // setShowModal(true);
 
         try{
-            const data = await register(usuario);
-            console.log(data);
+            const response = await fetch(`${API_URL}/send-verification`,{
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({email})
+            });
+
+            const data = await response.json();
+            
             if(data.success){
-                // alert("Usuario registrado exitosamente");
-                showAlert('Usuario registrado exitosamente','success',3000);
-                setTimeout(() =>{
-                    window.location.href = "/login";
-                }, 3000);
+                setShowModal(true);
+                showAlert('Código enviado a tu correo','success',3000);
+            }else{
+                showAlert(data.error || 'Error al enviar código', 'error', 4000);
             }
-            else{
-                // alert("Error al registrar usuario: " + data.error);
-                const errorMessage = data.error || "Error al registrar usuario";
-                showAlert(errorMessage,'error',4000);
-            }
-        }
-        catch(error){
-            console.error("Error al registrar usuario:", error);
-            // alert("Error al registrar usuario");
-            const errorMessage = error.message || "Error al registrar usuario...";
-            showAlert(errorMessage,'error',4000);
+
+        } catch (error){
+            showAlert('Error al enviar el código de verificación','error',4000);
+        } finally {
+            setSendingCode(false);
         }
 
-    }
+        // try{
+        //     const data = await register(usuario);
+        //     console.log(data);
+        //     if(data.success){
+        //         alert("Usuario registrado exitosamente");
+        //         showAlert('Usuario registrado exitosamente','success',3000);
+        //         setTimeout(() =>{
+        //             window.location.href = "/login";
+        //         }, 3000);
+        //     }
+        //     else{
+        //         // alert("Error al registrar usuario: " + data.error);
+        //         const errorMessage = data.error || "Error al registrar usuario";
+        //         showAlert(errorMessage,'error',4000);
+        //     }
+        // }
+        // catch(error){
+        //     console.error("Error al registrar usuario:", error);
+        //     // alert("Error al registrar usuario");
+        //     const errorMessage = error.message || "Error al registrar usuario...";
+        //     showAlert(errorMessage,'error',4000);
+        // }
+    };
+
+    const handleVerifyCode = async (codigo) =>{
+        try{
+            const response = await fetch(`${API_URL}/verify-and-register`,{
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    ...userData,
+                    codigo: codigo.toString()
+                })
+            });
+    
+            const data = await response.json();
+    
+            if (data.success){
+                setShowModal(false);
+                showAlert('¡Usuario registrao exitosamente!', 'success',3000);
+                setTimeout(()=>{
+                    window.location.href = "/login";
+                },3000);
+            }else{
+                throw new Error(data.error);            
+            }
+        }
+        catch (err){
+            showAlert(err.message || 'Error al reenviar código', 'error', 4000);
+            throw err;
+        }
+        
+    };
+
+    const handleResendCode = async ()=>{
+        try{
+            const response = await fetch(`${API_URL}/resend-verification`,{
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({email:userData.email})
+            });
+    
+            const data =await response.json();
+    
+            if(!data.success){
+                throw new Error(data.error);
+            }
+        } catch (err) {
+            showAlert(err.message || 'Error al reenviar código', 'error', 4000);
+            throw err;
+        }
+
+    };
 
     return (
         <>
@@ -114,11 +197,25 @@ export default function Reg() {
                     {/* Registrarse si no tiene cuenta */}
                     <p className='form-link'>¿Ya tienes una cuenta? <a href="/login" className='form-link'>Inicia sesión</a></p>
 
-                    <Button className='btn btn-primary' onClick={handleRegister}>
-                        Register
+                    <Button className='btn btn-primary' onClick={handleRegister} disabled={sendingCode}>
+                        {sendingCode ? 'Enviando Código...' : 'Register'}
                     </Button>
                 </div>
             </div>
+            
+            {/* Nuevo */}
+
+            {showModal && (
+                <VerificationModal 
+                    email={userData?.email}
+                    onVerify={handleVerifyCode}
+                    onResend={handleResendCode}
+                    onCancel={()=>{
+                        setShowModal(false);
+                        showAlert('Registro cancelado','warning',3000);
+                    }}
+                />
+            )}
         </>
     )
 }
