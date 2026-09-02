@@ -14,13 +14,13 @@
 }
 
 .form-title{
-    font-size: 2rem;
+    font-size: 1.9rem;
     font-weight: bold;
     user-select: none;
 }
 
 .Bienvenida{
-    font-size: 1.5rem;
+    font-size: 1.2rem;
     margin-top: 20px;
     cursor: default;
     Transition: all 0.3s ease-in-out;
@@ -34,8 +34,8 @@
 }
 
 .menu-logo{
-    width: 150px;
-    height: 150px;
+    width: 125px;
+    height: 125px;
     margin-bottom: 20px;
     transition: all 0.5s ;
 }

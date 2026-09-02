@@ -4,6 +4,9 @@ import '../style/includes/NavBar.css'
 import Button from '../components/Button.jsx'
 import { useAuth } from '../context/AuthContext.jsx'
 
+import Alert from './Alerts.jsx';
+import { useAlert } from '../hook/useAlert.jsx';
+
 import DropdownMenu from '../components/DropdownMenu.jsx';
 
 // import DefaultImage from '../images/Cat.jpg'
@@ -12,7 +15,13 @@ export default function NavBar() {
     const navigate = useNavigate();
     const { user, logout } = useAuth();
 
+    const { showAlert, AlertComponent} = useAlert();
+
     console.log("Usuario en NavBar:", user);
+
+    const handleAdmin = () =>{
+        window.location.href = "/Admin";
+    }
 
     // Regresa al Login.
     const handleLogin = () => {
@@ -35,32 +44,58 @@ export default function NavBar() {
         navigate('/perfil');
     }
 
+    // Agregar Pagina para agregar y buscar amigos
+    const handleFriend = () => {
+        navigate('/Friends');
+    }
+
     const handleHome = () => {
         navigate('/');
+    }
+
+    const AlertInformation = (message) => {
+        showAlert(message,'info',3000);
     }
 
     // Cambiar acpecto si esta logueado o no
     // const isLoggedIn = false; 
     const VisualLog = user ? (
-        <>
-            {/* Aqui despues lo cambio para que meustre la foto del usuario. */}
-            {/* <Button className='btn btn-profile' onClick={handleProfile} onClick={()=> window.location.href = "/Perfil"}>
-                {user.username}
-            </Button> */}
+        user.rol === 'Admin' ? (
+            <>
+                {AlertComponent}
+                <button className='Admin-Button' onClick={handleAdmin}>Admin</button>
+                <DropdownMenu 
+                    user={user}
+                    onProfile={handleProfile}
+                    // onFriend={() => AlertInformation("No disponible, En Proceso...")}
+                    onFriend={handleFriend}
+                    onLogout={handleLogout}
+                />
+            </>
+        ) : (
+            <>
+                {AlertComponent}
+                {/* Aqui despues lo cambio para que meustre la foto del usuario. */}
+                {/* <Button className='btn btn-profile' onClick={handleProfile} onClick={()=> window.location.href = "/Perfil"}>
+                    {user.username}
+                </Button> */}
 
-            {/* <img className='img-user' src={user?.foto || DefaultImage} onClick={()=> window.location.href = "/Perfil"} /> */}
-            {/* Este logOut proximamente lo voy a quitar y lo voy a cambiar por un dropdown menu con opciones como "Perfil", "Configuración", "Cerrar sesión", etc. */}
-            {/* <Button className='btn btn-logout' onClick={handleLogout}>
-                Logout
-            </Button> */}
+                {/* <img className='img-user' src={user?.foto || DefaultImage} onClick={()=> window.location.href = "/Perfil"} /> */}
+                {/* Este logOut proximamente lo voy a quitar y lo voy a cambiar por un dropdown menu con opciones como "Perfil", "Configuración", "Cerrar sesión", etc. */}
+                {/* <Button className='btn btn-logout' onClick={handleLogout}>
+                    Logout
+                </Button> */}
 
-            <DropdownMenu 
-                user={user}
-                onProfile={handleProfile}
-                onLogout={handleLogout}
-            />
+                <DropdownMenu 
+                    user={user}
+                    onProfile={handleProfile}
+                    // onFriend={() => AlertInformation("No disponible, En Proceso...")}
+                    onFriend={handleFriend}
+                    onLogout={handleLogout}
+                />
 
-        </>
+            </>
+        )
     ) : (
         <>
             {/* En dado caso que entre sin estar logueado, le muestra las opciones de Login y Register. */}
@@ -83,7 +118,7 @@ export default function NavBar() {
                 <img src="/public/CwC_Hover_1.png" alt="Logo" className='navbar-logo-img' />
                 {/* Nombre de la pagina */}
                 <h1 className='navbar-logo'>
-                    ChatWhitChat
+                    ChatWithChat
                 </h1>                
             </div>
             {/* visualizacion de botones dependiendo si esta logueado o no */}

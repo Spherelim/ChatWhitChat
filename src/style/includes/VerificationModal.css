@@ -1,0 +1,121 @@
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.7);
+    backdrop-filter: blur(5px);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 9999;
+}
+
+.modal-content {
+    background: #474747;
+    padding: 40px;
+    border-radius: 20px;
+    max-width: 500px;
+    width: 90%;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    text-align: center;
+}
+
+.modal-content h2 {
+    color: #4E9FBE;
+    margin-bottom: 15px;
+}
+
+.modal-content p {
+    color: #ffffff;
+    margin-bottom: 20px;
+}
+
+.modal-instructions {
+    font-size: 14px;
+    color: #888;
+}
+
+.code-inputs {
+    display: flex;
+    gap: 8px;
+    justify-content: center;
+    margin: 25px 0;
+    flex-wrap: wrap;
+}
+
+.code-input {
+    width: 40px;
+    height: 50px;
+    text-align: center;
+    font-size: 24px;
+    font-weight: bold;
+    border: 2px solid #e9ecef;
+    border-radius: 10px;
+    transition: all 0.3s;
+    background: #f8f9fa;
+}
+
+.code-input:focus {
+    border-color: #4e9fbe;
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(78, 159, 190, 0.2);
+    background: white;
+}
+
+.modal-error {
+    color: #ff4444;
+    font-size: 14px;
+    margin: 10px 0;
+}
+
+.modal-actions {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+    flex-wrap: wrap;
+    margin-top: 20px;
+}
+
+.modal-actions .btn {
+    padding: 12px 24px;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: bold;
+    transition: all 0.3s;
+}
+
+.btn-primary {
+    background: #4e9fbe;
+    color: white;
+}
+
+.btn-primary:hover:not(:disabled) {
+    background: #3d8ba6;
+}
+
+.btn-secondary {
+    background: #6c757d;
+    color: white;
+}
+
+.btn-secondary:hover:not(:disabled) {
+    background: #5a6268;
+}
+
+.btn-danger {
+    background: #dc3545;
+    color: white;
+}
+
+.btn-danger:hover:not(:disabled) {
+    background: #c82333;
+}
+
+.btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
