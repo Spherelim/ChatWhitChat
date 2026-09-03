@@ -151,9 +151,12 @@ router.post("/verify-and-register", async (req, res) => {
             });
         }
 
+        const saltRounds = 12;
+        const P_hash = await bcrypt.hash(password,saltRounds);
+
         // ya está todo campión, entrale
         const registroSQL = "CALL SP_Register(?,?,?)";
-        db.query(registroSQL, [username, email, password], async(err,result) =>{
+        db.query(registroSQL, [username, email, P_hash], async(err,result) =>{
             console.log("registrando...")
             if(err){
                 console.error("Error registrando usuario:",err);
@@ -276,22 +279,33 @@ router.post("/login", (req,res)=>{
     // console.log("Login attempt:", { username, password });
 
     // const sql = "SELECT id,Foto,Banner,Nombre_De_Usuario,Correo,Contra,Bio,Tipo FROM V_usuarios_Login WHERE Nombre_De_Usuario = ? AND Contra = ?";
-    const sql = "CALL SP_Log (?,?)";
+    // const sql = "CALL SP_Log (?,?)";
+    const sql = "CALL SP_Log (?)";
 
-    db.query(sql, [username, password], (err, result) => {
+    db.query(sql, [username], async (err, result) => {
         if (err) {
             console.error("Error logging in:", err);
-            res.status(500).json({ success: false, error: err.message, code: err.code });
-        } else {
+            return res.status(500).json({ success: false, error: err.message, code: err.code });
+        } 
 
-            const usuarios = result[0];
+        const usuarios = result[0];
 
-            if (usuarios.length > 0) {
+        if (usuarios.length > 0) {
 
-                const usuario = usuarios[0];
+            const usuario = usuarios[0];
 
+            try{
                 console.log("Usuario Logueado: ");
                 console.log(usuario.id);
+                
+                const passwordValida = await bcrypt.compare(password,usuario.Contra);
+
+                if(!passwordValida){
+                    return res.status(401).json({
+                        success: false,
+                        error: "Credenciales inválidas"
+                    });
+                }
 
                 res.status(200).json({ 
                     success: true, 
@@ -306,11 +320,19 @@ router.post("/login", (req,res)=>{
                         rol: usuario.Tipo
                     }
                 });
-            } else {
-                console.error("Invalid credentials");
-                res.status(401).json({ success: false, error: "Invalid credentials", code: "INVALID_CREDENTIALS" });
+            } catch (compareError){
+                console.error("Error verificando contraseña: ",compareError);
+                return res.status(500).json({
+                    success: false,
+                    error: "Error al verificar credenciales"
+                });
             }
+
+        } else {
+            console.error("Invalid credentials");
+            return res.status(401).json({ success: false, error: "Invalid credentials", code: "INVALID_CREDENTIALS" });
         }
+        
     });
 });
 

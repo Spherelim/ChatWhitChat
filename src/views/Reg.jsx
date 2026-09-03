@@ -47,7 +47,7 @@ export default function Reg() {
             return;
         }
 
-        const passwordRegex = /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d@$!%*#?&_-]{8,}$/;
+        const passwordRegex = /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d.@$!%*#?&_-]{8,}$/;
         if (!passwordRegex.test(password)) {
             console.log("Password: " + password);
             // alert("La contraseña debe tener al menos 8 caracteres y contener al menos una letra y un número");
@@ -55,7 +55,7 @@ export default function Reg() {
             return;
         }
 
-        const confirmPasswordRegex = /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d@$!%*#?&_-]{8,}$/;
+        const confirmPasswordRegex = /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d.@$!%*#?&_-]{8,}$/;
         if (!confirmPasswordRegex.test(confirmPassword)) {
             console.log("Confirm Password: " + confirmPassword);
             // alert("La contraseña de confirmación debe tener al menos 8 caracteres y contener al menos una letra y un número");
