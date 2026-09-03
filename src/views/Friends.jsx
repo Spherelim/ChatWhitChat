@@ -108,7 +108,12 @@ export default function Friends(){
             <>
                 <NavBar/>
                 <div className='Friends-Container'>
-                    <p className='error-message'>Error: {error}</p>
+                    <div className='Search-Container'>
+                        <div className='search-wrapper'>
+                            <input type="search" className='Busqueda' placeholder='Busca por nombre o correo...' value={searchTerm} onChange={handleSearchChange}/>
+                        </div>
+                    </div>
+                    <p className='error-message'>{error}</p>
                 </div>
             </>
         );
