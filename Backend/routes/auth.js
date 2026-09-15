@@ -64,7 +64,7 @@ router.post("/send-verification",async(req,res) =>{
                     to: email,
                     subject: "Verifica tu cuenta en ChatWhitChat",
                     html: `<div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-                            <h1 style="color: #4e9fbe;">¡Bienvenido a ChatWhitChat!</h1>
+                            <h1 style="color: #4e9fbe;">¡Bienvenido a ChatWithChat!</h1>
                             <p>Estamos emocionados de tenerte con nosotros. Para completar tu registro, ingresa el siguiente código de verificación:</p>
                             <div style="background: #f5f5f5; padding: 20px; text-align: center; font-size: 32px; font-weight: bold; letter-spacing: 10px; border-radius: 10px; margin: 20px 0;">
                                 ${Codigo}
@@ -151,9 +151,12 @@ router.post("/verify-and-register", async (req, res) => {
             });
         }
 
+        const saltRounds = 12;
+        const P_hash = await bcrypt.hash(password,saltRounds);
+
         // ya está todo campión, entrale
         const registroSQL = "CALL SP_Register(?,?,?)";
-        db.query(registroSQL, [username, email, password], async(err,result) =>{
+        db.query(registroSQL, [username, email, P_hash], async(err,result) =>{
             console.log("registrando...")
             if(err){
                 console.error("Error registrando usuario:",err);
@@ -222,7 +225,7 @@ router.post("/resend-verification",async (req, res)=>{
                     to: email,
                     subject: "Verifica tu cuenta en ChatWhitChat",
                     html: `<div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-                            <h1 style="color: #4e9fbe;">¡Bienvenido a ChatWhitChat!</h1>
+                            <h1 style="color: #4e9fbe;">¡Bienvenido a ChatWithChat!</h1>
                             <p>Estamos emocionados de tenerte con nosotros. Para completar tu registro, ingresa el siguiente código de verificación:</p>
                             <div style="background: #f5f5f5; padding: 20px; text-align: center; font-size: 32px; font-weight: bold; letter-spacing: 10px; border-radius: 10px; margin: 20px 0;">
                                 ${Codigo}
@@ -276,22 +279,33 @@ router.post("/login", (req,res)=>{
     // console.log("Login attempt:", { username, password });
 
     // const sql = "SELECT id,Foto,Banner,Nombre_De_Usuario,Correo,Contra,Bio,Tipo FROM V_usuarios_Login WHERE Nombre_De_Usuario = ? AND Contra = ?";
-    const sql = "CALL SP_Log (?,?)";
+    // const sql = "CALL SP_Log (?,?)";
+    const sql = "CALL SP_Log (?)";
 
-    db.query(sql, [username, password], (err, result) => {
+    db.query(sql, [username], async (err, result) => {
         if (err) {
             console.error("Error logging in:", err);
-            res.status(500).json({ success: false, error: err.message, code: err.code });
-        } else {
+            return res.status(500).json({ success: false, error: err.message, code: err.code });
+        } 
 
-            const usuarios = result[0];
+        const usuarios = result[0];
 
-            if (usuarios.length > 0) {
+        if (usuarios.length > 0) {
 
-                const usuario = usuarios[0];
+            const usuario = usuarios[0];
 
+            try{
                 console.log("Usuario Logueado: ");
                 console.log(usuario.id);
+                
+                const passwordValida = await bcrypt.compare(password,usuario.Contra);
+
+                if(!passwordValida){
+                    return res.status(401).json({
+                        success: false,
+                        error: "Credenciales inválidas"
+                    });
+                }
 
                 res.status(200).json({ 
                     success: true, 
@@ -306,11 +320,19 @@ router.post("/login", (req,res)=>{
                         rol: usuario.Tipo
                     }
                 });
-            } else {
-                console.error("Invalid credentials");
-                res.status(401).json({ success: false, error: "Invalid credentials", code: "INVALID_CREDENTIALS" });
+            } catch (compareError){
+                console.error("Error verificando contraseña: ",compareError);
+                return res.status(500).json({
+                    success: false,
+                    error: "Error al verificar credenciales"
+                });
             }
+
+        } else {
+            console.error("Invalid credentials");
+            return res.status(401).json({ success: false, error: "Invalid credentials", code: "INVALID_CREDENTIALS" });
         }
+        
     });
 });
 
@@ -336,7 +358,7 @@ router.get("/friends",(req,res)=>{
                     foto:user.Foto,
                     banner: user.Banner,
                     username: user.Nombre_De_Usuario,
-                    correo: user.Correo,
+                    email: user.Correo,
                     biografia: user.Biografia,
                     estado: user.Estado
                 }));
@@ -375,7 +397,7 @@ router.get("/friends/search",(req,res)=>{
                     foto:user.Foto,
                     banner: user.Banner,
                     username: user.Nombre_De_Usuario,
-                    correo: user.Correo,
+                    email: user.Correo,
                     biografia: user.Biografia,
                     estado: user.Estado
                 }));
@@ -409,7 +431,7 @@ router.get("/Perfil/Usuario/:id",(req,res)=>{
                     foto:result[0].Foto,
                     banner:result[0].Banner,
                     username:result[0].Nombre_De_Usuario,
-                    correo:result[0].correo,
+                    email:result[0].Correo,
                     bio:result[0].Biografia,
                     estado:result[0].Estado
                 };

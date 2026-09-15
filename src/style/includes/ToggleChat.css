@@ -1,0 +1,42 @@
+.toggle-chat {
+    position: fixed;
+    right: 0;
+    top: 190px;
+    z-index: 900;
+
+    background-color: #4e9fbe;
+    border-top-left-radius: 12px;
+    border-bottom-left-radius: 12px;
+
+    cursor: pointer;
+    box-shadow: -2px 2px 10px rgba(0, 0, 0, 0.25);
+
+    transition: transform 0.3s ease-in-out,
+                background-color 0.3s ease-in-out,
+                box-shadow 0.3s ease-in-out;
+}
+
+.toggle-chat:hover {
+    transform: translateX(-2px);
+    background-color: #3d8ba6;
+    box-shadow: -4px 4px 15px rgba(0, 0, 0, 0.4);
+}
+
+.toggle-chat:active {
+    transform: translateX(5px);
+}
+
+.eyelash {
+    padding: 10px 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.chat-icon {
+    width: 30px;
+    height: auto;
+    user-select: none;
+    transition: transform 0.3s ease-in-out;
+}
+

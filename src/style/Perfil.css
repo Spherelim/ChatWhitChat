@@ -91,7 +91,7 @@
 
 .user-info{
     flex: 1;
-    margin-top: 80px;
+    margin-top: 90px;
     transition: all 0.3s ease;
 }
 
@@ -99,7 +99,7 @@
     display: flex;
     align-items: center;
     gap: 15px;
-    margin-top: 5px;
+    margin-top: 4px;
     flex-wrap: wrap;
 }
 
@@ -112,12 +112,21 @@
     margin: 0;
 }
 
+.user-email{
+    color: #fff;
+    font-size: small;
+    font-style: italic;
+    user-select: none;
+}
+
 .bio {
     font-size: 0.8rem;
     color: #c6d4df;
     font-style: italic;
     user-select: none;
     margin: 0;
+    margin-top: 5px;
+    transition: all 0.3s ease-in-out;
 }
 
 .Social-Media{

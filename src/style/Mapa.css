@@ -1,0 +1,284 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+.mapa-layout {
+    display: flex;
+    flex-direction: column;
+    height: 100vh;             /* Altura completa del viewport */
+    width: 100%;
+    overflow: hidden;          /* Evita scroll en el body */
+    background-color: #2c2c2c;
+}
+
+.mapa-content {
+    display: flex;
+    flex: 1;
+    overflow: hidden;
+    padding-top: 55px;         /* Espacio para el NavBar fijo */
+}
+
+.sidebar {
+    width: 380px;
+    min-width: 320px;
+    max-width: 420px;
+    display: flex;
+    flex-direction: column;
+    background-color: #2c2c2c;
+    border-right: 1px solid #3a3a3a;
+    overflow: hidden;
+}
+
+/* Sección de filtros/tabs */
+.filtros-container {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 16px;
+    background-color: #2c2c2c;
+    border-bottom: 1px solid #3a3a3a;
+    flex-wrap: wrap;
+    flex-shrink: 0;
+    position: relative;
+    z-index: 20;
+}
+
+.filtro-wrapper {
+    position: relative;
+}
+
+.filtro-btn {
+    background-color: #16303f;
+    color: #dcdcdc;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 8px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    white-space: nowrap;
+}
+
+.filtro-btn:hover {
+    background-color: #1f4d63;
+    color: #fff;
+    transform: translateY(-2px);
+}
+
+.filtro-btn.active {
+    background-color: #1f4d63;
+    color: #fff;
+    box-shadow: 0 0 0 1px #4e9fbe inset;
+}
+
+.filtro-btn.mas {
+    background-color: #16303f;
+    padding: 8px 12px;
+}
+
+/* Menú desplegable de sub-etiquetas */
+.filtro-dropdown {
+    position: absolute;
+    top: calc(100% + 8px);
+    left: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    background-color: transparent;
+    z-index: 30;
+    animation: dropdown-in 0.15s ease-out;
+}
+
+.filtro-dropdown-item {
+    background-color: #16303f;
+    color: #dcdcdc;
+    border: none;
+    padding: 10px 18px;
+    border-radius: 8px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    cursor: pointer;
+    white-space: nowrap;
+    text-align: left;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.35);
+    transition: background-color 0.2s ease;
+}
+
+.filtro-dropdown-item:hover {
+    background-color: #1f4d63;
+    color: #fff;
+}
+
+@keyframes dropdown-in {
+    from { opacity: 0; transform: translateY(-6px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.Lista-Lugares {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    padding: 16px;
+    overflow-y: auto;
+    overflow-x: hidden;
+}
+
+/* Scroll personalizado */
+.Lista-Lugares::-webkit-scrollbar {
+    width: 6px;
+}
+
+.Lista-Lugares::-webkit-scrollbar-track {
+    background: #2c2c2c;
+}
+
+.Lista-Lugares::-webkit-scrollbar-thumb {
+    background: #4e9fbe;
+    border-radius: 3px;
+}
+
+.Lista-Lugares::-webkit-scrollbar-thumb:hover {
+    background: #3d8ba6;
+}
+
+.mapa-container {
+    flex: 1;
+    position: relative;
+    overflow: hidden;
+    background-color: #e5e3df;
+}
+
+/* ===== MAPA SIMULADO (estilo Google Maps claro) ===== */
+/* Sustituir este bloque por el componente real de Google Maps API */
+.mapa-falso {
+    position: absolute;
+    inset: 0;
+    background-color: #eae8e2;
+    background-image:
+        repeating-linear-gradient(0deg, rgba(178, 176, 168, 0.5) 0 1px, transparent 1px 90px),
+        repeating-linear-gradient(90deg, rgba(178, 176, 168, 0.5) 0 1px, transparent 1px 130px);
+    overflow: hidden;
+}
+
+.mapa-falso-agua {
+    position: absolute;
+    left: -10%;
+    bottom: 18%;
+    width: 130%;
+    height: 8%;
+    background-color: #aad3df;
+    transform: rotate(-3deg);
+}
+
+.mapa-falso-parque {
+    position: absolute;
+    top: 45%;
+    left: 58%;
+    width: 22%;
+    height: 20%;
+    background-color: #c8e0bd;
+    border-radius: 30% 40% 35% 45%;
+}
+
+.mapa-falso-calles {
+    position: absolute;
+    inset: 0;
+    background-image:
+        linear-gradient(100deg, transparent 47%, #ffffff 47.5%, #ffffff 49%, transparent 49.5%),
+        linear-gradient(15deg, transparent 62%, #ffffff 62.5%, #ffffff 64%, transparent 64.5%),
+        linear-gradient(-20deg, transparent 30%, #ffffff 30.5%, #ffffff 31.5%, transparent 32%);
+}
+
+.mapa-falso-ciudad {
+    position: absolute;
+    top: 50%;
+    left: 44%;
+    font-size: 1.4rem;
+    font-weight: 700;
+    color: #3c3c3c;
+    letter-spacing: 0.3px;
+    user-select: none;
+}
+
+.mapa-pin {
+    position: absolute;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    transform: translate(-6px, -50%);
+    cursor: pointer;
+}
+
+.mapa-pin-punto {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    border: 2px solid #fff;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.35);
+    flex-shrink: 0;
+}
+
+.mapa-pin-etiqueta {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: #333;
+    background-color: rgba(255, 255, 255, 0.85);
+    padding: 2px 6px;
+    border-radius: 4px;
+    white-space: nowrap;
+}
+
+.mapa-pin.destacado .mapa-pin-etiqueta {
+    color: #9b59b6;
+    background-color: #fff;
+    font-weight: 700;
+}
+
+.mapa-pin.destacado .mapa-pin-punto {
+    width: 16px;
+    height: 16px;
+}
+
+.mapa-falso-aviso {
+    position: absolute;
+    bottom: 16px;
+    right: 16px;
+    background-color: rgba(30, 30, 30, 0.75);
+    color: #fff;
+    padding: 6px 14px;
+    border-radius: 20px;
+    font-size: 0.72rem;
+    font-weight: 600;
+    letter-spacing: 0.3px;
+}
+
+@media (max-width: 900px) {
+    .mapa-content {
+        flex-direction: column;
+    }
+
+    .sidebar {
+        width: 100%;
+        max-width: 100%;
+        min-width: auto;
+        max-height: 50vh;      /* Mitad de pantalla para la lista */
+        border-right: none;
+        border-bottom: 1px solid #3a3a3a;
+    }
+
+    .mapa-container {
+        min-height: 50vh;
+    }
+
+    .Lista-Lugares {
+        padding: 12px;
+    }
+
+    .mapa-falso-ciudad {
+        font-size: 1.1rem;
+    }
+}

@@ -14,6 +14,7 @@ import Register from './views/Reg.jsx'
 import Menu from './views/Menu.jsx'
 import Perfil from './views/Perfil.jsx'
 import Friends from './views/Friends.jsx'
+import Mapa from './views/Mapa.jsx'
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
@@ -25,6 +26,7 @@ createRoot(document.getElementById('root')).render(
           {/* <Route path='/perfil/' element={<Perfil/>}/> */}
           <Route path='/perfil/:id?' element={<Perfil/>}/>
           <Route path='/Friends' element={<Friends/>}></Route>
+          <Route path='/Explore' element={<Mapa/>}></Route>
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
         </Routes>

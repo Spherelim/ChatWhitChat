@@ -3,13 +3,7 @@
 </div>
 
 
-<h1 align=center>ChatWhitChat</h1>
-
-<p> Proyecto personal, solo para practicar y desarrollar una pagina web </p>
-
-<img src="https://i.pinimg.com/webp85/1200x/32/18/a3/3218a3a39fbe573301b60438f0762167.webp" align=center/>
-
-<br>
+<h1 align=center>ChatWithChat</h1>
 
 <div align=center>
     <h1>Instrucciones de Ejecución</h1>
