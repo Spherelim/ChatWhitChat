@@ -1,0 +1,219 @@
+.Venues-grid {
+    width: 100%;
+    background-color: #345F7C;
+    color: #fff;
+    user-select: none;
+    border-radius: 14px;
+    overflow: hidden;
+    box-shadow: 0 6px 14px rgba(0, 0, 0, 0.25);
+    position: relative;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    flex-shrink: 0;
+}
+
+.Venues-grid:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
+}
+.Venues-grid:active {
+    transform: translateY(2px);
+}
+
+/* ===== Foto (compacta, arriba) ===== */
+.venue-look {
+    position: relative;
+    width: 100%;
+    height: 90px;
+    background: #2a4a5e;
+    overflow: hidden;
+}
+
+.venue-img {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.5s ease;
+}
+
+.Venues-grid:hover .venue-img {
+    transform: scale(1.05);
+}
+
+.venue-reaction {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    padding: 8px;
+    z-index: 2;
+    gap: 8px;
+    pointer-events: none; /* Solo los hijos reciben clicks */
+}
+
+.venue-reaction > * {
+    pointer-events: auto;
+}
+
+/* Botón de favorito (estrella) */
+.btn-favorite {
+    width: 24px;
+    height: 24px;
+    padding: 5px;
+    background-color: rgba(30, 45, 58, 0.75);
+    backdrop-filter: blur(4px);
+    border-radius: 50%;
+    cursor: pointer;
+    transition: all 0.2s ease-in-out;
+    flex-shrink: 0;
+}
+
+.btn-favorite:hover {
+    transform: scale(1.1);
+    background-color: rgba(78, 159, 190, 0.9);
+}
+
+.btn-favorite:active {
+    transform: scale(0.9);
+}
+
+/* Botón Agregar / Eliminar */
+.btn-add,
+.btn-delete {
+    color: #fff;
+    border: none;
+    padding: 5px 12px;
+    border-radius: 20px;
+    font-size: 0.7rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s ease-in-out;
+    backdrop-filter: blur(4px);
+    white-space: nowrap;
+}
+
+.btn-add {
+    background-color: rgba(30, 45, 58, 0.75);
+}
+
+.btn-add:hover {
+    background-color: #4e9fbe;
+}
+
+.btn-add:active {
+    transform: scale(0.95);
+}
+
+.btn-delete {
+    background-color: #FE4343;
+}
+
+.btn-delete:hover {
+    background-color: #ff5e5e;
+}
+
+.btn-delete:active {
+    transform: scale(0.95);
+}
+
+/* ===== Info (nombre + etiqueta + descripción, abajo) ===== */
+.venue-info {
+    padding: 10px 12px 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.venue-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.venue-name {
+    font-size: 1rem;
+    font-weight: 800;
+    color: #fff;
+    margin: 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    flex-shrink: 1;
+    min-width: 0;
+}
+
+.venue-tag {
+    background-color: #4e9fbe;
+    color: #fff;
+    font-size: 0.7rem;
+    font-style: italic;
+    padding: 4px 12px;
+    border-radius: 8px;
+    margin: 0;
+    white-space: nowrap;
+    flex-shrink: 0;
+}
+
+/* Botón Compartir, al final de la fila del encabezado */
+.btn-compartir {
+    width: 25px;
+    height: auto;
+    padding: 3px;
+    margin-left: auto;
+    background-color: rgba(255, 255, 255, 0.12);
+    border-radius: 50%;
+    cursor: pointer;
+    flex-shrink: 0;
+    transition: all 0.2s ease-in-out;
+}
+
+.btn-compartir:hover {
+    transform: scale(1.1) rotate(-10deg);
+    background-color: rgba(255, 255, 255, 0.25);
+}
+
+.btn-compartir:active {
+    transform: scale(0.9);
+}
+
+.venue-description {
+    font-size: 0.75rem;
+    line-height: 1.4;
+    font-style: italic;
+    color: #e8f1f7;
+}
+
+.venue-description p {
+    margin: 0;
+}
+
+@media (max-width: 768px) {
+    .Venues-grid {
+        border-radius: 12px;
+    }
+
+    .venue-look {
+        height: 80px;
+    }
+
+    .venue-name {
+        font-size: 0.9rem;
+    }
+
+    .venue-tag {
+        font-size: 0.65rem;
+        padding: 3px 10px;
+    }
+
+    .venue-info {
+        padding: 8px 10px 10px;
+    }
+
+    .venue-description {
+        font-size: 0.7rem;
+    }
+}

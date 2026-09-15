@@ -1,6 +1,7 @@
 import '../style/Friends.css'
 
 import NavBar from '../includes/NavBar'
+import ToggleChat from '../includes/ToggleChat'
 import UserTag from '../components/UserTag'
 
 import { useState, useEffect, useCallback, useRef } from 'react'
@@ -96,6 +97,7 @@ export default function Friends(){
         return (
             <>
                 <NavBar/>
+                <ToggleChat/>
                 <div className='Friends-Container'>
                     <p>Cargando usuarios...</p>
                 </div>
@@ -107,6 +109,7 @@ export default function Friends(){
         return (
             <>
                 <NavBar/>
+                <ToggleChat/>
                 <div className='Friends-Container'>
                     <div className='Search-Container'>
                         <div className='search-wrapper'>
@@ -122,6 +125,8 @@ export default function Friends(){
     return(
         <>
             <NavBar/>
+            <ToggleChat/>
+
             <div className='Search-Container'>
                 <div className='search-wrapper'>
                     {/* <svg className="search-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">

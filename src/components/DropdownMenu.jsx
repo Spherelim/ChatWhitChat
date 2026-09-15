@@ -4,7 +4,7 @@ import { useState, useRef, useEffect} from 'react';
 
 import DefaultImage from '../images/Cat.jpg'
 
-export default function DropdownMenu({ user, onProfile, onFriend, onLogout}){
+export default function DropdownMenu({ user, onProfile, onFriend, onExplore, onLogout}){
     const [isOpen, setIsOpen] = useState(false);
     const dropdownRef = useRef(null);
 
@@ -32,6 +32,11 @@ export default function DropdownMenu({ user, onProfile, onFriend, onLogout}){
     const handleFriend = () => {
         setIsOpen(false);
         onFriend();
+    }
+
+    const handleExplore = () => {
+        setIsOpen(false);
+        onExplore();
     }
 
     const handleLogout = () => {
@@ -77,7 +82,15 @@ export default function DropdownMenu({ user, onProfile, onFriend, onLogout}){
                             <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" strokeWidth="2" strokeLinecap="round"/>
                             <circle cx="12" cy="7" r="4" strokeWidth="2"/>
                         </svg>
-                        Buscar Amigo
+                        Buscar Usuario
+                    </button>
+
+                    <button className="dropdown-item" onClick={handleExplore}>
+                        <svg className="dropdown-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" strokeWidth="2" strokeLinecap="round"/>
+                            <circle cx="12" cy="7" r="4" strokeWidth="2"/>
+                        </svg>
+                        Explorar y Itinerario
                     </button>
                     
                     <div className="dropdown-divider"></div>

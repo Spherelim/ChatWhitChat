@@ -49,6 +49,10 @@ export default function NavBar() {
         navigate('/Friends');
     }
 
+    const handleExplore = () => {
+        navigate('/Explore');
+    }
+
     const handleHome = () => {
         navigate('/');
     }
@@ -69,6 +73,7 @@ export default function NavBar() {
                     onProfile={handleProfile}
                     // onFriend={() => AlertInformation("No disponible, En Proceso...")}
                     onFriend={handleFriend}
+                    onExplore={handleExplore}
                     onLogout={handleLogout}
                 />
             </>

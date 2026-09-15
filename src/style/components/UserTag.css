@@ -34,7 +34,7 @@
 
     min-height: 90px;
 
-    padding: 15px 15px 15px 110px;
+    padding: 10px 15px 15px 110px;
 
     background: #ece7e7dc;
 }
@@ -101,4 +101,54 @@
     grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
     gap: 20px;
     padding: 10px;
+}
+
+.btn-follow {
+    /* Estilos */
+
+    background-color: #4e9fbe;
+    color: #fff;
+    border-radius: 30px;
+
+    padding: 5px 10px;
+    font-size: 1rem;
+    cursor: pointer;
+    border: 0;
+
+    user-select: none;
+
+    transition: all 0.2s ease-in-out;
+
+}
+
+.btn-follow:hover {
+    background-color: #49b9fa;
+    color: #fff;
+    transform: scale(1.1);
+}
+
+.btn-follow:active {
+    background-color: #36d131;
+    color: #fff;
+    transform: scale(0.9);
+}
+
+.btn-follow.following {
+    background-color: #36d131;
+    color: #fff;
+    user-select: none;
+
+    transition: all 0.2s ease-in-out;
+}
+
+.btn-follow.following:hover{
+    background-color: #FE4343;
+    color: #fff;
+    transform: scale(1.1);
+}
+
+.btn-follow.following:active{
+    background-color: #721e1e;
+    color: #fff;
+    transform: scale(0.9);
 }

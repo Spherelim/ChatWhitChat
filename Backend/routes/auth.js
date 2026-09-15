@@ -64,7 +64,7 @@ router.post("/send-verification",async(req,res) =>{
                     to: email,
                     subject: "Verifica tu cuenta en ChatWhitChat",
                     html: `<div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-                            <h1 style="color: #4e9fbe;">¡Bienvenido a ChatWhitChat!</h1>
+                            <h1 style="color: #4e9fbe;">¡Bienvenido a ChatWithChat!</h1>
                             <p>Estamos emocionados de tenerte con nosotros. Para completar tu registro, ingresa el siguiente código de verificación:</p>
                             <div style="background: #f5f5f5; padding: 20px; text-align: center; font-size: 32px; font-weight: bold; letter-spacing: 10px; border-radius: 10px; margin: 20px 0;">
                                 ${Codigo}
@@ -225,7 +225,7 @@ router.post("/resend-verification",async (req, res)=>{
                     to: email,
                     subject: "Verifica tu cuenta en ChatWhitChat",
                     html: `<div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-                            <h1 style="color: #4e9fbe;">¡Bienvenido a ChatWhitChat!</h1>
+                            <h1 style="color: #4e9fbe;">¡Bienvenido a ChatWithChat!</h1>
                             <p>Estamos emocionados de tenerte con nosotros. Para completar tu registro, ingresa el siguiente código de verificación:</p>
                             <div style="background: #f5f5f5; padding: 20px; text-align: center; font-size: 32px; font-weight: bold; letter-spacing: 10px; border-radius: 10px; margin: 20px 0;">
                                 ${Codigo}
@@ -358,7 +358,7 @@ router.get("/friends",(req,res)=>{
                     foto:user.Foto,
                     banner: user.Banner,
                     username: user.Nombre_De_Usuario,
-                    correo: user.Correo,
+                    email: user.Correo,
                     biografia: user.Biografia,
                     estado: user.Estado
                 }));
@@ -397,7 +397,7 @@ router.get("/friends/search",(req,res)=>{
                     foto:user.Foto,
                     banner: user.Banner,
                     username: user.Nombre_De_Usuario,
-                    correo: user.Correo,
+                    email: user.Correo,
                     biografia: user.Biografia,
                     estado: user.Estado
                 }));
@@ -431,7 +431,7 @@ router.get("/Perfil/Usuario/:id",(req,res)=>{
                     foto:result[0].Foto,
                     banner:result[0].Banner,
                     username:result[0].Nombre_De_Usuario,
-                    correo:result[0].correo,
+                    email:result[0].Correo,
                     bio:result[0].Biografia,
                     estado:result[0].Estado
                 };

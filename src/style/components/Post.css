@@ -1,0 +1,294 @@
+
+.Post-container {
+    width: 100%;
+    max-width: 640px;
+    margin: 20px auto;
+    background: #ffffff;
+    border-radius: 20px;
+    overflow: hidden;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+    font-family: 'CWC', sans-serif;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.Post-container:hover {
+    box-shadow: 0 6px 25px rgba(0, 0, 0, 0.15);
+}
+
+.post-perfil-info {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 12px 16px;
+    background: #4e9fbe;
+    color: #ffffff;
+    position: relative;
+    flex-wrap: wrap;
+    user-select: none;
+}
+
+.avatar-img-post {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid #ffffff;
+    background: #ffffff;
+    cursor: pointer;
+    transition: transform 0.3s ease-in-out;
+    flex-shrink: 0;
+}
+
+.avatar-img-post:hover {
+    transform: scale(1.1);
+}
+
+.avatar-img-post:active {
+    transform: scale(0.95);
+}
+
+.username-post {
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: #ffffff;
+    margin: 0;
+    cursor: pointer;
+    transition: all 0.3s ease-in-out;
+}
+
+.username-post:hover {
+    transform: scale(1.05);
+    color: #e0f4ff;
+}
+
+.username-post:active {
+    transform: scale(0.95);
+}
+
+.user-email-post {
+    font-size: 0.75rem;
+    font-style: italic;
+    color: rgba(255, 255, 255, 0.85);
+    margin: 0;
+}
+
+.date-post {
+    font-size: 0.7rem;
+    color: rgba(255, 255, 255, 0.85);
+    margin-left: auto;
+    white-space: nowrap;
+}
+
+/* Botón Seguir en el header */
+.post-perfil-info .btn-follow {
+    background-color: #345F7C;
+    color: #fff;
+    border: none;
+    border-radius: 20px;
+    padding: 4px 14px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease-in-out;
+    margin: 0;
+}
+
+.post-perfil-info .btn-follow:hover {
+    background-color: #345F7C;
+    transform: scale(1.05);
+}
+
+.post-perfil-info .btn-follow:active {
+    background-color: #36d131;
+    color: #fff;
+    transform: scale(0.95);
+}
+
+.post-perfil-info .btn-follow.following {
+    background-color: #36d131;
+    color: #ffffff;
+}
+
+.post-perfil-info .btn-follow.following:hover {
+    background-color: #FE4343;
+}
+
+/* Icono de reporte */
+.report {
+    width: 26px;
+    height: 26px;
+    cursor: pointer;
+    transition: all 0.2s ease-in-out;
+    margin-left: 4px;
+}
+
+.report:hover {
+    transform: scale(1.15);
+    filter: brightness(1.2);
+}
+
+.report:active {
+    transform: scale(0.9);
+}
+
+.post-info {
+    padding: 16px;
+    background: #474747;
+}
+
+.description-post {
+    font-size: 0.9rem;
+    line-height: 1.5;
+    color: #d1d1d1;
+    text-align: justify;
+    margin-bottom: 14px;
+    word-wrap: break-word;
+}
+
+.multimedia-post {
+    display: grid;
+    grid-template-columns: 1.6fr 1fr;
+    grid-template-rows: 1fr 1fr;
+    gap: 8px;
+    height: 420px;
+    border-radius: 16px;
+    overflow: hidden;
+}
+
+.multimedia-post img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 12px;
+    cursor: pointer;
+    transition: transform 0.3s ease;
+}
+
+.multimedia-post img:hover {
+    transform: scale(1.02);
+}
+
+/* Primera imagen (grande, ocupa las 2 filas) */
+.multimedia-post img:nth-child(1) {
+    grid-row: 1 / 3;
+    grid-column: 1;
+}
+
+/* Segunda imagen (esquina superior derecha) */
+.multimedia-post img:nth-child(2) {
+    grid-row: 1;
+    grid-column: 2;
+}
+
+/* Tercera imagen (esquina inferior derecha) */
+.multimedia-post img:nth-child(3) {
+    grid-row: 2;
+    grid-column: 2;
+    position: relative;
+}
+
+/* Si solo hay una imagen, que ocupe todo */
+.multimedia-post img:only-child {
+    grid-column: 1 / 3;
+    grid-row: 1 / 3;
+}
+
+/* Contador de imágenes extra*/
+.multimedia-more {
+    position: absolute;
+    bottom: 8px;
+    right: 8px;
+    background: rgba(0, 0, 0, 0.6);
+    color: #ffffff;
+    font-size: 1.2rem;
+    font-weight: 700;
+    padding: 6px 12px;
+    border-radius: 8px;
+    pointer-events: none;
+}
+
+/* Contenedor relativo para la tercera imagen */
+.multimedia-post .img-wrapper {
+    position: relative;
+    overflow: hidden;
+    border-radius: 12px;
+}
+
+.reaction-post {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 10px 16px;
+    background: #f5f5f5;
+    border-top: 1px solid #e0e0e0;
+    user-select: none;
+}
+
+.react,
+.comment {
+    width: 26px;
+    height: 26px;
+    cursor: pointer;
+    transition: all 0.2s ease-in-out;
+}
+
+.react:hover,
+.comment:hover {
+    transform: scale(1.2);
+}
+
+.react:active,
+.comment:active {
+    transform: scale(0.9);
+}
+
+.reaction-count,
+.comment-count {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: #333;
+    margin-right: 12px;
+}
+
+.comment {
+    margin-left: 8px;
+}
+
+@media (max-width: 640px) {
+    .Post-container {
+        border-radius: 20;
+        margin: 10px 0;
+        max-width: 100%;
+    }
+
+    .post-perfil-info {
+        padding: 10px 12px;
+        gap: 8px;
+    }
+
+    .avatar-img-post {
+        width: 40px;
+        height: 40px;
+    }
+
+    .username-post {
+        font-size: 0.95rem;
+    }
+
+    .user-email-post {
+        font-size: 0.7rem;
+    }
+
+    .date-post {
+        font-size: 0.65rem;
+    }
+
+    .multimedia-post {
+        height: 300px;
+        gap: 4px;
+    }
+
+    .description-post {
+        font-size: 0.85rem;
+    }
+}
