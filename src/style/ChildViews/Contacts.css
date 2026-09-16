@@ -1,0 +1,135 @@
+.Contacts-container {
+    width: 100%;
+    height: 100%;
+    flex-shrink: 0;
+
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+
+    user-select: none;
+    min-height: 0;              /* CLAVE para que el scroll del hijo funcione */
+
+    transition: width 0.35s ease-in-out;
+}
+
+/* --- Modo colapsado: solo la tira de avatares --- */
+.Contacts-container.is-collapsed {
+    width: 56px;
+}
+
+.Contacts-container.is-collapsed .search-area {
+    display: none;
+}
+
+/* --- Buscador + botón de grupo --- */
+.search-area {
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 4px 2px;
+}
+
+.contacts-search {
+    flex: 1;
+    min-width: 0;
+    height: 32px;
+    padding: 0 12px;
+
+    border: none;
+    border-radius: 16px;
+    outline: none;
+
+    background-color: #ffffff;
+    color: #2b2b2b;
+    font-size: 0.85rem;
+}
+
+.contacts-search::placeholder {
+    color: #9a9a9a;
+}
+
+.btn-grupo-nuevo {
+    flex-shrink: 0;
+    width: 32px;
+    height: 32px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    border: none;
+    border-radius: 50% 50% 50% 0;
+    background-color: #2b2b2b;
+    cursor: pointer;
+
+    transition: background-color 0.2s ease-in-out, transform 0.2s ease-in-out;
+}
+
+.btn-grupo-nuevo:hover {
+    background-color: #3c3c3c;
+    transform: scale(1.05);
+}
+
+.btn-grupo-nuevo:active {
+    background-color: #2b2b2b;
+    transform: scale(0.95);
+}
+
+.btn-grupo-nuevo img {
+    width: 18px;
+    height: auto;
+    pointer-events: none;
+}
+
+/* --- Zona scrolleable de contactos --- */
+.Contacts-area {
+    flex: 1;
+    min-height: 0;
+    overflow-y: auto;
+    overflow-x: hidden;
+
+    background-color: #2b2b2b;
+    border-radius: 10px;
+    padding: 6px;
+
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.Contacts-container.is-collapsed .Contacts-area {
+    padding: 6px 4px;
+    align-items: center;
+    scrollbar-width: none;
+}
+
+.Contacts-container.is-collapsed .Contacts-area::-webkit-scrollbar {
+    display: none;
+}
+
+/* Scrollbar bonita */
+.Contacts-area::-webkit-scrollbar {
+    width: 6px;
+}
+
+.Contacts-area::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.Contacts-area::-webkit-scrollbar-thumb {
+    background-color: #4e9fbe;
+    border-radius: 3px;
+}
+
+.Contacts-area::-webkit-scrollbar-thumb:hover {
+    background-color: #6bb6d2;
+}
+
+.contacts-empty {
+    color: #8a8a8a;
+    font-size: 0.8rem;
+    text-align: center;
+    margin-top: 16px;
+}
