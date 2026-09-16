@@ -9,22 +9,561 @@
     flex-direction: column;
     min-height: 100vh;
     width: 100%;
+    background-color: #1b2733;
+
+    /* El NavBar es "fixed", así que sale del flujo normal.
+       Este padding empuja el contenido para que no quede tapado.
+       Si tu NavBar mide otra altura, solo cambia este valor. */
+    padding-top: 70px;
 }
 
-.Admin-Container{
+.Admin-Container {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    justify-content: flex-start;
     flex: 1;
+    padding: 25px 40px;
+    gap: 0;
+}
+
+/* el espacio de las pestañas */
+.Admin-Header {
+    font-size: 1rem;
+    font-weight: bold;
+    color: #fff;
+
+    display: flex;
+    align-items: flex-end;
+    gap: 10px;
+
+    padding: 0 10px;
+
+    transition: all 0.3s ease-in-out;
+}
+
+/* es el espacio de los reportes: ahora en fila (3 columnas) */
+.Reporte-Content{
+    background-color: #345F7C;
+    padding: 30px;
+    gap: 25px;
+    user-select: none;
+
+    display: flex;
+    align-items: flex-start;
+    border-radius: 12px;
+}
+
+/* Pestañas */
+.Pestaña-Usuarios, .Pestaña-Post,
+.Pestaña-Comentarios, .Pestaña-ERRORES{
+    background-color: #30475B;
+    padding: 12px 20px;
+
+    border-top-left-radius: 12px;
+    border-top-right-radius: 12px;
+
+    user-select: none;
+    cursor: pointer;
+
+    transition: all 0.2s ease-in-out;
+}
+
+.Pestaña-Usuarios:hover ,.Pestaña-Post:hover,
+.Pestaña-Comentarios:hover ,.Pestaña-ERRORES:hover{
+    background-color: #345F7C;
+    transform: translateY(-4px);
+}
+
+.Pestaña-Usuarios:active ,.Pestaña-Post:active,
+.Pestaña-Comentarios:active ,.Pestaña-ERRORES:active{
+    background-color: #30475B;
+    transform: translateY(3px);
+}
+
+/* Pestaña seleccionada actualmente */
+.Pestaña-Usuarios.activa, .Pestaña-Post.activa,
+.Pestaña-Comentarios.activa, .Pestaña-ERRORES.activa{
+    background-color: #345F7C;
+}
+
+/* Columna izquierda: lista de reportes */
+.Reportes-Container{
+    background-color: #30475B;
+    padding: 20px;
+    border-radius: 10px;
+
+    display: flex;
+    flex-direction: column;
+
+    width: 280px;
+    flex-shrink: 0;
+    max-height: 70vh;
+    overflow-y: auto;
+}
+
+/* Columna central: area de la informacion del reporte */
+.Reporte-Detalle{
+    color: #fff;
+
+    background-color: #2c2c2c;
+    padding: 25px;
+    border-radius: 10px;
+
+    flex: 1;
+    min-width: 0;
+
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+
+    transition: all 0.2s ease-in-out;
+}
+
+.Detalle-info{
+    background-color: rgba(0, 0, 0,0.25);
+    padding: 20px;
+    border-radius: 8px;
+
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    column-gap: 15px;
+    row-gap: 8px;
+    align-items: center;
+
+    transition: all 0.2s ease-in-out;
+}
+
+.user-Avatar-img{
+    height: 45px;
+    width: 45px;
+    object-fit: cover;
+    border-radius: 50%;
+    grid-row: 1 / span 2;
+
+    transition: all 0.2s ease-in-out;
+}
+
+.Detalle-info .Username{
+    grid-column: 2;
+    grid-row: 1;
+}
+
+.Motivo{
+    grid-column: 3;
+    grid-row: 1;
+    font-style: italic;
+    font-size: 0.85rem;
+    color: #cfcfcf;
+    white-space: nowrap;
+}
+
+.title-description{
+    grid-column: 2 / span 2;
+}
+
+.description{
+    grid-column: 2 / span 2;
+    color: #cfcfcf;
+}
+
+.Detalle-Multimedia{
+    position: relative;
+    width: 100%;
+    aspect-ratio: 4 / 3;
+    max-height: 480px;
+    background-color: rgba(0,0,0,0.15);
+    border-radius: 8px;
+    overflow: hidden;
+
     display: flex;
     align-items: center;
     justify-content: center;
-    text-align: center;
 }
 
-.form-mensaje{
-    background-color: rgb(238, 232, 224);
-    border-radius: 20vh;
+.Detalle-Multimedia img{
+    max-width: 100%;
+    max-height: 100%;
+    width: auto;
+    height: auto;
+    object-fit: contain;
+}
+
+/* Flechas del carrusel */
+.carousel-btn{
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+
+    width: 34px;
+    height: 34px;
+    border: none;
+    border-radius: 50%;
+    background-color: rgba(0, 0, 0, 0.5);
+    color: #fff;
+    font-size: 1rem;
+    cursor: pointer;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    transition: background-color 0.2s ease-in-out, transform 0.2s ease-in-out;
+}
+
+.carousel-btn:hover{
+    background-color: rgba(0, 0, 0, 0.75);
+    transform: translateY(-50%) scale(1.1);
+}
+
+.carousel-btn.prev{ left: 12px; }
+.carousel-btn.next{ right: 12px; }
+
+/* Contador tipo "2/4" */
+.carousel-counter{
+    position: absolute;
+    top: 10px;
+    right: 12px;
+
+    background-color: rgba(0, 0, 0, 0.55);
+    color: #fff;
+    font-size: 0.75rem;
+    padding: 2px 8px;
+    border-radius: 10px;
+}
+
+/* Puntitos de abajo, como Instagram */
+.carousel-dots{
+    position: absolute;
+    bottom: 10px;
+    left: 50%;
+    transform: translateX(-50%);
+
+    display: flex;
+    gap: 6px;
+}
+
+.carousel-dot{
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background-color: rgba(255, 255, 255, 0.4);
+    cursor: pointer;
+
+    transition: background-color 0.2s ease-in-out, transform 0.2s ease-in-out;
+}
+
+.carousel-dot:hover{
+    transform: scale(1.2);
+}
+
+.carousel-dot.active{
+    background-color: #fff;
+}
+
+.Reporte-Detalle > .btn-bad{
+    align-self: flex-end;
+}
+
+.Usuario-Reportado{
+    color: #fff;
+    background-color: #2c2c2c;
+    border-radius: 10px;
+    overflow: hidden;
+
+    width: 260px;
+    flex-shrink: 0;
+
+    display: flex;
+    flex-direction: column;
+
+    transition: all 0.2s ease-in-out;
+}
+
+.user-reported{
+    text-align: center;
+    padding-bottom: 15px;
+}
+
+.user-banner-img{
+    height: 70px;
+    width: 100%;
+    object-fit: cover;
+    display: block;
+
+    transition: all 0.2s ease-in-out;
+}
+
+.user-reported .user-Avatar-img{
+    height: 70px;
+    width: 70px;
+    display: block;
+    margin: -35px auto 0;
+    border: 3px solid #2c2c2c;
+}
+
+.user-reported .Username{
+    margin-top: 8px;
+    font-size: 1.1rem;
+}
+
+.email{
+    display: block;
+    font-size: 0.75rem;
+    color: #8ecdea;
+
+    transition: all 0.2s ease-in-out;
+}
+
+.bio{
+    font-size: 0.8rem;
+    color: #cfcfcf;
+    padding: 0 15px;
+}
+
+.advertencias-acumuladas{
+    background-color: #FE4343;
+    color: #fff;
+    font-size: 0.75rem;
+    font-weight: bold;
+    text-align: center;
+    padding: 6px 10px;
+    margin: 12px 15px 0;
+    border-radius: 20px;
+}
+
+.reported-info{
+    font-size: 0.75rem;
     padding: 15px;
 
-    transition: all 0.3s ease;
+    transition: all 0.2s ease-in-out;
+}
 
-    user-select: none;
+.total-reportes{
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+    margin-bottom: 10px;
+
+    transition: all 0.2s ease-in-out;
+}
+
+.motivo-reporte{
+    text-align: center;
+    font-weight: bold;
+    margin-bottom: 8px;
+}
+
+.motivos-reporte{
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 8px;
+}
+
+.motivos-reporte p{
+    background-color: rgba(0, 0, 0,0.5);
+    border-radius: 20px;
+    padding: 5px 10px;
+    margin: 0;
+
+    transition: all 0.2s ease-in-out;
+}
+
+.buttons-area{
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    padding: 15px;
+    margin-top: auto;
+
+    transition: all 0.2s ease-in-out;
+}
+
+.btn-bad, .btn-normal, .btn-mid{
+    border: none;
+    color: #fff;
+    padding: 10px;
+    border-radius: 8px;
+    font-weight: 800;
+    cursor: pointer;
+
+    transition: all 0.3s ease-in-out;
+}
+
+.btn-bad:hover, .btn-normal:hover, .btn-mid:hover{
+    transform: scale(1.05);
+}
+
+.btn-bad{
+    background-color: #FE4343;
+}
+
+.btn-bad:hover{
+    background-color: #c23232;
+}
+
+.btn-bad:active{
+    background-color: #FE4343;
+    transform: scale(0.9);
+}
+
+.btn-mid{
+    background-color: #F0D927;
+    color: #474747;
+}
+
+.btn-mid:hover{
+    background-color: #b3a11e;
+    color: #171717;
+}
+
+.btn-mid:active{
+    background-color: #F0D927;
+    color: #474747;
+    transform: scale(0.9);
+}
+
+.btn-normal{
+    background-color: #4E9FBE;
+}
+
+.btn-normal:hover{
+    background-color: #38728a;
+}
+
+.btn-normal:active{
+    transform: scale(0.9);
+    background-color: #4E9FBE;
+}
+
+/* Scroll personalizado */
+.Reportes-Container::-webkit-scrollbar {
+    width: 6px;
+}
+
+.Reportes-Container::-webkit-scrollbar-track {
+    background: #2c2c2c;
+}
+
+.Reportes-Container::-webkit-scrollbar-thumb {
+    background: #4e9fbe;
+    border-radius: 3px;
+}
+
+.Reportes-Container::-webkit-scrollbar-thumb:hover {
+    background: #3d8ba6;
+}
+
+/* Tablet / mobile: las 3 columnas se apilan en una sola columna */
+@media (max-width: 1024px) {
+
+    .Admin-Container{
+        padding: 15px;
+    }
+
+    .Admin-Header{
+        flex-wrap: wrap;
+        gap: 6px;
+    }
+
+    .Pestaña-Usuarios, .Pestaña-Post,
+    .Pestaña-Comentarios, .Pestaña-ERRORES{
+        font-size: 0.85rem;
+        padding: 8px 12px;
+    }
+
+    .Reporte-Content{
+        flex-direction: column;
+        padding: 15px;
+        gap: 15px;
+    }
+
+    .Reportes-Container{
+        width: 100%;
+        max-height: 300px;
+    }
+
+    .Reporte-Detalle{
+        width: 100%;
+    }
+
+    .Usuario-Reportado{
+        width: 100%;
+    }
+
+    /* En columna, el detalle del usuario se estira mejor en fila con wrap */
+    .Detalle-info{
+        grid-template-columns: auto 1fr;
+    }
+
+    .Motivo{
+        grid-column: 1 / span 2;
+        grid-row: 2;
+        white-space: normal;
+    }
+
+    .title-description{
+        grid-row: 3;
+    }
+
+    .description{
+        grid-row: 4;
+    }
+}
+
+/* Mobile chico: ajustes extra de tamaño de texto/espaciado */
+@media (max-width: 600px) {
+
+    .Admin-Container{
+        padding: 10px;
+    }
+
+    .Admin-Header{
+        justify-content: center;
+    }
+
+    .Pestaña-Usuarios, .Pestaña-Post,
+    .Pestaña-Comentarios, .Pestaña-ERRORES{
+        font-size: 0.75rem;
+        padding: 6px 10px;
+        flex: 1 1 calc(50% - 6px);
+        text-align: center;
+    }
+
+    .Reporte-Content{
+        padding: 10px;
+        border-radius: 0 0 12px 12px;
+    }
+
+    .Reportes-Container{
+        padding: 12px;
+        max-height: 220px;
+    }
+
+    .Reporte-Detalle{
+        padding: 15px;
+    }
+
+    .Detalle-info{
+        padding: 12px;
+    }
+
+    .user-Avatar-img{
+        height: 36px;
+        width: 36px;
+    }
+
+    .Detalle-Multimedia{
+        max-height: 280px;
+    }
+
+    .carousel-btn{
+        width: 28px;
+        height: 28px;
+    }
+
+    .buttons-area{
+        padding: 12px;
+    }
 }
