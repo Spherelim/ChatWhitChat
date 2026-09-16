@@ -1,0 +1,81 @@
+.report-tag{
+    background-color: #1e1e1e;
+    padding: 10px 10px 10px 16px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 15px;
+    cursor: pointer;
+
+    gap: 20px;
+
+    transition: all 0.3s ease-in-out;
+}
+
+.report-tag:hover .report-icon{
+    transform: scale(1.1);
+}
+
+.report-tag:hover{
+    transform: translateY(-5px);
+}
+
+.report-tag:active .report-icon{
+    transform: scale(0.9);
+}
+
+.report-tag:active{
+    transform: translateY(5px);
+}
+
+.report-icon-container{
+    background-color: #4e9fbe;
+    padding: 8px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+
+    transition: all 0.2s ease-in-out;
+}
+
+.report-icon-container.activo{
+    background-color: #2fa84f;
+}
+
+.report-icon{
+    width: 22px;
+    height: auto;
+    user-select: none;
+
+    transition:all 0.3s ease-in-out;
+}
+
+.report-name{
+    color: #fff;
+    font-weight: 600;
+    user-select: none;
+}
+
+/* Responsividad: en pantallas chicas, tag más compacto */
+@media (max-width: 600px) {
+    .report-tag{
+        padding: 8px 8px 8px 12px;
+        gap: 10px;
+        margin-bottom: 10px;
+    }
+
+    .report-name{
+        font-size: 0.85rem;
+    }
+
+    .report-icon{
+        width: 18px;
+    }
+
+    .report-icon-container{
+        padding: 6px;
+    }
+}

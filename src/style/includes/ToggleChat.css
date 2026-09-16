@@ -1,42 +1,101 @@
+:root {
+    --chat-width: 340px;        /* ancho del panel desplegable */
+    --chat-width-open: 620px;
+    --chat-blue: #4e9fbe;
+    --chat-blue-dark: #3d8ba6;
+    --navbar-height: 52px;      /* altura de tu barra superior */
+}
+
+/* Contenedor que arrastra pestaña + panel */
 .toggle-chat {
     position: fixed;
+    top: var(--navbar-height);
     right: 0;
-    top: 190px;
+    height: calc(100vh - var(--navbar-height) - 12px);
     z-index: 900;
 
-    background-color: #4e9fbe;
+    display: flex;
+    align-items: flex-start;
+
+    /* cerrado: el panel se esconde, la pestaña queda visible */
+    transform: translateX(var(--chat-width));
+    transition: transform 0.35s ease-in-out;
+}
+
+.toggle-chat.is-open {
+    transform: translateX(0);
+}
+
+/* --- Pestaña (el botón que sobresale) --- */
+.eyelash {
+    margin-top: 90px;           /* qué tan abajo queda la pestaña */
+    padding: 10px 12px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    border: none;
+    background-color: var(--chat-blue);
     border-top-left-radius: 12px;
     border-bottom-left-radius: 12px;
 
     cursor: pointer;
     box-shadow: -2px 2px 10px rgba(0, 0, 0, 0.25);
 
-    transition: transform 0.3s ease-in-out,
-                background-color 0.3s ease-in-out,
+    transition: background-color 0.3s ease-in-out,
                 box-shadow 0.3s ease-in-out;
 }
 
-.toggle-chat:hover {
-    transform: translateX(-2px);
-    background-color: #3d8ba6;
+.eyelash:hover {
+    background-color: var(--chat-blue-dark);
     box-shadow: -4px 4px 15px rgba(0, 0, 0, 0.4);
 }
 
-.toggle-chat:active {
-    transform: translateX(5px);
-}
-
-.eyelash {
-    padding: 10px 12px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+.eyelash:active .chat-icon {
+    transform: scale(0.9);
 }
 
 .chat-icon {
     width: 30px;
     height: auto;
     user-select: none;
-    transition: transform 0.3s ease-in-out;
+    pointer-events: none;
+    transition: transform 0.2s ease-in-out;
 }
 
+/* el icono gira un poco cuando está abierto */
+.toggle-chat.is-open .chat-icon {
+    transform: rotate(-90deg);
+}
+
+/* --- Panel / "página" desplegable --- */
+.chat-panel {
+    width: var(--chat-width);
+    height: 100%;
+
+    background-color: var(--chat-blue);
+    border-top-left-radius: 12px;
+    border-bottom-left-radius: 12px;
+    box-shadow: -2px 2px 14px rgba(0, 0, 0, 0.35);
+
+    padding: 8px;
+    box-sizing: border-box;
+    overflow: hidden;           /* el scroll vive adentro, en Contacts */
+
+    display: flex;
+    gap: 8px;
+
+    transition: width 0.35s ease-in-out;
+}
+
+.toggle-chat.chat-open .chat-panel {
+    width: var(--chat-width-open);
+}
+
+@media (max-width: 700px) {
+    :root {
+        --chat-width: 85vw;
+        --chat-width-open: 95vw;
+    }
+}

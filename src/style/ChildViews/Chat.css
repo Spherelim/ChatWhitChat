@@ -1,0 +1,256 @@
+.Chat-container {
+    flex: 1;
+    min-width: 0;
+    min-height: 0;
+    height: 100%;
+
+    display: flex;
+    flex-direction: column;
+
+    background-color: #2b2b2b;
+    border-radius: 10px;
+    overflow: hidden;
+
+    user-select: none;
+
+    animation: chat-in 0.25s ease-in-out;
+}
+
+@keyframes chat-in {
+    from { opacity: 0; transform: translateX(12px); }
+    to   { opacity: 1; transform: translateX(0); }
+}
+
+/* ---------- Cabecera ---------- */
+.chat-header {
+    flex-shrink: 0;
+
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+
+    padding: 8px 10px;
+    background-color: #3a3a3a;
+}
+
+.chat-user {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    min-width: 0;
+}
+
+.chat-back {
+    display: none;              /* solo se ve en pantallas chicas */
+    width: 26px;
+    height: 26px;
+    border: none;
+    border-radius: 50%;
+    background-color: transparent;
+    cursor: pointer;
+}
+
+.chat-back img {
+    width: 16px;
+    transform: rotate(90deg);
+}
+
+.chat-user-img {
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    object-fit: cover;
+    background-color: #d9d9d9;
+    flex-shrink: 0;
+}
+
+.chat-user-info {
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+}
+
+.chat-user-name {
+    font-size: 0.8rem;
+    font-weight: 700;
+    color: #ffffff;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.chat-user-status {
+    font-size: 0.7rem;
+    color: #b5b5b5;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.calling-icons {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-shrink: 0;
+}
+
+.calling-icons img {
+    width: 32px;
+    height: 32px;
+    padding: 6px;
+    box-sizing: border-box;
+
+    border-radius: 50%;
+    background-color: #4e9fbe;
+    cursor: pointer;
+
+    transition: background-color 0.2s ease-in-out, transform 0.2s ease-in-out;
+}
+
+.calling-icons img:hover {
+    background-color: #3d8ba6;
+    transform: scale(1.05);
+}
+
+.calling-icons img:active {
+    background-color: #4e9fbe;
+    transform: scale(0.95);
+}
+
+/* ---------- Mensajes ---------- */
+.chat-messages {
+    flex: 1;
+    min-height: 0;              /* CLAVE para el scroll */
+    overflow-y: auto;
+    overflow-x: hidden;
+
+    padding: 12px 14px;
+
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.chat-messages::-webkit-scrollbar {
+    width: 6px;
+}
+
+.chat-messages::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.chat-messages::-webkit-scrollbar-thumb {
+    background-color: #4e9fbe;
+    border-radius: 3px;
+}
+
+/* ---------- Barra de escritura ---------- */
+.chat-texting {
+    flex-shrink: 0;
+
+    display: flex;
+    align-items: center;
+    gap: 10px;
+
+    padding: 10px 12px;
+}
+
+/* La "píldora" que contiene emoji + input + clip */
+.texting-box {
+    flex: 1;
+    min-width: 0;
+
+    display: flex;
+    align-items: center;
+    gap: 8px;
+
+    height: 40px;
+    padding: 0 12px;
+    box-sizing: border-box;
+
+    background-color: #d9d9d9;
+    border-radius: 20px;
+}
+
+.texting {
+    flex: 1;
+    min-width: 0;
+
+    border: none;
+    outline: none;
+    background: transparent;
+
+    font-size: 0.85rem;
+    color: #2b2b2b;
+}
+
+.texting::placeholder {
+    color: #6f6f6f;
+}
+
+.texting-emojis,
+.texting-Multimedia {
+    width: 20px;
+    height: 20px;
+    object-fit: contain;
+    flex-shrink: 0;
+    cursor: pointer;
+    opacity: 0.85;
+    transition: opacity 0.2s ease-in-out, transform 0.2s ease-in-out;
+}
+
+.texting-emojis:hover,
+.texting-Multimedia:hover {
+    opacity: 1;
+    transform: scale(1.1);
+}
+
+/* Botón de enviar, separado de la píldora */
+.texting-send {
+    flex-shrink: 0;
+    width: 40px;
+    height: 40px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    border: none;
+    border-radius: 50%;
+    background-color: #4e9fbe;
+    cursor: pointer;
+
+    transition: background-color 0.2s ease-in-out, transform 0.2s ease-in-out;
+}
+
+.texting-send:hover {
+    background-color: #3d8ba6;
+    transform: scale(1.05);
+}
+
+.texting-send:active {
+    transform: scale(0.92);
+}
+
+.texting-send img {
+    width: 20px;
+    height: 20px;
+    object-fit: contain;
+    pointer-events: none;
+}
+
+/* ---------- Responsive: el chat tapa la lista ---------- */
+@media (max-width: 700px) {
+    .chat-back {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transform: rotate(-90deg);
+        transition: all 0.35s ease-in-out;
+    }
+
+    .chat-back:hover{
+        transform: rotate(-270deg);
+    }
+}
