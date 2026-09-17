@@ -3,6 +3,7 @@ import '../style/Mapa.css'
 
 import NavBar from '../includes/NavBar';
 import ToggleChat from '../includes/ToggleChat';
+import ToggleItinerario from '../includes/ToggleItinerario';
 import VenueTag from '../components/VenueTag';
 
 // Marcadores de ejemplo. Cuando conectes la API de Google Maps,
@@ -52,6 +53,7 @@ export default function Mapa() {
     return (
         <div className='mapa-layout'>
             <NavBar />
+            <ToggleItinerario/>
             <ToggleChat/>
 
             <div className='mapa-content'>

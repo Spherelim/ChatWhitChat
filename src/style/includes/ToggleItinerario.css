@@ -1,0 +1,100 @@
+:root {
+    --itinerario-width: 340px;         /* ancho solo con la lista */
+    --itinerario-width-open: 660px;    /* ancho con un itinerario abierto */
+    --itinerario-blue: #4e9fbe;
+    --itinerario-blue-dark: #3d8ba6;
+    --navbar-height: 52px;
+    --sidebar-width: 380px;            /* debe coincidir con .sidebar en Mapa.css */
+}
+
+.Toggle-Itinerario {
+    position: fixed;
+    top: var(--navbar-height);
+    left: var(--sidebar-width);        /* pegado al borde derecho del sidebar */
+    height: calc(100vh - var(--navbar-height) - 12px);
+    z-index: 800;                      /* por debajo del sidebar (ver Mapa.css) */
+
+    display: flex;
+    align-items: flex-start;
+
+    /* cerrado: se corre a la izquierda su propio ancho -> queda tapado por el sidebar */
+    transform: translateX(calc(-1 * var(--itinerario-width)));
+    transition: transform 0.35s ease-in-out;
+}
+
+.Toggle-Itinerario.is-open {
+    transform: translateX(0);
+}
+
+/* --- Panel / "página" desplegable --- */
+.itinerario-panel {
+    width: var(--itinerario-width);
+    height: 100%;
+
+    background-color: #141414;
+    border-top-right-radius: 12px;
+    border-bottom-right-radius: 12px;
+    box-shadow: 2px 2px 14px rgba(0, 0, 0, 0.4);
+
+    padding: 10px;
+    box-sizing: border-box;
+    overflow: hidden;
+    display: flex;
+
+    transition: width 0.35s ease-in-out;
+}
+
+/* al abrir un itinerario específico, el panel se ensancha */
+.Toggle-Itinerario.itinerario-open .itinerario-panel {
+    width: var(--itinerario-width-open);
+}
+
+/* --- Pestaña (a la derecha del panel, mirando al mapa) --- */
+.eyelash-itinerario {
+    margin-top: 90px;
+    padding: 10px 12px;
+
+    border: none;
+    background-color: var(--itinerario-blue);
+    border-top-right-radius: 12px;
+    border-bottom-right-radius: 12px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    cursor: pointer;
+    box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.25);
+
+    transition: background-color 0.3s ease-in-out,
+                box-shadow 0.3s ease-in-out;
+}
+
+.eyelash-itinerario:hover {
+    background-color: var(--itinerario-blue-dark);
+    box-shadow: 4px 4px 15px rgba(0, 0, 0, 0.4);
+}
+
+.eyelash-itinerario:active .itinerario-icon {
+    transform: scale(0.9);
+}
+
+.itinerario-icon {
+    width: 26px;
+    height: auto;
+    user-select: none;
+    pointer-events: none;
+    transition: transform 0.3s ease-in-out;
+}
+
+.Toggle-Itinerario.is-open .itinerario-icon {
+    transform: rotate(20deg);
+}
+
+@media (max-width: 900px) {
+    :root {
+        --sidebar-width: 0px;         /* en mobile el sidebar ya no está a un lado */
+        --itinerario-width: 85vw;
+        --itinerario-width-open: 95vw;
+    }
+}

@@ -1,0 +1,95 @@
+.Itinerarios-Container {
+    width: 100%;
+    height: 100%;
+
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+
+    min-height: 0;               /* CLAVE para que el scroll del hijo funcione */
+}
+
+/* --- Buscador + botón agregar --- */
+.Search-And-Add {
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.Search-Itinerario {
+    flex: 1;
+    min-width: 0;
+    height: 34px;
+    padding: 0 14px;
+
+    border: none;
+    border-radius: 17px;
+    outline: none;
+
+    background-color: #ffffff;
+    color: #2b2b2b;
+    font-size: 0.85rem;
+}
+
+.Search-Itinerario::placeholder {
+    color: #9a9a9a;
+}
+
+.Add-Itinerario {
+    flex-shrink: 0;
+    width: 34px;
+    height: 34px;
+
+    border: none;
+    border-radius: 8px;
+    background-color: var(--itinerario-blue, #4e9fbe);
+    color: #fff;
+    font-size: 1.2rem;
+    line-height: 1;
+    cursor: pointer;
+
+    transition: background-color 0.2s ease-in-out, transform 0.2s ease-in-out;
+}
+
+.Add-Itinerario:hover {
+    background-color: var(--itinerario-blue-dark, #3d8ba6);
+    transform: scale(1.05);
+}
+
+.Add-Itinerario:active {
+    transform: scale(0.92);
+}
+
+/* --- Lista scrolleable de tarjetas --- */
+.Itinerarios-Cards {
+    flex: 1;
+    min-height: 0;
+    overflow-y: auto;
+    overflow-x: hidden;
+
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    padding-right: 2px;
+}
+
+.Itinerarios-Cards::-webkit-scrollbar {
+    width: 6px;
+}
+
+.Itinerarios-Cards::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.Itinerarios-Cards::-webkit-scrollbar-thumb {
+    background-color: #4e9fbe;
+    border-radius: 3px;
+}
+
+.itinerarios-empty {
+    color: #8a8a8a;
+    font-size: 0.8rem;
+    text-align: center;
+    margin-top: 16px;
+}
