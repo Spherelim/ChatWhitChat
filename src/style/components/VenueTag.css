@@ -19,6 +19,29 @@
     transform: translateY(2px);
 }
 
+.Venues-grid.compact {
+    /* display: flex; */
+    /* flex-direction: row; */
+    /* align-items: center; */
+    width: 220px;
+    flex-shrink: 0;
+}
+/* .Venues-grid.compact:hover { transform: none; } */
+
+.Venues-grid.compact .venue-look {
+    /* width: 60px; */
+    /* height: 60px; */
+    /* flex-shrink: 0; */
+}
+.Venues-grid.compact .venue-info {
+    /* padding: 6px 10px; */
+    /* flex: 1; */
+    /* min-width: 0; */
+}
+.Venues-grid.compact .venue-name { font-size: 0.85rem; }
+.Venues-grid.compact .venue-tag { font-size: 0.6rem; padding: 2px 8px; }
+.Venues-grid.compact .venue-description { display: none; }
+
 /* ===== Foto (compacta, arriba) ===== */
 .venue-look {
     position: relative;

@@ -7,7 +7,7 @@ import FavoritoIcon_Active from '../icons/ui/venue/estrella (1).png';
 import Compartir from '../icons/ui/venue/rehacer (1).png';
 
 
-export default function VenueTag(){
+export default function VenueTag({ compact = false}){
 
     const [agregar,setAgregar] = useState(false);
     const [favorito,setFavorito] = useState(false);
@@ -18,7 +18,7 @@ export default function VenueTag(){
     const handleFavorito = ()=> setFavorito(prev => !prev);
 
     return(
-        <div className='Venues-grid'>
+        <div className={`Venues-grid ${compact ? 'compact' : ''}`}>
 
             <div className='venue-look'>
                 <img src="https://thumb.wikimedia.org/wikipedia/commons/thumb/7/71/La_Arena_Mty.jpg/3840px-La_Arena_Mty.jpg?utm_source=es.wikipedia.org&utm_campaign=index&utm_content=thumbnail"

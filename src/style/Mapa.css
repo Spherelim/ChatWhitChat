@@ -29,6 +29,8 @@
     background-color: #2c2c2c;
     border-right: 1px solid #3a3a3a;
     overflow: hidden;
+    position: relative;
+    z-index: 850;
 }
 
 /* Sección de filtros/tabs */

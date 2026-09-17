@@ -1,0 +1,164 @@
+.AsistentesTag-wrapper {
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+
+}
+
+.Asistentes-container {
+    cursor: pointer;
+    user-select: none;
+
+    transition: all 0.3s ease-in-out;
+
+}
+
+.Asistentes-group {
+    display: flex;
+    align-items: center;
+}
+
+/* ---------- Colapsado: columna/pila de avatares ---------- */
+.asistentes-img.stacked {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    object-fit: cover;
+
+    background-color: #d9d9d9;
+    border: 2px solid #141414;
+    margin-left: -10px;
+
+}
+
+.asistentes-img.stacked:first-child {
+    margin-left: 0;
+}
+
+.asistentes-restantes {
+    margin-left: -6px;
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+
+    background-color: #16303f;
+    border: 2px solid #141414;
+
+    color: #fff;
+    font-size: 0.65rem;
+    font-weight: 700;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+}
+
+/* ---------- Expandido: lista con nombre + correo ---------- */
+.Asistentes-container.is-expanded {
+    min-width: 170px;
+    padding: 8px 10px;
+    border-radius: 8px;
+    background-color: #16303f;
+
+    transition: all 0.3s ease-in-out;
+
+}
+
+.Asistentes-title {
+    margin: 0 0 6px 0;
+    font-size: 0.7rem;
+    font-weight: 700;
+    color: #8a9ba3;
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+
+    transition: all 0.3s ease-in-out;
+
+}
+
+.Asistentes-container.is-expanded .Asistentes-group {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 6px;
+}
+
+.asistente-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.asistente-row .asistentes-img {
+    flex-shrink: 0;
+    width: 26px;
+    height: 26px;
+    border-radius: 50%;
+    object-fit: cover;
+    background-color: #d9d9d9;
+
+    transition: all 0.3s ease-in-out;
+
+}
+
+.asistente-info {
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+}
+
+.asistente-username {
+    margin: 0;
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: #fff;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.asistente-email {
+    margin: 0;
+    font-size: 0.62rem;
+    color: #8a9ba3;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* ---------- Check de "voy a asistir" ---------- */
+.Check-Asistencia {
+    flex-shrink: 0;
+    width: 26px;
+    height: 26px;
+
+    border: none;
+    border-radius: 50%;
+    background-color: #16303f;
+    cursor: pointer;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    transition: all 0.2s ease-in-out;
+}
+
+.Check-Asistencia:hover {
+    background-color: #1f4d63;
+}
+
+.Check-Asistencia .like-img {
+    width: 14px;
+    height: 14px;
+    object-fit: contain;
+    pointer-events: none;
+    filter: brightness(0) invert(1);
+    transition: all 0.25s ease-in-out;
+}
+
+/* Cuando se DESMARCA la asistencia, se rota 180° */
+.Check-Asistencia:not(.is-checked) .like-img {
+    transform: rotate(180deg);
+}

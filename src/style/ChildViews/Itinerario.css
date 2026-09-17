@@ -1,0 +1,245 @@
+.Itinerario-Container {
+    width: 100%;
+    height: 100%;
+
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+
+    user-select: none;
+
+    min-height: 0;
+}
+
+/* ---------- Cabecera: foto + nombre + botones ---------- */
+.Itinerario-info {
+    position: relative;
+    flex-shrink: 0;
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+.itinerario-Volver {
+    position: absolute;
+    top: 8px;
+    left: 8px;
+    z-index: 2;
+
+    width: 28px;
+    height: 28px;
+    border: none;
+    border-radius: 50%;
+    background-color: rgba(20, 20, 20, 0.75);
+
+    color: #fff;
+    font-size: 1.2rem;
+    line-height: 1;
+    cursor: pointer;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    transition: background-color 0.2s ease-in-out;
+}
+
+.itinerario-Volver:hover {
+    background-color: rgba(20, 20, 20, 0.95);
+}
+
+.itinerario-img {
+    width: 100%;
+    height: 150px;
+    object-fit: cover;
+    display: block;
+}
+
+.itinerario-name-and-buttons {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+
+    display: flex;
+    align-items: center;
+    gap: 8px;
+
+    padding: 8px 10px;
+    background: linear-gradient(0deg, rgba(0, 0, 0, 0.7), transparent);
+}
+
+.itinerario-Name {
+    flex: 1;
+    min-width: 0;
+    margin: 0;
+
+    font-size: 1rem;
+    font-weight: 700;
+    color: #fff;
+
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.itinerario-Compartir,
+.itinerario-Editar {
+    flex-shrink: 0;
+    width: 28px;
+    height: 28px;
+
+    border: none;
+    border-radius: 50%;
+    background-color: #16303f;
+    cursor: pointer;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    transition: background-color 0.2s ease-in-out;
+}
+
+.itinerario-Compartir:hover,
+.itinerario-Editar:hover {
+    background-color: #1f4d63;
+}
+
+.itinerario-Compartir img,
+.itinerario-Editar img {
+    width: 14px;
+    height: 14px;
+    object-fit: contain;
+    pointer-events: none;
+    filter: brightness(0) invert(1);
+}
+
+/* ---------- Lista de paradas ---------- */
+.Itinerario-List {
+    flex: 1;
+    min-height: 0;              /* CLAVE para el scroll */
+    overflow-y: auto;
+    overflow-x: hidden;
+    padding-right: 4px;
+}
+
+.Itinerario-List::-webkit-scrollbar {
+    width: 6px;
+}
+
+.Itinerario-List::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.Itinerario-List::-webkit-scrollbar-thumb {
+    background-color: #4e9fbe;
+    border-radius: 3px;
+}
+
+.itinerario-parada {
+    display: flex;
+    align-items: stretch;
+    gap: 8px;
+}
+
+/* Fila: Asistencia + Venue + fecha + adder */
+.itinerario-Venues {
+    flex: 1;
+    min-width: 0;
+
+    display: flex;
+    align-items: center;
+    gap: 10px;
+
+    padding: 10px 0;
+    border-bottom: 1px solid #2c3e46;
+}
+
+/* Fecha */
+.itinerario-fecha {
+    flex-shrink: 0;
+    display: grid;
+    grid-template-columns: auto auto;
+    gap: 2px 8px;
+
+    font-size: 0.7rem;
+    color: #cfcfcf;
+    white-space: nowrap;
+}
+
+.txt-dia, .txt-hora {
+    color: #8a9ba3;
+    font-weight: 600;
+}
+
+.date, .clock {
+    color: #fff;
+    font-weight: 700;
+}
+
+/* Agregado por */
+.itinerario-adder {
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.Agregado {
+    font-size: 0.7rem;
+    color: #8a9ba3;
+}
+
+.itinerario-user-adder {
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    object-fit: cover;
+    background-color: #d9d9d9;
+}
+
+.itinerario-username {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: #fff;
+    white-space: nowrap;
+}
+
+/* ---------- Línea de tiempo vertical ---------- */
+.itinerario-timeline {
+    flex-shrink: 0;
+    width: 24px;
+
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.timeline-punto {
+    flex-shrink: 0;
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    background-color: #4e9fbe;
+
+    color: #fff;
+    font-size: 0.75rem;
+    font-weight: 700;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.timeline-linea {
+    flex: 1;
+    width: 2px;
+    margin: 2px 0;
+    background-color: #4e9fbe;
+}
+
+@media (max-width: 700px) {
+    .itinerario-Venues {
+        flex-wrap: wrap;
+    }
+}

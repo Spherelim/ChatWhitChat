@@ -1,0 +1,96 @@
+.Itinerario-Card-Container {
+    position: relative;
+    width: 100%;
+    height: 110px;
+    flex-shrink: 0;
+
+    border-radius: 10px;
+    overflow: hidden;
+    cursor: pointer;
+    background-color: #16303f;
+
+    transition: transform 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+}
+
+.Itinerario-Card-Container:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.4);
+}
+
+.Itinerario-card-img {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    pointer-events: none;
+}
+
+.itinerario-card-Name {
+    position: absolute;
+    left: 10px;
+    bottom: 10px;
+    margin: 0;
+
+    padding: 4px 10px;
+    border-radius: 6px;
+
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: #fff;
+    background-color: rgba(22, 48, 63, 0.85);
+
+    max-width: calc(100% - 60px);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.Eliminar-Itinerario-card,
+.Compartir-Itinerario-card {
+    position: absolute;
+    width: 26px;
+    height: 26px;
+
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    transition: transform 0.15s ease-in-out, background-color 0.15s ease-in-out;
+}
+
+.Eliminar-Itinerario-card {
+    top: 8px;
+    right: 8px;
+    background-color: #e0483d;
+}
+
+.Eliminar-Itinerario-card:hover {
+    background-color: #c73c32;
+    transform: scale(1.08);
+}
+
+.Compartir-Itinerario-card {
+    bottom: 8px;
+    right: 8px;
+    background-color: #16303f;
+    box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.15);
+}
+
+.Compartir-Itinerario-card:hover {
+    background-color: #1f4d63;
+    transform: scale(1.08);
+}
+
+.Eliminar-Itinerario-card img,
+.Compartir-Itinerario-card img {
+    width: 14px;
+    height: 14px;
+    object-fit: contain;
+    pointer-events: none;
+    filter: brightness(0) invert(1);
+}
