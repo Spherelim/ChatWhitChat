@@ -11,7 +11,14 @@
     user-select: none;
 
     transition: all 0.3s ease-in-out;
+}
 
+.Asistentes-container:hover {
+    transform: translateY(-5px);
+}
+
+.Asistentes-container:active {
+    transform: translateY(5px);
 }
 
 .Asistentes-group {
@@ -147,6 +154,12 @@
 
 .Check-Asistencia:hover {
     background-color: #1f4d63;
+    transform: scale(1.1);
+}
+
+.Check-Asistencia:active {
+    background-color: #4E9FBE;
+    transform: scale(0.9);
 }
 
 .Check-Asistencia .like-img {

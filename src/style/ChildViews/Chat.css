@@ -145,10 +145,33 @@
     border-radius: 3px;
 }
 
-/* ---------- Barra de escritura ---------- */
-.chat-texting {
-    flex-shrink: 0;
+/* ---------- Barra de escritura + dropdown de multimedia ---------- */
 
+/* Envuelve el input Y el dropdown: es el punto de referencia para
+   posicionar el dropdown arriba (position:absolute) y para detectar
+   los clicks "afuera" que lo cierran. */
+.chat-texting-wrapper {
+    position: relative;
+    flex-shrink: 0;
+}
+
+.multimedia-anchor {
+    position: absolute;
+    right: 12px;
+    bottom: 100%;
+    margin-bottom: 8px;
+    z-index: 40;
+}
+
+.emoji-anchor {
+    position: absolute;
+    left: 12px;
+    bottom: 100%;
+    margin-bottom: 8px;
+    z-index: 40;
+}
+
+.chat-texting {
     display: flex;
     align-items: center;
     gap: 10px;
@@ -252,5 +275,14 @@
 
     .chat-back:hover{
         transform: rotate(-270deg);
+    }
+
+    .multimedia-anchor {
+        right: 8px;
+        left: 8px;
+    }
+
+    .emoji-anchor {
+        left: 8px;
     }
 }

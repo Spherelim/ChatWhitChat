@@ -1,0 +1,51 @@
+.EmojiPicker-container {
+    width: 260px;
+    max-height: 220px;
+    overflow-y: auto;
+
+    background-color: #3a3a3a;
+    border-radius: 12px;
+    padding: 10px;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.35);
+}
+
+.emoji-grid {
+    display: grid;
+    grid-template-columns: repeat(8, 1fr);
+    gap: 4px;
+}
+
+.emoji-btn {
+    border: none;
+    background: transparent;
+    font-size: 1.2rem;
+    line-height: 1;
+    padding: 6px;
+    border-radius: 6px;
+    cursor: pointer;
+
+    transition: background-color 0.15s ease-in-out, transform 0.15s ease-in-out;
+}
+
+.emoji-btn:hover {
+    background-color: #4a4a4a;
+    transform: scale(1.15);
+}
+
+.emoji-btn:active {
+    transform: scale(0.9);
+}
+
+/* Scrollbar */
+.EmojiPicker-container::-webkit-scrollbar {
+    width: 6px;
+}
+
+.EmojiPicker-container::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.EmojiPicker-container::-webkit-scrollbar-thumb {
+    background-color: #4e9fbe;
+    border-radius: 3px;
+}

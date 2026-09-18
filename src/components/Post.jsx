@@ -4,9 +4,12 @@ import { useState } from 'react';
 
 import DefaultFoto from '../images/Cat.jpg';
 import ReportIcon from '../icons/ui/exclamacion-de-diamante (1).png';
-import ReactionIcon_Default from '../icons/ui/Post/reaction/corazon.png';
+import ReactionIcon_Default from '../icons/ui/Post/reaction/corazon (1).png';
 import ReactionIcon_Active from '../icons/ui/Post/reaction/corazon (2).png';
-import ComentIcon from '../icons/ui/chat/faro.png';
+import ComentIcon from '../icons/ui/chat/faro (1).png';
+
+import ShowComentarios from '../includes/ShowComentarios';
+import ShowMessage from '../includes/ShowMessage';
 
 export default function Post(){
 
@@ -14,6 +17,9 @@ export default function Post(){
     const [Count,setCount] = useState(0);
 
     const [Follow,setFollow] = useState(false);
+
+    const [mostrarComentarios, setMostrarComentarios] = useState(false);
+    const [mostrarReporte, setMostrarReporte] = useState(false);
 
     const handleLike = () => {
         setlike(prev => !prev);
@@ -34,7 +40,7 @@ export default function Post(){
                 <p className='user-email-post'>UserName@example.com</p>
                 <p className='date-post'>Date (14 Sep 2026)</p>
                 <button className={Follow ? 'btn-follow following' : 'btn-follow'} onClick={handleFollow}>{Follow ? 'Siguiendo' : 'Seguir'}</button>
-                <img src={ReportIcon} alt="Report" className='report'/>
+                <img src={ReportIcon} alt="Report" className='report' onClick={() => setMostrarReporte(true)}/>
             </div>
             <div className='post-info'>
                 <p className='description-post'>Hola papus, este es un ejemplo de como se veria un post.
@@ -54,9 +60,20 @@ export default function Post(){
                 <img src={like ? ReactionIcon_Active : ReactionIcon_Default} alt="reaction" className='react'
                 onClick={handleLike}/>
                 <p className='reaction-count'>{Count}</p>
-                <img src={ComentIcon} alt="comment" className='comment'/>
+                <img src={ComentIcon} alt="comment" className='comment' onClick={() => setMostrarComentarios(true)}/>
                 <p className='comment-count'>0</p>
             </div>
+
+            {mostrarComentarios && (
+                <ShowComentarios onClose={() => setMostrarComentarios(false)} />
+            )}
+
+            {mostrarReporte && (
+                <ShowMessage
+                    titulo='¿Desea dejar un comentario a cerca del reporte?'
+                    onClose={() => setMostrarReporte(false)}
+                />
+            )}
         </div>
         // Targeta del Post
     );
