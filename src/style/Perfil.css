@@ -89,6 +89,45 @@
     border-radius: 50%;
 } */
 
+.foto-perfil-wrapper{
+    position: relative;
+    width: 125px;
+    height: 125px;
+    flex-shrink: 0;
+}
+
+.foto-perfil-wrapper .foto-perfil{
+    width: 100%;
+    height: 100%;
+}
+
+.foto-perfil-overlay{
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    background-color: rgba(0, 0, 0, 0.25);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    pointer-events: none;
+    cursor: pointer;
+    transition: opacity 0.2s ease;
+}
+
+.foto-perfil-wrapper.editable:hover .foto-perfil-overlay{
+    opacity: 1;
+}
+
+.lapiz-icon{
+    width: 35px;
+    height: 35px;
+    filter: brightness(0) invert(1); /* opcional, si el ícono es oscuro y quieres que se vea blanco sobre el overlay */
+}
+
 .user-info{
     flex: 1;
     margin-top: 90px;
@@ -150,4 +189,305 @@
 
 .Social-Media img:active{
     transform: scale(0.95);
+}
+
+.Header-sections{
+    background-color: rgba(0, 0, 0, 0.25);
+    border-radius: 25px;
+    display: flex;
+    align-items: center;
+
+    color: #fff;
+    user-select: none;
+
+    transition: all 0.3s ease-in-out;
+}
+
+.Post-section, .LV-section,
+.LF-section, .Insigneas-section,
+.Editando-section{
+    border-left: rgba(0, 0, 0, 0.25) solid 2px;
+    border-right: rgba(0, 0, 0, 0.25) solid 2px;
+    background-color: rgba(0, 0, 0, 0.25);
+    padding: 30px;
+    transition: all 0.3s ease-in-out;    
+}
+
+.Post-section{
+    border-top-left-radius: 25px;
+    border-bottom-left-radius: 25px;
+}
+
+.Post-section.Activa, .LV-section.Activa,
+.LF-section.Activa, .Insigneas-section.Activa, 
+.Editando-section.Activa{
+    background-color: rgba(0, 0, 0, 0.5);
+    transition: all 0.3s ease-in-out;    
+}
+
+
+/* ===================================================
+   Lugares Visitados / Lugares Favoritos (VenueTag)
+   =================================================== */
+.LV-content{
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+    width: 100%;
+    max-width: 640px; /* mismo ancho que el Post */
+    margin: 24px auto 0;
+}
+
+
+/* ===================================================
+   Insigneas
+   =================================================== */
+.Insigneas-content{
+    margin-top: 16px;
+}
+
+.Insigneas-title{
+    color: #fff;
+    font-size: 0.8rem;
+    font-weight: 700;
+    user-select: none;
+    margin-bottom: 16px;
+}
+
+.Insigneas-grid{
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 28px 20px;
+    justify-items: center;
+}
+
+
+/* ===================================================
+   Edición
+   =================================================== */
+.Edicion-content{
+    margin-top: 20px;
+    padding: 24px;
+    border-radius: 25px;
+    background-color: rgba(0, 0, 0, 0.5);
+    color: #fff;
+
+    /* col 1: avatar / col 2: banner, inputs y botón Guardar */
+    display: grid;
+    grid-template-columns: 84px 1fr;
+    column-gap: 20px;
+    row-gap: 14px;
+    align-items: start;
+}
+
+/* deja que el avatar y el banner sean celdas directas del grid */
+.edit-img-section{
+    display: contents;
+}
+
+.edit-img-Avatar{
+    width: 84px;
+    height: 84px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 3px solid rgb(44, 44, 44);
+    background-color: #2a475e;
+}
+
+.edit-img-banner{
+    width: 100%;
+    height: 120px;
+    border-radius: 20px;
+    object-fit: cover;
+    background-color: #000;
+}
+
+.edit-info-section{
+    grid-column: 2;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.edit-UserName,
+.edit-Email,
+.edit-Bio,
+.link-text{
+    width: 100%;
+    padding: 10px 18px;
+    border: none;
+    outline: none;
+    border-radius: 20px;
+    background-color: #d9d9d9;
+    color: #2a2a2a;
+    font-size: 0.9rem;
+    font-weight: 700;
+    transition: box-shadow 0.2s ease-in-out;
+}
+
+.edit-UserName::placeholder,
+.edit-Email::placeholder,
+.edit-Bio::placeholder,
+.link-text::placeholder{
+    color: #6b6b6b;
+    font-weight: 700;
+}
+
+.edit-UserName:focus,
+.edit-Email:focus,
+.edit-Bio:focus,
+.link-text:focus{
+    box-shadow: 0 0 0 2px #4E9FBE;
+}
+
+.btn-edit-save,
+.btn-add-linck{
+    background-color: #4E9FBE;
+    color: #fff;
+    border: none;
+    border-radius: 20px;
+    padding: 6px 30px;
+    font-size: 0.85rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.35s ease-in-out;
+}
+
+.btn-edit-save{
+    grid-column: 2;
+    justify-self: end;
+}
+
+.btn-edit-save:hover,
+.btn-add-linck:hover{
+    transform: scale(1.05);
+}
+
+.btn-edit-save:active,
+.btn-add-linck:active{
+    transform: scale(0.95);
+}
+
+/* ----- Vincular URL + lista de enlaces ----- */
+.edit-lincks-section{
+    grid-column: 1 / -1;
+    margin-top: 6px;
+    border-radius: 20px;
+    overflow: hidden;
+    background-color: rgba(0, 0, 0, 0.35);
+}
+
+.edit-linck-form{
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 10px;
+    padding: 12px;
+    background-color: rgba(255, 255, 255, 0.06);
+}
+
+.edit-linck-input{
+    position: relative;
+    width: 100%;
+}
+
+/* el icono va dentro del input, a la izquierda */
+.icon-linck{
+    position: absolute;
+    left: 14px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 20px;
+    height: 20px;
+    object-fit: contain;
+    pointer-events: none;
+}
+
+.link-text{
+    padding-left: 44px;
+}
+
+.edit-lincks-list{
+    display: flex;
+    flex-direction: column;
+    padding: 6px 16px;
+}
+
+.linck-Card{
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 0;
+}
+
+.social-icon{
+    width: 20px;
+    height: 20px;
+    object-fit: contain;
+    flex-shrink: 0;
+}
+
+/* linckIcon es oscuro: en fondo oscuro se pasa a blanco */
+.social-icon-default{
+    filter: brightness(0) invert(1);
+}
+
+.social-linck{
+    flex: 1;
+    min-width: 0;
+    font-size: 0.85rem;
+    font-weight: 700;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.edit-social-linck,
+.delete-social-linck{
+    display: flex;
+    background: none;
+    border: none;
+    padding: 2px;
+    cursor: pointer;
+    transition: all 0.2s ease-in-out;
+}
+
+.btn-edit-linck,
+.btn-delete-linck{
+    width: 20px;
+    height: 20px;
+    filter: brightness(0) invert(1);
+}
+
+.edit-social-linck:hover,
+.delete-social-linck:hover{
+    transform: scale(1.15);
+}
+
+.edit-social-linck:active,
+.delete-social-linck:active{
+    transform: scale(0.9);
+}
+
+
+/* ===== Responsive ===== */
+@media (max-width: 600px){
+    .Edicion-content{
+        padding: 16px;
+        grid-template-columns: 64px 1fr;
+        column-gap: 14px;
+    }
+
+    .edit-img-Avatar{
+        width: 64px;
+        height: 64px;
+    }
+
+    .edit-img-banner{
+        height: 90px;
+    }
+
+    .Insigneas-grid{
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
 }

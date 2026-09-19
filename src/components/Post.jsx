@@ -11,7 +11,19 @@ import ComentIcon from '../icons/ui/chat/faro (1).png';
 import ShowComentarios from '../includes/ShowComentarios';
 import ShowMessage from '../includes/ShowMessage';
 
-export default function Post(){
+export default function Post({
+    descripcion = 'Hola papus, este es un ejemplo de como se veria un post.\nEsto Tiene que a fuerzas hablar de un Lugar para poder comentar jeje.',
+    imagenes = null,
+    venue = null
+}){
+
+    const imagenesDemo = [
+        'https://i.pinimg.com/736x/2b/4a/68/2b4a687a6dc22912342c9e9dae2f1d1c.jpg',
+        'https://i.pinimg.com/736x/2b/4a/68/2b4a687a6dc22912342c9e9dae2f1d1c.jpg',
+        'https://i.pinimg.com/736x/2b/4a/68/2b4a687a6dc22912342c9e9dae2f1d1c.jpg',
+    ];
+
+    const imgs = imagenes && imagenes.length > 0 ? imagenes : imagenesDemo;
 
     const [like,setlike] = useState(false);
     const [Count,setCount] = useState(0);
@@ -43,18 +55,22 @@ export default function Post(){
                 <img src={ReportIcon} alt="Report" className='report' onClick={() => setMostrarReporte(true)}/>
             </div>
             <div className='post-info'>
-                <p className='description-post'>Hola papus, este es un ejemplo de como se veria un post.
-                    Esto Tiene que a fuerzas hablar de un Lugar para poder comentar jeje.
-                </p>
-                <div className='multimedia-post'>
-                    <img src="https://i.pinimg.com/736x/2b/4a/68/2b4a687a6dc22912342c9e9dae2f1d1c.jpg" alt="multimedia" />
-                    <img src="https://i.pinimg.com/736x/2b/4a/68/2b4a687a6dc22912342c9e9dae2f1d1c.jpg" alt="multimedia" />
-
-                    <div className='img-wrapper'>
-                        <img src="https://i.pinimg.com/736x/2b/4a/68/2b4a687a6dc22912342c9e9dae2f1d1c.jpg" alt="multimedia" />
-                        <span className='multimedia-more'>+</span>
+                {venue && <p className='post-venue'>📍 {venue}</p>}
+                <p className='description-post'>{descripcion}</p>
+                {imgs.length > 0 && (
+                    <div className='multimedia-post'>
+                        {imgs.slice(0, 3).map((src, i) => (
+                            i === 2 && imgs.length > 3 ? (
+                                <div className='img-wrapper' key={i}>
+                                    <img src={src} alt="multimedia" />
+                                    <span className='multimedia-more'>+{imgs.length - 3}</span>
+                                </div>
+                            ) : (
+                                <img src={src} alt="multimedia" key={i} />
+                            )
+                        ))}
                     </div>
-                </div>
+                )}
             </div>
             <div className='reaction-post'>
                 <img src={like ? ReactionIcon_Active : ReactionIcon_Default} alt="reaction" className='react'
