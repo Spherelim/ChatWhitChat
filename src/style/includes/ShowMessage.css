@@ -83,8 +83,15 @@
     background-color: #3d8ba6;
 }
 
+.ShowMessage-Hint {
+    margin: 0;
+    font-size: 0.75rem;
+    color: #9a9a9a;
+}
+
 .Multimedia-send-report {
     display: flex;
+    align-items: flex-start;
     gap: 10px;
     overflow-x: auto;
     padding-bottom: 4px;
@@ -99,6 +106,7 @@
     border-radius: 3px;
 }
 
+/* Solo se usa para el mensaje "Sin archivos" */
 .Archivo-item {
     flex-shrink: 0;
     min-width: 70px;
@@ -128,6 +136,183 @@
 
 .Archivo-item.vacio:hover {
     background-color: #1e1e1e;
+}
+
+/* ===== Miniaturas de los archivos ===== */
+.Archivo-card {
+    flex-shrink: 0;
+    width: 84px;
+}
+
+.Archivo-thumb {
+    position: relative;
+    width: 84px;
+    height: 84px;
+    border-radius: 8px;
+    overflow: hidden;
+    background-color: #1e1e1e;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: transform 0.2s ease-in-out;
+}
+
+.Archivo-thumb:hover {
+    transform: scale(1.04);
+}
+
+.Archivo-thumb img,
+.Archivo-thumb video {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+/* Insignia de "play" sobre la miniatura de un video */
+.Archivo-play {
+    position: absolute;
+    width: 26px;
+    height: 26px;
+    border-radius: 50%;
+    background-color: rgba(0, 0, 0, 0.6);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.65rem;
+    pointer-events: none;
+}
+
+/* Extensión (PDF, MP3, ZIP...) cuando no hay imagen que mostrar */
+.Archivo-ext {
+    font-size: 0.95rem;
+    font-weight: 800;
+    color: #4e9fbe;
+}
+
+.Archivo-quitar {
+    position: absolute;
+    top: 4px;
+    right: 4px;
+    width: 20px;
+    height: 20px;
+    padding: 0;
+    border: none;
+    border-radius: 50%;
+    background-color: rgba(0, 0, 0, 0.7);
+    color: #fff;
+    font-size: 0.9rem;
+    line-height: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: background-color 0.2s ease-in-out;
+}
+
+.Archivo-quitar:hover {
+    background-color: #FE4343;
+}
+
+.Archivo-nombre {
+    margin: 6px 0 0;
+    font-size: 0.7rem;
+    font-weight: 600;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.Archivo-tamano {
+    margin: 0;
+    font-size: 0.65rem;
+    color: #888;
+}
+
+/* ===== Vista ampliada ===== */
+.ShowMessage-Preview {
+    position: fixed;
+    inset: 0;
+    z-index: 1100;
+    background-color: rgba(0, 0, 0, 0.92);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+}
+
+.ShowMessage-Preview-box {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    max-width: 100%;
+    max-height: 100%;
+    color: #fff;
+    font-family: 'CWC', sans-serif;
+}
+
+.ShowMessage-Preview-box img,
+.ShowMessage-Preview-box video {
+    max-width: 90vw;
+    max-height: 76vh;
+    border-radius: 10px;
+    object-fit: contain;
+}
+
+.Preview-pdf {
+    width: min(90vw, 800px);
+    height: 76vh;
+    border: none;
+    border-radius: 10px;
+    background-color: #fff;
+}
+
+.Preview-otro {
+    background-color: #2c2c2c;
+    border-radius: 14px;
+    padding: 28px 36px;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+}
+
+.Preview-otro p {
+    margin: 0;
+    font-size: 0.85rem;
+    color: #c6d4df;
+}
+
+.ShowMessage-Preview-close {
+    align-self: flex-end;
+    background: none;
+    border: none;
+    color: #fff;
+    font-size: 1.8rem;
+    line-height: 1;
+    cursor: pointer;
+    padding: 0 4px;
+    transition: transform 0.2s ease-in-out;
+}
+
+.ShowMessage-Preview-close:hover {
+    transform: scale(1.2);
+}
+
+.Preview-nombre {
+    margin: 0;
+    font-size: 0.85rem;
+    font-weight: 700;
+    text-align: center;
+    word-break: break-all;
+}
+
+.Preview-tamano {
+    margin: 0;
+    font-size: 0.75rem;
+    color: #aaa;
 }
 
 .btn-enviar-reporte {

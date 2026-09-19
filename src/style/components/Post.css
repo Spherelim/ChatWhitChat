@@ -1,4 +1,3 @@
-
 .Post-container {
     width: 100%;
     max-width: 640px;
@@ -292,4 +291,13 @@
     .description-post {
         font-size: 0.85rem;
     }
+}
+
+/* Con 3 imágenes o menos no hay visor, así que no se ven como clicables */
+.multimedia-post.sin-galeria img {
+    cursor: default;
+}
+
+.multimedia-post.sin-galeria img:hover {
+    transform: none;
 }

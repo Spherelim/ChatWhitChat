@@ -10,6 +10,7 @@ import ComentIcon from '../icons/ui/chat/faro (1).png';
 
 import ShowComentarios from '../includes/ShowComentarios';
 import ShowMessage from '../includes/ShowMessage';
+import ShowGaleria from '../includes/ShowGaleria';
 
 export default function Post({
     descripcion = 'Hola papus, este es un ejemplo de como se veria un post.\nEsto Tiene que a fuerzas hablar de un Lugar para poder comentar jeje.',
@@ -32,6 +33,14 @@ export default function Post({
 
     const [mostrarComentarios, setMostrarComentarios] = useState(false);
     const [mostrarReporte, setMostrarReporte] = useState(false);
+
+    // Visor de imágenes: solo existe si hay más de 3 (el post solo muestra 3 + el "+N")
+    const tieneGaleria = imgs.length > 3;
+    const [galeriaIndex, setGaleriaIndex] = useState(null); // null = cerrado
+
+    const abrirGaleria = (i) => {
+        if (tieneGaleria) setGaleriaIndex(i);
+    };
 
     const handleLike = () => {
         setlike(prev => !prev);
@@ -58,15 +67,15 @@ export default function Post({
                 {venue && <p className='post-venue'>📍 {venue}</p>}
                 <p className='description-post'>{descripcion}</p>
                 {imgs.length > 0 && (
-                    <div className='multimedia-post'>
+                    <div className={`multimedia-post ${tieneGaleria ? '' : 'sin-galeria'}`}>
                         {imgs.slice(0, 3).map((src, i) => (
                             i === 2 && imgs.length > 3 ? (
                                 <div className='img-wrapper' key={i}>
-                                    <img src={src} alt="multimedia" />
+                                    <img src={src} alt="multimedia" onClick={() => abrirGaleria(i)} />
                                     <span className='multimedia-more'>+{imgs.length - 3}</span>
                                 </div>
                             ) : (
-                                <img src={src} alt="multimedia" key={i} />
+                                <img src={src} alt="multimedia" key={i} onClick={() => abrirGaleria(i)} />
                             )
                         ))}
                     </div>
@@ -82,6 +91,14 @@ export default function Post({
 
             {mostrarComentarios && (
                 <ShowComentarios onClose={() => setMostrarComentarios(false)} />
+            )}
+
+            {galeriaIndex !== null && (
+                <ShowGaleria
+                    imagenes={imgs}
+                    indiceInicial={galeriaIndex}
+                    onClose={() => setGaleriaIndex(null)}
+                />
             )}
 
             {mostrarReporte && (
