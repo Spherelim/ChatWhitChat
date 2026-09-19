@@ -93,3 +93,25 @@
     text-align: center;
     margin-top: 16px;
 }
+
+/* ---------- Responsividad ---------- */
+@media (max-width: 480px) {
+    .Itinerarios-Container {
+        gap: 8px;
+    }
+
+    .Search-Itinerario {
+        height: 32px;
+        font-size: 0.8rem;
+    }
+
+    .Add-Itinerario {
+        width: 32px;
+        height: 32px;
+        font-size: 1.1rem;
+    }
+
+    .Itinerarios-Cards {
+        gap: 10px;
+    }
+}

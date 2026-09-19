@@ -94,3 +94,29 @@
     pointer-events: none;
     filter: brightness(0) invert(1);
 }
+
+/* ---------- Responsividad ---------- */
+@media (max-width: 480px) {
+    .Itinerario-Card-Container {
+        height: 90px;
+        border-radius: 8px;
+    }
+
+    .itinerario-card-Name {
+        font-size: 0.78rem;
+        padding: 3px 8px;
+        max-width: calc(100% - 50px);
+    }
+
+    .Eliminar-Itinerario-card,
+    .Compartir-Itinerario-card {
+        width: 22px;
+        height: 22px;
+    }
+
+    .Eliminar-Itinerario-card img,
+    .Compartir-Itinerario-card img {
+        width: 12px;
+        height: 12px;
+    }
+}
