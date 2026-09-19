@@ -5,6 +5,14 @@
 
 <h1 align=center>ChatWithChat</h1>
 
+___
+
+<p align=center>Mauricio Eleuterio Ortiz Rodriguez #2001170<p>
+<p align=center>César Jesús Sánchez #2055554<p>
+<p align=center>Israel Nicolás Nicolás #2011375<p>
+
+___
+
 <div align=center>
     <h1>Instrucciones de Ejecución</h1>
     <p> Primera mente Debes de tener la Base de Datos Junto a Sus Tablas 
