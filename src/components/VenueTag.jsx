@@ -35,15 +35,16 @@ export default function VenueTag({ compact = false}){
                     onClick={handleAgregar}>{agregar ? 'Eliminar -' : 'Agregar +'}</button>
 
                 </div>
-            </div>
 
-            <div className='venue-info'>
+                {/* Ahora el encabezado va DENTRO de la foto, pegado abajo */}
                 <div className='venue-header'>
                     <h3 className='venue-name'>Arena Monterrey</h3>
                     <p className='venue-tag'>Sala de Conciertos</p>
                     <img src={Compartir} alt="compartir" className='btn-compartir' />
                 </div>
+            </div>
 
+            <div className='venue-info'>
                 <div className='venue-description'>
                     <p>La Arena Monterrey es un estadio cubierto de arena en Monterrey,
                     Nuevo León, México. Es principalmente usada para conciertos,

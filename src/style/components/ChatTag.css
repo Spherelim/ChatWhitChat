@@ -93,6 +93,47 @@
     margin-top: 4px;
 }
 
+/* --- Botón de acción (modo grupo: +/x) --- */
+.chattag-action {
+    flex-shrink: 0;
+}
+
+.chattag-action-btn {
+    width: 24px;
+    height: 24px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    border: none;
+    border-radius: 50%;
+    cursor: pointer;
+
+    font-size: 0.9rem;
+    line-height: 1;
+    color: #ffffff;
+    background-color: #4e9fbe;
+
+    transition: background-color 0.2s ease-in-out, transform 0.2s ease-in-out;
+}
+
+.chattag-action-btn:hover {
+    transform: scale(1.08);
+}
+
+.chattag-action-btn:active {
+    transform: scale(0.92);
+}
+
+.chattag-action-btn.is-add {
+    background-color: #4e9fbe;
+}
+
+.chattag-action-btn.is-remove {
+    background-color: #e53935;
+}
+
 /* --- Cuando la lista está colapsada: solo el avatar --- */
 .Contacts-container.is-collapsed .ChatTag-container {
     padding: 4px;
@@ -101,7 +142,8 @@
 }
 
 .Contacts-container.is-collapsed .User-info-Chat,
-.Contacts-container.is-collapsed .chattag-clock {
+.Contacts-container.is-collapsed .chattag-clock,
+.Contacts-container.is-collapsed .chattag-action {
     display: none;
 }
 

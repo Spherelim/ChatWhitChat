@@ -17,8 +17,8 @@
     max-width: 70%;
 
     display: flex;
-    align-items: flex-end;
-    gap: 8px;
+    flex-direction: column;
+    gap: 4px;
 
     padding: 8px 12px;
     border-radius: 14px;
@@ -28,6 +28,17 @@
     border: 2px solid transparent;   /* reserva el espacio del contorno */
 }
 
+/* Mensajes de puro texto: todo en una sola fila (texto + hora), como antes */
+.Message-container:not(.is-media) {
+    flex-direction: row;
+    align-items: flex-end;
+    gap: 8px;
+}
+
+.Message-container.is-received:not(.is-media) {
+    flex-direction: row-reverse;
+}
+
 .message-text {
     font-size: 0.85rem;
     color: #ffffff;
@@ -35,16 +46,114 @@
     line-height: 1.3;
 }
 
-.message-clock {
+/* Hora (+ check de "visto" en los propios) */
+.message-meta {
+    display: flex;
+    align-items: center;
+    gap: 4px;
     flex-shrink: 0;
+}
+
+.message-clock {
     font-size: 0.62rem;
     color: #bdbdbd;
     white-space: nowrap;
 }
 
-/* Recibidos: la hora va a la izquierda del texto */
-.Message-container.is-received {
-    flex-direction: row-reverse;
+.message-check {
+    font-size: 0.65rem;
+    color: #4E9FBE;
+}
+
+/* --- Ubicación --- */
+.message-ubicacion {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.message-mapa-falso {
+    position: relative;
+    width: 220px;
+    height: 130px;
+    border-radius: 10px;
+    overflow: hidden;
+
+    background-color: #1c1c1c;
+    background-image:
+        repeating-linear-gradient(35deg, rgba(255, 255, 255, 0.06) 0 2px, transparent 2px 26px),
+        repeating-linear-gradient(-15deg, rgba(255, 255, 255, 0.05) 0 2px, transparent 2px 34px);
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.message-pin {
+    font-size: 1.6rem;
+    filter: drop-shadow(0 2px 3px rgba(0, 0, 0, 0.5));
+}
+
+.message-ubicacion-label {
+    margin: 0;
+    font-size: 0.72rem;
+    color: #cfcfcf;
+}
+
+/* --- Archivo --- */
+.message-archivo {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    min-width: 180px;
+}
+
+.message-archivo-icono {
+    font-size: 1.4rem;
+    flex-shrink: 0;
+}
+
+.message-archivo-info {
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+}
+
+.message-archivo-nombre {
+    margin: 0;
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: #fff;
+    max-width: 200px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.message-archivo-tipo {
+    margin: 0;
+    font-size: 0.68rem;
+    color: #b5b5b5;
+    text-transform: capitalize;
+}
+
+/* --- Itinerario compartido --- */
+.message-itinerario {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.message-itinerario-icono {
+    font-size: 1.3rem;
+    flex-shrink: 0;
+}
+
+.message-itinerario-nombre {
+    margin: 0;
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: #fff;
 }
 
 /* --- Estados (solo mensajes propios) --- */

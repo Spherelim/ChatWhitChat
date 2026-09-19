@@ -1,0 +1,231 @@
+.ToPost-Overlay{
+    position: fixed;
+    inset: 0;
+    background-color: rgba(0, 0, 0, 0.85);
+    z-index: 1000;
+
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+    padding: 90px 16px 30px;
+    overflow-y: auto;
+}
+
+.ToPost-container{
+    background-color: #2c2c2c;
+    color: #fff;
+    width: 100%;
+    max-width: 480px;
+    border-radius: 16px;
+    padding: 20px;
+    position: relative;
+
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+
+    font-family: 'CWC', sans-serif;
+}
+
+.ToPost-close{
+    position: absolute;
+    top: 14px;
+    right: 16px;
+    background: none;
+    border: none;
+    color: #fff;
+    font-size: 1.2rem;
+    cursor: pointer;
+    transition: transform 0.2s ease-in-out;
+}
+
+.ToPost-close:hover{
+    transform: scale(1.2);
+}
+
+.ToPost-Experiencia-txt{
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding-right: 20px;
+}
+
+.ToPost-user-Avatar{
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    object-fit: cover;
+    flex-shrink: 0;
+}
+
+.Experiencia-txt{
+    flex: 1;
+    background: none;
+    border: none;
+    outline: none;
+    color: #fff;
+    font-size: 1rem;
+    padding: 6px 0;
+    min-width: 0;
+}
+
+.Experiencia-txt::placeholder{
+    color: #888;
+}
+
+.ToPost-Venue-visits{
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.ToPost-subtitle{
+    font-weight: 700;
+    font-size: 0.9rem;
+    margin: 0;
+}
+
+.ToPost-Venue-Search{
+    width: 100%;
+    padding: 10px 14px;
+    border-radius: 10px;
+    border: none;
+    outline: none;
+    background-color: #d9d9d9;
+    color: #222;
+    font-size: 0.9rem;
+}
+
+.ToPost-Venue-resultado{
+    cursor: pointer;
+    border-radius: 14px;
+    overflow: hidden;
+    transition: transform 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+}
+
+.ToPost-Venue-resultado:hover{
+    transform: scale(1.01);
+    box-shadow: 0 0 0 2px #4e9fbe;
+}
+
+.ToPost-Venue-elegido{
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background-color: rgba(78, 159, 190, 0.15);
+    border: 1px solid #4e9fbe;
+    border-radius: 10px;
+    padding: 10px 14px;
+    font-size: 0.9rem;
+}
+
+.ToPost-Venue-elegido button{
+    background: none;
+    border: none;
+    color: #8ecdea;
+    font-size: 0.8rem;
+    cursor: pointer;
+    text-decoration: underline;
+}
+
+.ToPost-Venue-aviso{
+    font-size: 0.75rem;
+    color: #FE8A8A;
+    margin: 0;
+}
+
+.ToPost-Multimedia-area{
+    display: flex;
+    gap: 10px;
+}
+
+.ToPost-Multimedia-area.scrollable{
+    overflow-x: auto;
+    padding-bottom: 4px;
+}
+
+.ToPost-Multimedia-area::-webkit-scrollbar{
+    height: 6px;
+}
+
+.ToPost-Multimedia-area::-webkit-scrollbar-thumb{
+    background: #4e9fbe;
+    border-radius: 3px;
+}
+
+.ToPost-Multimedia-item{
+    position: relative;
+    flex-shrink: 0;
+    width: 130px;
+    height: 130px;
+    border-radius: 10px;
+    overflow: hidden;
+    background-color: #000;
+}
+
+.ToPost-Multimedia-item img,
+.ToPost-Multimedia-item video{
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.ToPost-Multimedia-remove{
+    position: absolute;
+    top: 4px;
+    right: 4px;
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    background-color: rgba(0, 0, 0, 0.6);
+    color: #fff;
+    border: none;
+    cursor: pointer;
+    font-size: 0.9rem;
+    line-height: 1;
+    transition: background-color 0.2s ease-in-out;
+}
+
+.ToPost-Multimedia-remove:hover{
+    background-color: #FE4343;
+}
+
+.ToPost-buttom{
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-top: 1px solid #3c3c3c;
+    padding-top: 14px;
+}
+
+.ToPost-Multimedia-icon{
+    width: 28px;
+    height: 28px;
+    cursor: pointer;
+    transition: transform 0.2s ease-in-out;
+}
+
+.ToPost-Multimedia-icon:hover{
+    transform: scale(1.15);
+}
+
+.ToPost-btn-Post{
+    background-color: #4e9fbe;
+    color: #fff;
+    border: none;
+    border-radius: 20px;
+    padding: 8px 24px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s ease-in-out;
+}
+
+.ToPost-btn-Post:hover{
+    background-color: #3d8ba6;
+}
+
+.ToPost-btn-Post:disabled{
+    background-color: #555;
+    color: #999;
+    cursor: not-allowed;
+}

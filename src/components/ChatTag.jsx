@@ -10,6 +10,7 @@ export default function ChatTag({
     online = false,
     active = false,
     onClick,
+    actionButton = null, // NUEVO: botón opcional a la derecha (ej. +/x en modo grupo)
 }){
     return(
         <div
@@ -31,7 +32,10 @@ export default function ChatTag({
                 <p className='chattag-last-message'>{lastMessage}</p>
             </div>
 
-            {clock && <span className='chattag-clock'>{clock}</span>}
+            {actionButton
+                ? <div className='chattag-action'>{actionButton}</div>
+                : (clock && <span className='chattag-clock'>{clock}</span>)
+            }
 
         </div>
     );

@@ -1,0 +1,106 @@
+.ShowGaleria-Container {
+    position: fixed;
+    inset: 0;
+    z-index: 1000;
+    background-color: rgba(0, 0, 0, 0.92);
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+
+    font-family: 'CWC', sans-serif;
+    user-select: none;
+}
+
+.ShowGaleria-Visor {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    max-width: 100%;
+}
+
+.ShowGaleria-Img {
+    max-width: 90vw;
+    max-height: 82vh;
+    object-fit: contain;
+    border-radius: 10px;
+}
+
+.ShowGaleria-Contador {
+    margin: 0;
+    font-size: 0.8rem;
+    font-weight: 700;
+    color: #c6d4df;
+}
+
+.ShowGaleria-Close {
+    position: absolute;
+    top: 14px;
+    right: 18px;
+    background: none;
+    border: none;
+    color: #fff;
+    font-size: 2rem;
+    line-height: 1;
+    cursor: pointer;
+    padding: 0 4px;
+    transition: transform 0.2s ease-in-out;
+}
+
+.ShowGaleria-Close:hover {
+    transform: scale(1.2);
+}
+
+.ShowGaleria-Nav {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 44px;
+    height: 44px;
+    border: none;
+    border-radius: 50%;
+    background-color: rgba(255, 255, 255, 0.12);
+    color: #fff;
+    font-size: 1.8rem;
+    line-height: 1;
+    padding-bottom: 4px;
+    cursor: pointer;
+    transition: background-color 0.2s ease-in-out;
+}
+
+.ShowGaleria-Nav:hover {
+    background-color: #4e9fbe;
+}
+
+.ShowGaleria-Nav:active {
+    background-color: #3d8ba6;
+}
+
+.ShowGaleria-Nav.anterior {
+    left: 16px;
+}
+
+.ShowGaleria-Nav.siguiente {
+    right: 16px;
+}
+
+@media (max-width: 640px) {
+    .ShowGaleria-Container {
+        padding: 12px;
+    }
+
+    .ShowGaleria-Nav {
+        width: 38px;
+        height: 38px;
+    }
+
+    .ShowGaleria-Nav.anterior {
+        left: 8px;
+    }
+
+    .ShowGaleria-Nav.siguiente {
+        right: 8px;
+    }
+}

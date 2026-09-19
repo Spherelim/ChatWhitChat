@@ -19,34 +19,22 @@
     transform: translateY(2px);
 }
 
+/* ===== Variante compacta (solo foto con el encabezado encima) ===== */
 .Venues-grid.compact {
-    /* display: flex; */
-    /* flex-direction: row; */
-    /* align-items: center; */
     width: 220px;
     flex-shrink: 0;
 }
-/* .Venues-grid.compact:hover { transform: none; } */
+.Venues-grid.compact .venue-look { height: 90px; }
+.Venues-grid.compact .venue-name { font-size: 0.85rem; padding: 4px 14px 3px 8px; }
+.Venues-grid.compact .venue-tag { font-size: 0.6rem; padding: 2px 8px 2px 14px; }
+.Venues-grid.compact .btn-compartir { width: 26px; height: 24px; padding: 4px 4px 3px 6px; }
+.Venues-grid.compact .venue-info { display: none; }
 
-.Venues-grid.compact .venue-look {
-    /* width: 60px; */
-    /* height: 60px; */
-    /* flex-shrink: 0; */
-}
-.Venues-grid.compact .venue-info {
-    /* padding: 6px 10px; */
-    /* flex: 1; */
-    /* min-width: 0; */
-}
-.Venues-grid.compact .venue-name { font-size: 0.85rem; }
-.Venues-grid.compact .venue-tag { font-size: 0.6rem; padding: 2px 8px; }
-.Venues-grid.compact .venue-description { display: none; }
-
-/* ===== Foto (compacta, arriba) ===== */
+/* ===== Foto (arriba) ===== */
 .venue-look {
     position: relative;
     width: 100%;
-    height: 90px;
+    height: 140px;
     background: #2a4a5e;
     overflow: hidden;
 }
@@ -143,25 +131,25 @@
     transform: scale(0.95);
 }
 
-/* ===== Info (nombre + etiqueta + descripción, abajo) ===== */
-.venue-info {
-    padding: 10px 12px 12px;
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
-}
-
+/* ===== Encabezado encima de la foto (nombre + etiqueta + compartir) ===== */
 .venue-header {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 3;
     display: flex;
-    align-items: center;
-    gap: 8px;
+    align-items: flex-end;
 }
 
 .venue-name {
-    font-size: 1rem;
+    background-color: #345F7C;
+    font-size: 1.25rem;
     font-weight: 800;
     color: #fff;
     margin: 0;
+    padding: 6px 18px 4px 12px;
+    border-top-right-radius: 14px;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -170,43 +158,49 @@
 }
 
 .venue-tag {
+    position: relative;
     background-color: #4e9fbe;
     color: #fff;
-    font-size: 0.7rem;
-    font-style: italic;
-    padding: 4px 12px;
-    border-radius: 8px;
-    margin: 0;
+    font-size: 0.75rem;
+    margin: 0 0 0 -10px;
+    padding: 5px 12px 4px 18px;
+    border-radius: 10px 10px 0 0;
     white-space: nowrap;
     flex-shrink: 0;
 }
 
-/* Botón Compartir, al final de la fila del encabezado */
+/* Botón Compartir: pestaña en la esquina inferior derecha de la foto */
 .btn-compartir {
-    width: 25px;
-    height: auto;
-    padding: 3px;
+    box-sizing: border-box;
+    width: 34px;
+    height: 32px;
+    padding: 6px 6px 4px 9px;
     margin-left: auto;
-    background-color: rgba(255, 255, 255, 0.12);
-    border-radius: 50%;
+    object-fit: contain;
+    background-color: #345F7C;
+    border-radius: 12px 0 0 0;
     cursor: pointer;
     flex-shrink: 0;
+    transform-origin: bottom right;
     transition: all 0.2s ease-in-out;
 }
 
 .btn-compartir:hover {
-    transform: scale(1.1) rotate(-10deg);
-    background-color: rgba(255, 255, 255, 0.25);
+    filter: brightness(1.25);
 }
 
 .btn-compartir:active {
-    transform: scale(0.9);
+    transform: scale(0.92);
+}
+
+/* ===== Descripción (abajo) ===== */
+.venue-info {
+    padding: 10px 14px 14px;
 }
 
 .venue-description {
-    font-size: 0.75rem;
-    line-height: 1.4;
-    font-style: italic;
+    font-size: 0.95rem;
+    line-height: 1.5;
     color: #e8f1f7;
 }
 
@@ -220,23 +214,23 @@
     }
 
     .venue-look {
-        height: 80px;
+        height: 110px;
     }
 
     .venue-name {
-        font-size: 0.9rem;
+        font-size: 1.05rem;
     }
 
     .venue-tag {
-        font-size: 0.65rem;
-        padding: 3px 10px;
+        font-size: 0.68rem;
+        padding: 4px 10px 3px 16px;
     }
 
     .venue-info {
-        padding: 8px 10px 10px;
+        padding: 8px 12px 12px;
     }
 
     .venue-description {
-        font-size: 0.7rem;
+        font-size: 0.8rem;
     }
 }

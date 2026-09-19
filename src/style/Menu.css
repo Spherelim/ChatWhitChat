@@ -99,6 +99,44 @@
 
 .buscador-wrapper{
     position: relative;
+    display: flex;
     width: 100%;
     max-width: 500px;
+    gap: 10px;
+}
+
+.btn-Add-Post{
+    background-color: #4e9fbe;
+    border: none;
+    padding: 5px;
+    border-radius: 10px;
+    width: 50px;
+    height: auto;
+
+    transition: all 0.2s ease-in-out;
+}
+
+.btn-Add-Post:hover{
+    background-color: #30475B;
+    transform: scale(1.1) translateY(-5px);
+}
+
+.btn-Add-Post:hover img{
+    content: url('../icons/ui/others/burbuja-de-pensamiento\ \(3\).png');
+}
+
+.btn-Add-Post:active{
+    background-color: #4e9fbe;
+    transform: scale(0.9) translateY(5px);
+}
+
+.btn-Add-Post:active img{
+    content: url('../icons/ui/others/burbuja-de-pensamiento\ \(2\).png');
+}
+
+.Add-Post-icon{
+    width: 30px;
+    height: auto;
+    
+    transition: all 0.2s ease-in-out;
 }

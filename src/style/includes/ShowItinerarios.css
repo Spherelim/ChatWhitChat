@@ -1,0 +1,117 @@
+.ShowItinerarios-backdrop {
+    position: fixed;
+    inset: 0;
+    background-color: rgba(0, 0, 0, 0.55);
+    z-index: 1000;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.ShowItinerarios-container {
+    width: min(640px, 90vw);
+    max-height: 80vh;
+
+    display: flex;
+    flex-direction: column;
+
+    background-color: #1c1c1c;
+    border-radius: 14px;
+    overflow: hidden;
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.5);
+
+    animation: itinerarios-in 0.2s ease-out;
+}
+
+@keyframes itinerarios-in {
+    from { opacity: 0; transform: scale(0.97); }
+    to   { opacity: 1; transform: scale(1); }
+}
+
+.ShowItinerarios-Header {
+    flex-shrink: 0;
+    position: relative;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    padding: 14px 44px;
+    background-color: #3d6f8a;
+}
+
+.ShowItinerarios-Header p {
+    margin: 0;
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: #fff;
+}
+
+.ShowItinerarios-close {
+    position: absolute;
+    top: 50%;
+    right: 14px;
+    transform: translateY(-50%);
+
+    width: 28px;
+    height: 28px;
+    border: none;
+    border-radius: 50%;
+    background-color: rgba(0, 0, 0, 0.25);
+
+    color: #fff;
+    font-size: 1.4rem;
+    line-height: 1;
+    cursor: pointer;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    transition: background-color 0.2s ease-in-out, transform 0.2s ease-in-out;
+}
+
+.ShowItinerarios-close:hover {
+    background-color: rgba(0, 0, 0, 0.45);
+    transform: translateY(-50%) scale(1.08);
+}
+
+.ShowItinerarios-itinerarios {
+    flex: 1;
+    min-height: 0;
+    overflow-y: auto;
+
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 14px;
+
+    padding: 20px;
+}
+
+.ShowItinerarios-itinerarios::-webkit-scrollbar {
+    width: 6px;
+}
+.ShowItinerarios-itinerarios::-webkit-scrollbar-track {
+    background: transparent;
+}
+.ShowItinerarios-itinerarios::-webkit-scrollbar-thumb {
+    background-color: #4e9fbe;
+    border-radius: 3px;
+}
+
+/* Aquí solo se ELIGE un itinerario para enviarlo al chat: sin eliminar/compartir */
+.ShowItinerarios-itinerarios .Eliminar-Itinerario-card,
+.ShowItinerarios-itinerarios .Compartir-Itinerario-card {
+    display: none;
+}
+
+.ShowItinerarios-itinerarios .Itinerario-Card-Container {
+    height: 130px;
+}
+
+@media (max-width: 700px) {
+    .ShowItinerarios-itinerarios {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}

@@ -97,4 +97,8 @@
         --itinerario-width: 85vw;
         --itinerario-width-open: 95vw;
     }
+
+    .Toggle-Itinerario{
+        z-index: 900;
+    }
 }

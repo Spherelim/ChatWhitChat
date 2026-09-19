@@ -1,0 +1,155 @@
+.Call-container {
+    position: fixed;
+    z-index: 1000;
+
+    width: 200px;
+
+    display: flex;
+    flex-direction: column;
+
+    background-color: #2b2b2b;
+    border-radius: 18px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.45);
+    overflow: hidden;
+
+    user-select: none;
+    animation: call-in 0.2s ease-out;
+}
+
+@keyframes call-in {
+    from { opacity: 0; transform: scale(0.9); }
+    to   { opacity: 1; transform: scale(1); }
+}
+
+/* --- Barra superior: se usa para arrastrar el modal --- */
+.call-drag-handle {
+    flex-shrink: 0;
+    height: 22px;
+    cursor: grab;
+
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    padding: 6px 10px 0;
+}
+
+.call-drag-handle:active {
+    cursor: grabbing;
+}
+
+.call-mini-icons {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.call-mini-icon {
+    width: 14px;
+    height: 14px;
+    object-fit: contain;
+    opacity: 0.85;
+    pointer-events: none;
+}
+
+/* --- Cuerpo de la llamada --- */
+.in-Call {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+
+    padding: 4px 16px 16px;
+}
+
+.call-avatar {
+    width: 64px;
+    height: 64px;
+    border-radius: 50%;
+    object-fit: cover;
+    background-color: #d9d9d9;
+    margin-top: 4px;
+}
+
+.call-username {
+    margin: 4px 0 0;
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: #ffffff;
+}
+
+.call-status-text {
+    margin: 0 0 10px;
+    font-size: 0.7rem;
+    color: #b5b5b5;
+}
+
+.call-controls {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+}
+
+.call-btn {
+    flex-shrink: 0;
+    width: 34px;
+    height: 34px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    border: none;
+    border-radius: 50%;
+    cursor: pointer;
+
+    background-color: #4a4a4a;
+    transition: background-color 0.2s ease-in-out, transform 0.2s ease-in-out;
+}
+
+.call-btn:hover {
+    transform: scale(1.06);
+}
+
+.call-btn:active {
+    transform: scale(0.94);
+}
+
+.call-btn img {
+    width: 16px;
+    height: 16px;
+    object-fit: contain;
+    pointer-events: none;
+}
+
+.call-btn-mic.is-off,
+.call-btn-cam.is-off {
+    background-color: #6f6f6f;
+}
+
+/* --- Botón de en medio: contestar / rechazar / colgar --- */
+.call-btn-accept {
+    background-color: #3ad07a;
+}
+
+.call-btn-accept img {
+    transform: rotate(0deg);
+}
+
+.call-btn-decline {
+    background-color: #e53935;
+}
+
+.call-btn-decline img {
+    transform: rotate(-135deg);
+}
+
+/* Al contestar, este es el mismo botón: gira -47° y queda como colgar */
+.call-btn-hangup {
+    background-color: #e53935;
+}
+
+.call-btn-hangup img {
+    transform: rotate(-47deg);
+    transition: all 0.25s ease-in-out;
+}
