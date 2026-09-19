@@ -54,11 +54,48 @@
     display: block;
 }
 
+.itinerario-img.editable {
+    cursor: pointer;
+}
+
+.itinerario-img-overlay {
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+
+    background-color: rgba(0, 0, 0, 0.45);
+
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+
+    color: #fff;
+    font-size: 0.8rem;
+    font-weight: 600;
+    cursor: pointer;
+
+    transition: background-color 0.2s ease-in-out;
+}
+
+.itinerario-img-overlay:hover {
+    background-color: rgba(0, 0, 0, 0.6);
+}
+
+.itinerario-img-overlay-icon {
+    width: 20px;
+    height: 20px;
+    filter: brightness(0) invert(1);
+    pointer-events: none;
+}
+
 .itinerario-name-and-buttons {
     position: absolute;
     left: 0;
     right: 0;
     bottom: 0;
+    z-index: 2;
 
     display: flex;
     align-items: center;
@@ -80,6 +117,32 @@
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+}
+
+.itinerario-Name-edit {
+    flex: 1;
+    min-width: 0;
+
+    background-color: rgba(255, 255, 255, 0.12);
+    border: 1px solid rgba(255, 255, 255, 0.4);
+    border-radius: 6px;
+    padding: 5px 8px;
+
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: #fff;
+    outline: none;
+
+    transition: border-color 0.2s ease-in-out, background-color 0.2s ease-in-out;
+}
+
+.itinerario-Name-edit::placeholder {
+    color: rgba(255, 255, 255, 0.6);
+}
+
+.itinerario-Name-edit:focus {
+    border-color: #4e9fbe;
+    background-color: rgba(255, 255, 255, 0.18);
 }
 
 .itinerario-Compartir,
@@ -105,6 +168,10 @@
     background-color: #1f4d63;
 }
 
+.itinerario-Editar.activo {
+    background-color: #4e9fbe;
+}
+
 .itinerario-Compartir img,
 .itinerario-Editar img {
     width: 14px;
@@ -112,6 +179,17 @@
     object-fit: contain;
     pointer-events: none;
     filter: brightness(0) invert(1);
+}
+
+.itinerario-editando-aviso {
+    flex-shrink: 0;
+    font-size: 0.75rem;
+    color: #8ecdea;
+    background-color: rgba(78, 159, 190, 0.12);
+    border: 1px solid #4e9fbe;
+    border-radius: 8px;
+    padding: 6px 10px;
+    margin: 0;
 }
 
 /* ---------- Lista de paradas ---------- */
@@ -153,6 +231,22 @@
 
     padding: 10px 0;
     border-bottom: 1px solid #2c3e46;
+
+    overflow-x: auto;     /* si no cabe, scrollea ella sola en vez de que la recorten */
+    overflow-y: hidden;
+}
+
+.itinerario-Venues::-webkit-scrollbar {
+    height: 4px;
+}
+
+.itinerario-Venues::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.itinerario-Venues::-webkit-scrollbar-thumb {
+    background-color: #4e9fbe;
+    border-radius: 2px;
 }
 
 /* Fecha */
@@ -205,6 +299,60 @@
     white-space: nowrap;
 }
 
+/* Fecha/hora en modo edición */
+.itinerario-fecha-edit {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.itinerario-input-fecha,
+.itinerario-input-hora {
+    background-color: #0f1b22;
+    border: 1px solid #2c3e46;
+    border-radius: 6px;
+    color: #fff;
+    font-size: 0.7rem;
+    padding: 4px 6px;
+    outline: none;
+    color-scheme: dark; /* para que el icono del picker nativo se vea bien en fondo oscuro */
+}
+
+.itinerario-input-fecha:focus,
+.itinerario-input-hora:focus {
+    border-color: #4e9fbe;
+}
+
+/* Handle para arrastrar y reordenar */
+.itinerario-drag-handle {
+    flex-shrink: 0;
+    width: 24px;
+    height: 24px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    color: #8a9ba3;
+    font-weight: 700;
+    letter-spacing: -2px;
+    cursor: grab;
+    user-select: none;
+    transition: color 0.2s ease-in-out;
+}
+
+.itinerario-drag-handle:hover {
+    color: #4e9fbe;
+}
+
+.itinerario-drag-handle:active {
+    cursor: grabbing;
+}
+
+.itinerario-parada[draggable="true"] {
+    cursor: grab;
+}
+
 /* ---------- Línea de tiempo vertical ---------- */
 .itinerario-timeline {
     flex-shrink: 0;
@@ -238,8 +386,96 @@
     background-color: #4e9fbe;
 }
 
+/* ---------- Responsividad ---------- */
 @media (max-width: 700px) {
+    .itinerario-img {
+        height: 120px;
+    }
+
+    .itinerario-Name {
+        font-size: 0.9rem;
+    }
+
+    .itinerario-Venues {
+        gap: 8px;
+    }
+
+    .itinerario-fecha {
+        font-size: 0.65rem;
+    }
+
+    .itinerario-username {
+        max-width: 70px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+}
+
+@media (max-width: 480px) {
+    .Itinerario-Container {
+        gap: 6px;
+    }
+
+    .itinerario-img {
+        height: 100px;
+    }
+
+    .itinerario-Volver,
+    .itinerario-Compartir,
+    .itinerario-Editar {
+        width: 24px;
+        height: 24px;
+    }
+
+    .itinerario-editando-aviso {
+        font-size: 0.68rem;
+        padding: 5px 8px;
+    }
+
+    /* En pantallas muy chicas, cada parada se acomoda en 2 líneas
+       en vez de forzar el scroll horizontal */
+    .itinerario-parada {
+        flex-wrap: wrap;
+    }
+
     .itinerario-Venues {
         flex-wrap: wrap;
+        overflow-x: visible;
+        flex-basis: 100%;
+        gap: 8px 12px;
+        row-gap: 8px;
+    }
+
+    .itinerario-Venues .Venues-grid.compact {
+        width: 160px;
+    }
+
+    .itinerario-fecha {
+        font-size: 0.68rem;
+    }
+
+    .itinerario-adder {
+        flex-basis: 100%;
+    }
+
+    .itinerario-username {
+        max-width: none;
+    }
+
+    .itinerario-drag-handle {
+        order: -1;
+        width: 100%;
+        height: 20px;
+    }
+
+    .itinerario-timeline {
+        flex-direction: row;
+        width: 100%;
+        height: 16px;
+        margin-top: -4px;
+    }
+
+    .timeline-linea {
+        display: none; /* la línea vertical no aplica bien en modo columna/fila mixta */
     }
 }
