@@ -8,7 +8,7 @@ import { useAuth } from '../context/AuthContext'
 import { useParams } from 'react-router-dom'
 
 import { useEffect,useState } from 'react'
-import { getUserProfile } from '../services/authService'
+import { getUserProfile, getFollowing, setFollow, unFollow } from '../services/authService'
 import { detectarRed } from '../utils/socialIcons'
 
 import PerfilFoton from '../images/Cat.jpg'
@@ -23,6 +23,8 @@ import DeleteIcon from '../icons/ui/others/basura (1).png'
 import linckIcon from '../icons/ui/others/enlace.png'
 
 import '../style/Perfil.css'
+
+// Nota (Mau): por una cosa borre lo que tenia XD (Contacs.jsx, UserTag.jsx & This).
 
 // Nombre y total de itinerarios que pide cada insignia.
 // (Esmeralda, Amatista y Perla: puse 64, 74 y 84 siguiendo el patrón, cámbialos por los reales)
@@ -61,12 +63,24 @@ export default  function Perfil(){
     const [linkInput,setLinkInput] = useState('');
     const [editandoLinkId,setEditandoLinkId] = useState(null);
 
-    const handleFollow = () => {
-        if(siguiendo){
-            setSiguiendo(false);
+    const handleFollow = async () => {
+        if(!user?.id || !currentUser?.id) return; // sin sesión no se puede seguir
+
+        const yaSigue = siguiendo;
+        setSiguiendo(!yaSigue); // cambio el botón de inmediato...
+
+        try{
+            const data = yaSigue
+                ? await unFollow(currentUser.id, user.id)
+                : await setFollow(currentUser.id, user.id);
+
+            if(!data.success){
+                throw new Error(data.error);
+            }
         }
-        else{
-            setSiguiendo(true);
+        catch(err){
+            console.error(err);
+            setSiguiendo(yaSigue); // ...y si el servidor falló, lo regreso como estaba
         }
     }
 
@@ -126,6 +140,26 @@ export default  function Perfil(){
 
     // esta madre sabe si es el tú perfil o neh
     const isOwnProfile = user && currentUser && user.id === currentUser.id;
+
+    // ¿Ya sigo a este Usuario? (para que el botón salga como "Siguiendo" al entrar)
+    useEffect(() => {
+        if(!user?.id || !currentUser?.id || user.id === currentUser.id) return;
+
+        const cargarSeguimiento = async () => {
+            try{
+                const data = await getFollowing(user.id);
+
+                if(data.success){
+                    setSiguiendo(data.users.some(u => u.id === currentUser.id));
+                }
+            }
+            catch(err){
+                console.error(err);
+            }
+        };
+
+        cargarSeguimiento();
+    }, [user?.id, currentUser?.id]);
 
     // Icono de la red que se está escribiendo en el input (null si no la reconoce)
     const redInput = detectarRed(linkInput);

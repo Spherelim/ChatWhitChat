@@ -30,14 +30,14 @@ export default function ItinerarioCards({
                 <img src={Eliminar_Icon} alt="Eliminar" />
             </button>
 
-            <button
+            {/* <button
                 type='button'
                 className='Compartir-Itinerario-card'
                 onClick={(e) => { e.stopPropagation(); onCompartir?.(); }}
                 title='Compartir'
             >
                 <img src={Compartir_Itinerario} alt="Compartir" />
-            </button>
+            </button> */}
 
             <h3 className='itinerario-card-Name'>{nombre}</h3>
         </div>

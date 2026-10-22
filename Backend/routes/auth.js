@@ -256,23 +256,7 @@ router.post("/resend-verification",async (req, res)=>{
 
 });
 
-// Codigo Viejo - Registro. 
-// router.post("/register", (req,res)=>{
-//         const {username, email, password} = req.body;
-
-//         console.log("Datos recibidos:", { username, email, password });
-
-//         const sql = "CALL SP_Register(?,?,?);";
-//         db.query(sql, [username, email, password], (err, result) => {
-//             if (err) {
-//                 console.error("Error registering user:", err);
-//                 res.status(500).json({ success: false, error: err.message, code: err.code });
-//             } else {
-//                 res.status(201).json({ success: true, message: "User registered successfully" });
-//             }
-//         });
-// });
-
+// No tengo que decir para que  sirve esto, por que es muy obvio para que es.
 router.post("/login", (req,res)=>{
     const {username, password} = req.body;
 
@@ -333,6 +317,65 @@ router.post("/login", (req,res)=>{
             return res.status(401).json({ success: false, error: "Invalid credentials", code: "INVALID_CREDENTIALS" });
         }
         
+    });
+});
+
+// Seguir a un Usuario.
+//   :id  -> el Usuario al que quieren seguir
+//   body -> { seguidorId }  el Usuario que está siguiendo (el que inició sesión)
+// OJO con el orden en el SP: SP_Follow(P_IdUs = seguido, P_IdSeg = seguidor)
+router.post("/Follow/:id",(req,res)=>{
+    const { id } = req.params;
+    const { seguidorId } = req.body;
+
+    if(!seguidorId){
+        return res.status(400).json({success:false, error:"Falta el id del seguidor"});
+    }
+
+    // la Tabla ya tiene un CHECK, pero en MySQL viejo se ignora, mejor validar aquí también
+    if(Number(id) === Number(seguidorId)){
+        return res.status(400).json({success:false, error:"No puedes seguirte a ti mismo"});
+    }
+
+    const sql =  `CALL SP_Follow(?,?)`;
+
+    db.query(sql,[id,seguidorId],(err,result)=>{
+        if(err){
+            // Ya lo seguía (llave primaria repetida): no es un error de verdad
+            if(err.code === "ER_DUP_ENTRY"){
+                return res.status(200).json({success:true,message:"Ya seguías a este usuario"});
+            }
+            // El Usuario no existe (llave foránea)
+            if(err.code === "ER_NO_REFERENCED_ROW_2"){
+                return res.status(404).json({success:false, error:"Usuario no encontrado"});
+            }
+
+            console.error("Error al seguir usuario:", err);
+            return res.status(500).json({success:false, error: err.message});
+        }
+
+        res.status(200).json({success:true,message:"Seguido correctamente"});
+    });
+});
+
+// Dejar de seguir (mismo formato: :id = a quien dejas de seguir, body = { seguidorId })
+router.post("/unFollow/:id",(req,res)=>{
+    const { id } = req.params;
+    const { seguidorId } = req.body;
+
+    if(!seguidorId){
+        return res.status(400).json({success:false, error:"Falta el id del seguidor"});
+    }
+
+    const sql =  `CALL SP_UnFollow(?,?)`;
+
+    db.query(sql,[id,seguidorId],(err,result)=>{
+        if(err){
+            console.error("Error al dejar de seguir usuario:", err);
+            return res.status(500).json({success:false, error: err.message});
+        }
+
+        res.status(200).json({success:true,message:"Dejó de seguir correctamente"});
     });
 });
 
@@ -412,6 +455,36 @@ router.get("/friends/search",(req,res)=>{
                 res.status(404).json({success: false, error: "No encontrado", code: "NOT_FOUND"})
             }
         }
+    });
+});
+
+// Usuarios a los que SIGUE el Usuario :id (de aquí salen los ChatTag de Contacts)
+router.get("/following/:id",(req,res)=>{
+    const { id } = req.params;
+
+    // Follow.id_Seguidor = el que sigue, Follow.id_Usuario = el seguido
+    const sql = `SELECT u.* FROM V_Usuarios u
+    INNER JOIN Follow f ON f.id_Usuario = u.id
+    WHERE f.id_Seguidor = ?`;
+
+    db.query(sql,[id],(err,result)=>{
+        if(err){
+            console.error("Error fetching following:", err);
+            return res.status(500).json({success:false, error: err.message, code: err.code});
+        }
+
+        // Si no sigue a nadie NO es un error: lista vacía y 200
+        const users = result.map(user => ({
+            id: user.id,
+            foto: user.Foto,
+            banner: user.Banner,
+            username: user.Nombre_De_Usuario,
+            email: user.Correo,
+            biografia: user.Biografia,
+            estado: user.Estado
+        }));
+
+        res.status(200).json({success:true, users});
     });
 });
 

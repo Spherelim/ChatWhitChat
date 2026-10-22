@@ -40,7 +40,7 @@ export default function VenueTag({ compact = false}){
                 <div className='venue-header'>
                     <h3 className='venue-name'>Arena Monterrey</h3>
                     <p className='venue-tag'>Sala de Conciertos</p>
-                    <img src={Compartir} alt="compartir" className='btn-compartir' />
+                    {/* <img src={Compartir} alt="compartir" className='btn-compartir' /> */}
                 </div>
             </div>
 
