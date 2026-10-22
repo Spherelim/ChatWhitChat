@@ -123,9 +123,9 @@ export default function Itinerario({ itinerario, onBack }){
                     ) : (
                         <h3 className='itinerario-Name'>{nombreEditado}</h3>
                     )}
-                    <button type='button' className='itinerario-Compartir' title='Compartir'>
+                    {/* <button type='button' className='itinerario-Compartir' title='Compartir'>
                         <img src={Compartir_Itinerario} alt="compartir" />
-                    </button>
+                    </button> */}
                     <button
                         type='button'
                         className={`itinerario-Editar ${editando ? 'activo' : ''}`}

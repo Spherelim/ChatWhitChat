@@ -6,7 +6,8 @@ import { useAuth } from '../context/AuthContext.jsx'
 import DefaultFoto from '../images/Cat.jpg';
 import DefaultBanner from '../images/RomanStatue.png';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
+import { setFollow, unFollow, getFollowing } from '../services/authService';
 
 export default function UserTag({users}){
 
@@ -18,16 +19,52 @@ export default function UserTag({users}){
     const filteredUsers = loggedUser ? users.filter(user => user.id !== loggedUser.id)
     : users;
 
-    const handleFollow = (e, userId) => {
-        e.stopPropagation();
-        // console.log("Falta Implementar la logica para el servidor, Seguir a: ", userId);
-        
-        setSiguiendo(prev => ({
-            ...prev,
-            [userId]: !prev[userId]
-        }));
+    // Al cargar: ¿a quién sigo ya? (para que los botones salgan como "Siguiendo")
+    useEffect(() => {
+        if(!loggedUser?.id) return;
 
-        console.log(`Usuario ${userId} ahora ${siguiendo[userId] ? 'deja de seguir' : 'sigue'}`);
+        const cargarSeguidos = async () => {
+            try{
+                const data = await getFollowing(loggedUser.id);
+
+                if(data.success){
+                    const mapa = {};
+                    data.users.forEach(u => { mapa[u.id] = true; });
+                    setSiguiendo(mapa);
+                }
+            }
+            catch(err){
+                console.error('Error al cargar seguidos:', err);
+            }
+        };
+
+        cargarSeguidos();
+    }, [loggedUser?.id]);
+
+    const handleFollow = async (e, userId) => {
+        e.stopPropagation();
+
+        if(!loggedUser?.id) return; // sin sesión no se puede seguir
+
+        const yaSigue = siguiendo[userId] || false;
+
+        // Cambio el botón de inmediato (se siente rápido)...
+        setSiguiendo(prev => ({ ...prev, [userId]: !yaSigue }));
+
+        try{
+            const data = yaSigue
+                ? await unFollow(userId, loggedUser.id)
+                : await setFollow(userId, loggedUser.id);
+
+            if(!data.success){
+                throw new Error(data.error);
+            }
+        }
+        catch(err){
+            console.error('Error al seguir/dejar de seguir:', err);
+            // ...y si el servidor falló, lo regreso como estaba
+            setSiguiendo(prev => ({ ...prev, [userId]: yaSigue }));
+        }
     }
 
     return (
@@ -38,7 +75,7 @@ export default function UserTag({users}){
                     <div 
                         key={index} 
                         className={`user-card ${user.estado === 'Inactivo' ? 'inactive' : ''}`}
-                        onClick={()=>navigate(`/perfil/${user.id}`)}
+                        onClick={()=>navigate(`/perfil/${user.id}`)} //Dirije al perfil del Usuario
                     >
                         <div className="user-banner-card" 
                         // onClick={()=>navigate(`/perfil/${user.id}`)}
@@ -62,7 +99,8 @@ export default function UserTag({users}){
                             </div>
 
                             <button className={isFollowing ? 'btn-follow following' : 'btn-follow'}
-                                onClick={(e) => handleFollow(e,user.id)}>{isFollowing ? 'Siguiendo' : 'Seguir'}</button>
+                                onClick={(e) => handleFollow(e,user.id)}>{isFollowing ? 'Siguiendo' : 'Seguir'}
+                            </button>
 
                             <h3 className="username-card">{user.username}</h3>
                             <p className="user-email-card">{user.email}</p>

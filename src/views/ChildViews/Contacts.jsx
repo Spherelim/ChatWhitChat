@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 
 import '../../style/ChildViews/Contacts.css'
 import GrupoIcon from '../../icons/ui/chat/usuarios (1).png';
@@ -6,24 +6,64 @@ import DefaultFoto from '../../images/Cat.jpg';
 
 import ChatTag from '../../components/ChatTag';
 
+import { useAuth } from '../../context/AuthContext.jsx';
+import { getFollowing } from '../../services/authService';
+
 // Datos de prueba (luego los traes del backend)
-const CONTACTOS_DEMO = Array.from({ length: 15 }, (_, i) => ({
-    id: i,
-    username: `UserName ${i + 1}`,
-    lastMessage: 'últ. vez hoy a las 4:32 p.m.',
-    clock: '4:32 p.m.',
-    online: i % 3 === 0,
-}));
+// const CONTACTOS_DEMO = Array.from({ length: 15 }, (_, i) => ({
+//     id: i,
+//     username: `UserName ${i + 1}`,
+//     lastMessage: 'últ. vez hoy a las 4:32 p.m.',
+//     clock: '4:32 p.m.',
+//     online: i % 3 === 0,
+// }));
 
 export default function Contacts({ collapsed = false, activeId = null, onSelect }){
+    const { user } = useAuth();
+
     const [query, setQuery] = useState('');
+    const [contactos, setContactos] = useState([]);
+
+    // Contactos = los Usuarios a los que sigo
+    const cargarContactos = useCallback(async () => {
+        if(!user?.id){
+            setContactos([]);
+            return;
+        }
+
+        try{
+            const data = await getFollowing(user.id);
+
+            if(data.success){
+                setContactos(data.users.map(u => ({
+                    id: u.id,
+                    username: u.username,
+                    avatar: u.foto || DefaultFoto,
+                    online: u.estado === 'Activo',
+                    // Todavía no hay mensajes en el backend: de momento muestro el estado
+                    lastMessage: u.estado === 'Activo' ? 'En línea' : 'Desconectado',
+                })));
+            }
+        }
+        catch(err){
+            console.error('Error al cargar contactos:', err);
+        }
+    }, [user?.id]);
+
+    useEffect(() => {
+        cargarContactos();
+
+        // authService avisa con este evento cuando sigues/dejas de seguir a alguien
+        window.addEventListener('contactos:actualizar', cargarContactos);
+        return () => window.removeEventListener('contactos:actualizar', cargarContactos);
+    }, [cargarContactos]);
 
     // --- Modo "crear grupo" ---
     const [modoGrupo, setModoGrupo] = useState(false);
     const [seleccionados, setSeleccionados] = useState([]);
     const [nombreGrupo, setNombreGrupo] = useState('');
 
-    const contactos = CONTACTOS_DEMO.filter(c =>
+    const contactosFiltrados = contactos.filter(c =>
         c.username.toLowerCase().includes(query.toLowerCase())
     );
 
@@ -110,7 +150,7 @@ export default function Contacts({ collapsed = false, activeId = null, onSelect 
             )}
 
             <div className='Contacts-area'>
-                {contactos.map(c => (
+                {contactosFiltrados.map(c => (
                     <ChatTag
                         key={c.id}
                         avatar={c.avatar}
@@ -133,8 +173,10 @@ export default function Contacts({ collapsed = false, activeId = null, onSelect 
                     />
                 ))}
 
-                {contactos.length === 0 && (
-                    <p className='contacts-empty'>Sin resultados</p>
+                {contactosFiltrados.length === 0 && (
+                    <p className='contacts-empty'>
+                        {query ? 'Sin resultados' : 'Aún no sigues a nadie'}
+                    </p>
                 )}
             </div>
 
