@@ -54,6 +54,11 @@
     flex-shrink: 0;
 }
 
+/* En los mensajes con archivo la hora va abajo a la derecha */
+.Message-container.is-media .message-meta {
+    align-self: flex-end;
+}
+
 .message-clock {
     font-size: 0.62rem;
     color: #bdbdbd;
@@ -65,51 +70,73 @@
     color: #4E9FBE;
 }
 
-/* --- Ubicación --- */
-.message-ubicacion {
+/* --- Foto --- */
+.message-media-link {
+    display: block;
+    line-height: 0;
+}
+
+.message-imagen {
+    display: block;
+    width: 260px;
+    max-width: 100%;
+    max-height: 300px;
+    min-height: 60px;
+    object-fit: cover;
+
+    border-radius: 10px;
+    background-color: #1c1c1c;
+    cursor: zoom-in;
+}
+
+/* --- Video --- */
+.message-video {
+    display: block;
+    width: 260px;
+    max-width: 100%;
+    max-height: 300px;
+
+    border-radius: 10px;
+    background-color: #000;
+}
+
+/* --- Audio --- */
+.message-audio-bloque {
     display: flex;
     flex-direction: column;
-    gap: 6px;
+    gap: 4px;
 }
 
-.message-mapa-falso {
-    position: relative;
-    width: 220px;
-    height: 130px;
-    border-radius: 10px;
-    overflow: hidden;
-
-    background-color: #1c1c1c;
-    background-image:
-        repeating-linear-gradient(35deg, rgba(255, 255, 255, 0.06) 0 2px, transparent 2px 26px),
-        repeating-linear-gradient(-15deg, rgba(255, 255, 255, 0.05) 0 2px, transparent 2px 34px);
-
-    display: flex;
-    align-items: center;
-    justify-content: center;
+.message-audio {
+    display: block;
+    width: 240px;
+    max-width: 100%;
+    height: 36px;
 }
 
-.message-pin {
-    font-size: 1.6rem;
-    filter: drop-shadow(0 2px 3px rgba(0, 0, 0, 0.5));
-}
-
-.message-ubicacion-label {
-    margin: 0;
-    font-size: 0.72rem;
-    color: #cfcfcf;
-}
-
-/* --- Archivo --- */
+/* --- Documento / archivo (tarjeta) --- */
 .message-archivo {
     display: flex;
     align-items: center;
     gap: 10px;
     min-width: 180px;
+
+    padding: 6px 8px;
+    border-radius: 10px;
+    background-color: rgba(0, 0, 0, 0.22);
+
+    text-decoration: none;
+    color: inherit;
+    transition: background-color 0.2s ease-in-out;
+}
+
+a.message-archivo:hover {
+    background-color: rgba(0, 0, 0, 0.35);
 }
 
 .message-archivo-icono {
-    font-size: 1.4rem;
+    font-size: 1.8rem;
+    line-height: 1;
     flex-shrink: 0;
 }
 
@@ -134,26 +161,77 @@
     margin: 0;
     font-size: 0.68rem;
     color: #b5b5b5;
-    text-transform: capitalize;
 }
 
-/* --- Itinerario compartido --- */
-.message-itinerario {
+/* --- Ubicación (mapa de OpenStreetMap) --- */
+.message-ubicacion {
     display: flex;
-    align-items: center;
-    gap: 8px;
+    flex-direction: column;
+    gap: 6px;
+
+    text-decoration: none;
+    color: inherit;
 }
 
-.message-itinerario-icono {
-    font-size: 1.3rem;
-    flex-shrink: 0;
+.message-mapa {
+    width: 240px;
+    max-width: 100%;
+    height: 140px;
+    border-radius: 10px;
+    overflow: hidden;
+    background-color: #1c1c1c;
+}
+
+.message-mapa iframe {
+    width: 100%;
+    height: 100%;
+    border: 0;
+    display: block;
+    pointer-events: none;     /* para que el click lo reciba el <a> y abra Google Maps */
+}
+
+.message-ubicacion-label {
+    margin: 0;
+    font-size: 0.72rem;
+    color: #cfcfcf;
+}
+
+/* --- Itinerario compartido (tarjeta con foto) --- */
+.message-itinerario {
+    width: 240px;
+    max-width: 100%;
+    border-radius: 10px;
+    overflow: hidden;
+    background-color: rgba(0, 0, 0, 0.22);
+}
+
+.message-itinerario-foto {
+    display: block;
+    width: 100%;
+    height: 90px;
+    object-fit: cover;
+    background-color: #16303f;
+}
+
+.message-itinerario-info {
+    padding: 6px 8px 8px;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.message-itinerario-etiqueta {
+    margin: 0;
+    font-size: 0.66rem;
+    color: #8ecdea;
 }
 
 .message-itinerario-nombre {
     margin: 0;
-    font-size: 0.8rem;
-    font-weight: 600;
+    font-size: 0.85rem;
+    font-weight: 700;
     color: #fff;
+    word-break: break-word;
 }
 
 /* --- Estados (solo mensajes propios) --- */
