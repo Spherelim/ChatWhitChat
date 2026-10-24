@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, useCallback } from 'react';
 
 import '../../style/ChildViews/Chat.css'
 
@@ -16,15 +16,25 @@ import EmojiPicker from '../../components/EmojiPiker';
 import ShowItinerarios from '../../includes/ShowItinerarios';
 
 import { useCall } from '../../context/CallContext';
+import { useAuth } from '../../context/AuthContext.jsx';
 
-const MENSAJES_DEMO = [
-    { id: 1, text: 'Hola',  clock: '10:20 a.m.', own: true,  status: 'pending' },
-    { id: 2, text: 'Hola?', clock: '5:20 p.m.',  own: true,  status: 'seen'    },
-    { id: 3, text: 'Hola',  clock: '10:20 a.m.', own: false                    },
-];
+import { conectarSocket, getSocket } from '../../services/Socket.js';
+import {
+    abrirConversacionPrivada,
+    getMensajes,
+    subirArchivo,
+    mensajeAUI,
+    formatearHora,
+} from '../../services/Chatservice.js';
+
+const nuevaClave = () => `tmp-${Date.now()}-${Math.random().toString(36).slice(2)}`;
 
 export default function Chat({ contact, onBack }){
-    const [mensajes, setMensajes] = useState(MENSAJES_DEMO);
+    const { user } = useAuth();
+    const miId = user?.id;
+
+    const [mensajes, setMensajes] = useState([]);
+    const [estado, setEstado] = useState('cargando');   // 'cargando' | 'listo' | 'error'
     const [texto, setTexto] = useState('');
     const [mostrarMultimedia, setMostrarMultimedia] = useState(false);
     const [mostrarEmojis, setMostrarEmojis] = useState(false);
@@ -37,10 +47,136 @@ export default function Chat({ contact, onBack }){
     const finRef = useRef(null);
     const textingWrapperRef = useRef(null);
 
-    // baja el scroll al último mensaje
+    const conversacionRef = useRef(null);       // id de la conversación abierta
+    const ultimoRecibidoRef = useRef(null);     // id del último mensaje que me mandó el otro
+    const pegadoAbajoRef = useRef(true);        // ¿estoy viendo lo más reciente?
+    const previewsRef = useRef([]);             // blob: de previews, para liberarlos al salir
+
+    // ---------- Scroll ----------
+    const bajar = useCallback((suave = true) => {
+        finRef.current?.scrollIntoView({ behavior: suave ? 'smooth' : 'auto' });
+    }, []);
+
+    const alHacerScroll = (e) => {
+        const el = e.currentTarget;
+        pegadoAbajoRef.current = el.scrollHeight - el.scrollTop - el.clientHeight < 120;
+    };
+
+    // Baja al último mensaje: siempre si lo mandé yo; si lo recibí, solo si ya estaba abajo
+    // (así no te "jalonea" si estás leyendo mensajes viejos)
     useEffect(() => {
-        finRef.current?.scrollIntoView({ behavior: 'smooth' });
-    }, [mensajes]);
+        const ultimo = mensajes[mensajes.length - 1];
+        if (ultimo?.own || pegadoAbajoRef.current) bajar();
+    }, [mensajes, bajar]);
+
+    // ---------- Abrir la conversación + historial + tiempo real ----------
+    useEffect(() => {
+        if (!miId || !contact?.id) return;
+
+        let cancelado = false;
+        const socket = conectarSocket(miId);
+
+        pegadoAbajoRef.current = true;
+        ultimoRecibidoRef.current = null;
+        conversacionRef.current = null;
+        setMensajes([]);
+        setEstado('cargando');
+
+        // Le avisa al otro que ya leí hasta su último mensaje (solo si estoy viendo la pestaña)
+        const avisarLeido = () => {
+            if (document.visibilityState !== 'visible') return;
+            if (!conversacionRef.current || !ultimoRecibidoRef.current) return;
+
+            socket.emit('conversacion:leida', {
+                conversacionId: conversacionRef.current,
+                hastaId: ultimoRecibidoRef.current,
+            });
+        };
+
+        const cargarHistorial = async () => {
+            const data = await getMensajes(conversacionRef.current, miId);
+            if (!data.success) throw new Error(data.error);
+            if (cancelado) return;
+
+            const otros = data.participantes.filter(p => p.usuarioId !== miId);
+            const historial = data.mensajes.map(m =>
+                mensajeAUI(m, miId, otros.length > 0 && otros.every(p => (p.ultimoLeido ?? 0) >= m.id))
+            );
+
+            // Conservo lo que aún está "subiendo/enviando" (ids temporales) por si se reconectó a medias
+            setMensajes(prev => [...historial, ...prev.filter(m => typeof m.id === 'string')]);
+
+            const ultimoAjeno = [...data.mensajes].reverse().find(m => m.remitenteId !== miId);
+            ultimoRecibidoRef.current = ultimoAjeno?.id ?? null;
+            avisarLeido();
+        };
+
+        const iniciar = async () => {
+            try {
+                const abierta = await abrirConversacionPrivada(miId, contact.id);
+                if (!abierta.success) throw new Error(abierta.error);
+                if (cancelado) return;
+
+                conversacionRef.current = abierta.conversacionId;
+                await cargarHistorial();
+                if (!cancelado) setEstado('listo');
+            } catch (err) {
+                if (!cancelado) {
+                    console.error('Error al abrir el chat:', err);
+                    setEstado('error');
+                }
+            }
+        };
+
+        // Llegó un mensaje (del otro, o mío desde otra pestaña/dispositivo)
+        const alRecibir = (m) => {
+            if (m.conversacionId !== conversacionRef.current) return;
+
+            setMensajes(prev => prev.some(x => x.id === m.id) ? prev : [...prev, mensajeAUI(m, miId)]);
+
+            if (m.remitenteId !== miId) {
+                ultimoRecibidoRef.current = m.id;
+                avisarLeido();
+            }
+        };
+
+        // El otro leyó mis mensajes -> pasan a "visto"
+        const alLeer = (d) => {
+            if (d.conversacionId !== conversacionRef.current || d.lectorId === miId) return;
+
+            setMensajes(prev => prev.map(m =>
+                m.own && typeof m.id === 'number' && m.id <= d.hastaId && m.status !== 'seen'
+                    ? { ...m, status: 'seen' }
+                    : m
+            ));
+        };
+
+        // Si se cayó el internet y volvió, recupero lo que me perdí mientras tanto
+        const alReconectar = () => {
+            if (conversacionRef.current) cargarHistorial().catch(err => console.error(err));
+        };
+
+        iniciar();
+
+        socket.on('mensaje:nuevo', alRecibir);
+        socket.on('conversacion:leida', alLeer);
+        socket.io.on('reconnect', alReconectar);
+        document.addEventListener('visibilitychange', avisarLeido);
+
+        return () => {
+            cancelado = true;
+            socket.off('mensaje:nuevo', alRecibir);
+            socket.off('conversacion:leida', alLeer);
+            socket.io.off('reconnect', alReconectar);
+            document.removeEventListener('visibilitychange', avisarLeido);
+            conversacionRef.current = null;
+        };
+    }, [miId, contact?.id]);
+
+    // Libera los blob: de las previews al cerrar el chat
+    useEffect(() => () => {
+        previewsRef.current.forEach(url => URL.revokeObjectURL(url));
+    }, []);
 
     // cierra el dropdown de multimedia o el de emojis si se hace click afuera
     useEffect(() => {
@@ -57,58 +193,118 @@ export default function Chat({ contact, onBack }){
     const horaActual = () =>
         new Date().toLocaleTimeString('es-MX', { hour: '2-digit', minute: '2-digit' });
 
-    const enviar = () => {
-        const limpio = texto.trim();
-        if (!limpio) return;
+    // ---------- Enviar ----------
 
+    // Pone el mensaje en pantalla de inmediato (amarillo = pendiente) y devuelve su clave temporal
+    const agregarPendiente = (datos) => {
+        const key = nuevaClave();
         setMensajes(prev => [...prev, {
-            id: Date.now(),
-            text: limpio,
+            key,
+            id: key,
             clock: horaActual(),
             own: true,
             status: 'pending',
+            ...datos,
         }]);
+        return key;
+    };
+
+    const marcarError = (key) => {
+        setMensajes(prev => prev.map(m => m.key === key ? { ...m, status: 'error' } : m));
+    };
+
+    // El servidor confirmó: el mensaje toma su id real y pasa a "enviado"
+    const confirmar = (key, enviado) => {
+        setMensajes(prev => {
+            // Si por otro camino ya había llegado con su id real, quito el duplicado temporal
+            if (prev.some(m => m.id === enviado.id)) return prev.filter(m => m.key !== key);
+
+            return prev.map(m => m.key === key
+                ? { ...m, id: enviado.id, clock: formatearHora(enviado.fecha), status: 'sent', url: enviado.contenido?.url ?? m.url }
+                : m
+            );
+        });
+    };
+
+    // "conversacionId" se pasa explícito: si cambias de chat mientras se sube un archivo,
+    // el mensaje igual se va a la conversación donde lo empezaste.
+    const emitirMensaje = (conversacionId, key, tipo, contenido) => {
+        const socket = getSocket();
+
+        if (!socket || !conversacionId) {
+            marcarError(key);
+            return;
+        }
+
+        socket.timeout(15000).emit('mensaje:enviar', { conversacionId, tipo, contenido }, (err, res) => {
+            if (err || !res?.ok) {
+                if (res?.error) console.error('No se pudo enviar:', res.error);
+                marcarError(key);
+                return;
+            }
+            confirmar(key, res.mensaje);
+        });
+    };
+
+    const enviar = () => {
+        const limpio = texto.trim();
+        if (!limpio || !conversacionRef.current) return;
+
+        const key = agregarPendiente({ type: 'texto', text: limpio });
+        emitirMensaje(conversacionRef.current, key, 'texto', { texto: limpio });
         setTexto('');
     };
 
     // --- Lo que dispara cada opción del DropdownMultimedia ---
 
-    const handleArchivo = (file, tipo) => {
-        // TODO: cuando haya backend, aquí se sube "file" de verdad.
-        // Por ahora solo lo reflejamos como mensaje para ver el flujo completo.
-        setMensajes(prev => [...prev, {
-            id: Date.now(),
-            type: 'archivo',
-            archivoTipo: tipo,
-            archivoNombre: file.name,
-            clock: horaActual(),
-            own: true,
-            status: 'pending',
-        }]);
+    // tipo: 'documento' | 'media' (foto/video) | 'audio'
+    const handleArchivo = async (file, tipo) => {
+        const conversacionId = conversacionRef.current;
+        if (!conversacionId) return;
+
+        // Preview inmediata con el archivo local, mientras se sube al servidor
+        const previewLocal = URL.createObjectURL(file);
+        previewsRef.current.push(previewLocal);
+
+        const key = agregarPendiente({
+            type: tipo,
+            nombre: file.name,
+            mime: file.type,
+            size: file.size,
+            previewLocal,
+        });
+
+        try {
+            const subido = await subirArchivo(file);
+            emitirMensaje(conversacionId, key, tipo, {
+                url: subido.url,
+                nombre: subido.nombre,
+                mime: subido.mime,
+                size: subido.size,
+            });
+        } catch (err) {
+            console.error('Error al subir el archivo:', err);
+            marcarError(key);
+        }
     };
 
     const handleUbicacion = ({ lat, lng }) => {
-        setMensajes(prev => [...prev, {
-            id: Date.now(),
-            type: 'ubicacion',
-            lat,
-            lng,
-            clock: horaActual(),
-            own: true,
-            status: 'pending',
-        }]);
+        if (!conversacionRef.current) return;
+
+        const key = agregarPendiente({ type: 'ubicacion', lat, lng });
+        emitirMensaje(conversacionRef.current, key, 'ubicacion', { lat, lng });
     };
 
     const handleSeleccionarItinerario = (itinerario) => {
-        setMensajes(prev => [...prev, {
-            id: Date.now(),
-            type: 'itinerario',
-            itinerarioNombre: itinerario.nombre,
-            clock: horaActual(),
-            own: true,
-            status: 'pending',
-        }]);
         setMostrarItinerarios(false);
+        if (!conversacionRef.current) return;
+
+        const key = agregarPendiente({ type: 'itinerario', nombre: itinerario.nombre, foto: itinerario.foto });
+        emitirMensaje(conversacionRef.current, key, 'itinerario', {
+            itinerarioId: itinerario.id,
+            nombre: itinerario.nombre,
+            foto: itinerario.foto,
+        });
     };
 
     const handleSeleccionarEmoji = (emoji) => {
@@ -138,9 +334,16 @@ export default function Chat({ contact, onBack }){
             </div>
 
             {/* --- Mensajes (scrolleable) --- */}
-            <div className='chat-messages'>
-                {mensajes.map(m => (
-                    <Message key={m.id} {...m} />
+            <div className='chat-messages' onScroll={alHacerScroll}>
+                {estado === 'cargando' && <p className='chat-estado'>Cargando mensajes...</p>}
+                {estado === 'error' && <p className='chat-estado chat-estado-error'>No se pudo abrir el chat. Intenta de nuevo.</p>}
+
+                {mensajes.map(({ key, ...m }) => (
+                    <Message
+                        key={key ?? m.id}
+                        {...m}
+                        onMediaLoad={() => pegadoAbajoRef.current && bajar(false)}
+                    />
                 ))}
                 <div ref={finRef} />
             </div>
@@ -181,6 +384,7 @@ export default function Chat({ contact, onBack }){
                             className='texting'
                             placeholder='Escribe un Mensaje...'
                             value={texto}
+                            disabled={estado !== 'listo'}
                             onChange={(e) => setTexto(e.target.value)}
                             onKeyDown={(e) => e.key === 'Enter' && enviar()}
                         />

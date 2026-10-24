@@ -286,3 +286,14 @@
         left: 8px;
     }
 }
+/* ---------- Estado de carga / error del historial ---------- */
+.chat-estado {
+    margin: auto;
+    font-size: 0.8rem;
+    color: #8a8a8a;
+    text-align: center;
+}
+
+.chat-estado-error {
+    color: #FE4343;
+}
