@@ -152,11 +152,53 @@
     position: relative;
     overflow: hidden;
     background-color: #e5e3df;
+
+    /* Leaflet usa z-index altos (hasta 1000) en sus paneles y controles. Con esto quedan
+       "encerrados" dentro del mapa y no se montan sobre el NavBar, el chat o los dropdowns. */
+    z-index: 0;
+    isolation: isolate;
+}
+
+/* ===== MAPA REAL (Leaflet + OpenStreetMap) ===== */
+.mapa-leaflet {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    background-color: #e5e3df;
+}
+
+.mapa-cargando {
+    position: absolute;
+    top: 12px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 1000;
+
+    background-color: rgba(30, 30, 30, 0.8);
+    color: #fff;
+    padding: 6px 14px;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    pointer-events: none;
+}
+
+/* Mensajes de la lista: sin resultados, error, "acerca el mapa"... */
+.mapa-aviso {
+    color: #9a9a9a;
+    font-size: 0.8rem;
+    text-align: center;
+    padding: 8px 4px;
+}
+
+.mapa-aviso-error {
+    color: #FE4343;
 }
 
 /* ===== MAPA SIMULADO (estilo Google Maps claro) ===== */
 /* Sustituir este bloque por el componente real de Google Maps API */
-.mapa-falso {
+/* .mapa-falso {
     position: absolute;
     inset: 0;
     background-color: #eae8e2;
@@ -256,7 +298,7 @@
     font-size: 0.72rem;
     font-weight: 600;
     letter-spacing: 0.3px;
-}
+} */
 
 @media (max-width: 900px) {
     .mapa-content {
@@ -276,11 +318,11 @@
         min-height: 50vh;
     }
 
-    .Lista-Lugares {
+    /* .Lista-Lugares {
         padding: 12px;
     }
 
     .mapa-falso-ciudad {
         font-size: 1.1rem;
-    }
+    } */
 }
