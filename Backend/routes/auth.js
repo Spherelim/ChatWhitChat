@@ -379,6 +379,21 @@ router.post("/unFollow/:id",(req,res)=>{
     });
 });
 
+// Para Crear un Post.
+router.post("/send-post",(req,res)=>{
+
+});
+
+// Comentar un Post o un Comentario (responder a un comentario)
+router.post("/comment",(req,res)=>{
+
+});
+
+// Dar Like a un Post o a un Comentario
+router.post("/like",(req,res)=>{
+
+});
+
 // =====================
 // METODOS GET (Perras... esto lo escribi yo, ¿Cual pinche IA? 🖕)
 // =====================
@@ -517,6 +532,46 @@ router.get("/Perfil/Usuario/:id",(req,res)=>{
             }
         }
     });
+
+});
+
+// Obtener todos los Posts, esto es para mostrarlos en el inicio de la pagina.
+router.get("/Posts",(req,res)=>{
+
+});
+
+// Obtener todos los Posts de un Usuario en Especifico,
+// esto es para mostrarlos en el Perfil del Usuario.
+router.get("/Posts/Usuario/:id",(req,res)=>{
+
+});
+
+// Obtener todos los Comentarios que realizo un Usuario en Especifico,
+// esto es para mostrarlos en el Perfil del Usuario.
+router.get("/Posts/Usuario/:id/Comentarios",(req,res)=>{
+
+});
+
+// Obtener todos los Comentarios de un Post en Especifico,
+// esto es para mostrarlos en el Post en Especifico.
+router.get("/Posts/:id/Comentarios",(req,res)=>{
+
+});
+
+// Buscar Posts por la descripcion.
+router.get("/Search/Posts",(req,res)=>{
+
+    // esto se implementa en el Buscador que esta en el Main.
+
+});
+
+// Buscar Lugares por Nombre o por Tipo (natura, salud, compras, atractivo)
+router.get("/Search/Lugares",(req,res)=>{
+
+    // esto lo tenemos que integrar para el Post, por que a fuerzas tendra que agregar un Lugar
+    // Para que pueda Crear un Post.
+
+    // tambien se podria integrar en el Buscador del Main.
 
 });
 
