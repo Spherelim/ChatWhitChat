@@ -19,6 +19,22 @@
     transform: translateY(2px);
 }
 
+/* ===== Cuando la tarjeta es clicable / está seleccionada (mapa) ===== */
+.Venues-grid.is-clickable {
+    cursor: pointer;
+}
+
+.Venues-grid.is-selected {
+    box-shadow: 0 0 0 2px #4e9fbe, 0 10px 20px rgba(0, 0, 0, 0.3);
+}
+
+/* Sin foto: fondo con el color de la categoría */
+.venue-sin-foto {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, #4e9fbe, #2a4a5e);
+}
+
 /* ===== Variante compacta (solo foto con el encabezado encima) ===== */
 .Venues-grid.compact {
     width: 220px;

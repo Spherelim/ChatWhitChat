@@ -4,6 +4,7 @@ import http from 'http';
 
 import authRoutes from './routes/auth.js';
 import chatRouter from './routes/Chat.js';
+import lugaresRouter from './routes/Lugares.js';
 import { iniciarSocket } from './routes/Chatsocket.js';
 
 const app = express();
@@ -13,6 +14,7 @@ app.use(express.json());
 
 app.use("/", authRoutes);
 app.use(chatRouter);
+app.use(lugaresRouter);
 
 // El socket necesita el servidor HTTP "de verdad", por eso ya no se usa app.listen
 const server = http.createServer(app);
