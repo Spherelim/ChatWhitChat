@@ -11,6 +11,7 @@
     width: 100%;
     overflow: hidden;          /* Evita scroll en el body */
     background-color: #2c2c2c;
+    user-select: none;          /* Evita selección de texto accidental */
 }
 
 .mapa-content {
@@ -194,6 +195,131 @@
 
 .mapa-aviso-error {
     color: #FE4343;
+}
+
+/* ===== UBICACIÓN DEL USUARIO ===== */
+
+/* Punto azul + pulso. Es un divIcon de Leaflet: la clase "ubicacion-icono" reemplaza
+   el cuadro blanco que Leaflet le pone por defecto. */
+.ubicacion-icono {
+    background: none;
+    border: none;
+}
+
+.ubicacion-punto {
+    position: absolute;
+    inset: 3px;
+    border-radius: 50%;
+    background-color: #4285f4;
+    border: 2px solid #ffffff;
+    box-shadow: 0 1px 5px rgba(0, 0, 0, 0.45);
+}
+
+.ubicacion-pulso {
+    position: absolute;
+    inset: 0;
+    border-radius: 50%;
+    background-color: rgba(66, 133, 244, 0.45);
+    animation: ubicacion-pulso 2s ease-out infinite;
+}
+
+@keyframes ubicacion-pulso {
+    from { transform: scale(0.8); opacity: 0.9; }
+    to   { transform: scale(2.6); opacity: 0; }
+}
+
+/* Botón "mi ubicación" (esquina inferior derecha del mapa) */
+.mapa-btn-ubicacion {
+    position: absolute;
+    right: 12px;
+    bottom: 36px;
+    z-index: 1000;
+
+    width: 42px;
+    height: 42px;
+    border: none;
+    border-radius: 50%;
+    background-color: #ffffff;
+    color: #5f6368;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.35);
+    cursor: pointer;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    transition: background-color 0.2s ease-in-out, color 0.2s ease-in-out, transform 0.2s ease-in-out;
+}
+
+.mapa-btn-ubicacion:hover {
+    transform: scale(1.08);
+}
+
+.mapa-btn-ubicacion:active {
+    transform: scale(0.94);
+}
+
+/* Encendida pero el mapa no la está siguiendo (moviste el mapa): azul */
+.mapa-btn-ubicacion.is-activa {
+    color: #4285f4;
+}
+
+/* Encendida y el mapa la sigue: relleno azul */
+.mapa-btn-ubicacion.is-siguiendo {
+    background-color: #4285f4;
+    color: #ffffff;
+}
+
+/* Esperando la primera lectura */
+.mapa-btn-ubicacion.is-buscando {
+    color: #4285f4;
+    animation: ubicacion-buscando 1.2s ease-in-out infinite;
+}
+
+@keyframes ubicacion-buscando {
+    0%, 100% { opacity: 1; }
+    50%      { opacity: 0.45; }
+}
+
+/* Sin permiso */
+.mapa-btn-ubicacion.is-denegada {
+    color: #e74c3c;
+}
+
+/* Aviso junto al botón (permiso denegado, sin señal...) */
+.mapa-aviso-ubicacion {
+    position: absolute;
+    right: 12px;
+    bottom: 90px;
+    z-index: 1000;
+
+    max-width: 260px;
+    padding: 10px 12px;
+    border-radius: 10px;
+
+    background-color: rgba(30, 30, 30, 0.92);
+    color: #ffffff;
+    font-size: 0.78rem;
+    line-height: 1.35;
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.4);
+
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+}
+
+.mapa-aviso-ubicacion button {
+    flex-shrink: 0;
+    border: none;
+    background: none;
+    color: #bdbdbd;
+    font-size: 1.1rem;
+    line-height: 1;
+    cursor: pointer;
+}
+
+.mapa-aviso-ubicacion button:hover {
+    color: #ffffff;
 }
 
 /* ===== MAPA SIMULADO (estilo Google Maps claro) ===== */

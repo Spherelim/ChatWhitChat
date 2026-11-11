@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { MapContainer, TileLayer, CircleMarker, Tooltip, useMap, useMapEvents } from 'react-leaflet';
+import L from 'leaflet';
+import { MapContainer, TileLayer, CircleMarker, Circle, Marker, Tooltip, useMap, useMapEvents } from 'react-leaflet';
 
 import 'leaflet/dist/leaflet.css';
 import '../style/Mapa.css'
@@ -10,6 +11,7 @@ import ToggleItinerario from '../includes/ToggleItinerario';
 import VenueTag from '../components/VenueTag';
 
 import { getCategorias, getLugares } from '../services/lugaresService';
+import useUbicacion from '../hook/useUbicacion';
 
 // Donde abre el mapa (Monterrey)
 const CENTRO_INICIAL = [25.6866, -100.3161];
@@ -39,6 +41,18 @@ const ETIQUETAS_GRUPO = {
     compras: 'Compras',
 };
 const GRUPOS_COMO_BOTON = 3;
+
+// Al centrar el mapa en el usuario se acerca al menos hasta este zoom (calle)
+const ZOOM_AL_CENTRAR = 16;
+
+// El punto azul del usuario. Es un div (no una imagen), así no hay archivos que se rompan al compilar.
+// Los estilos están en Mapa.css (.ubicacion-*).
+const ICONO_USUARIO = L.divIcon({
+    className: 'ubicacion-icono',
+    html: '<span class="ubicacion-pulso"></span><span class="ubicacion-punto"></span>',
+    iconSize: [22, 22],
+    iconAnchor: [11, 11],
+});
 
 // Vive dentro del <MapContainer> para poder usar el mapa: avisa cuál es la zona visible
 // cada vez que el usuario termina de moverlo o de hacer zoom (y una vez al empezar).
@@ -70,6 +84,53 @@ function EscuchaDelMapa({ alCambiarZona }) {
     return null;
 }
 
+// Dibuja al usuario (punto azul + círculo de precisión) y, si está "siguiendo", mueve el mapa con él.
+function UbicacionEnElMapa({ posicion, siguiendo, alMoverElUsuario }) {
+    const mapa = useMap();
+    const yaCentrado = useRef(false);
+
+    // Si el usuario arrastra el mapa con la mano, deja de seguirlo (si no, el mapa se le regresaría solo)
+    useMapEvents({ dragstart: alMoverElUsuario });
+
+    useEffect(() => {
+        if (!siguiendo) {
+            yaCentrado.current = false;
+            return;
+        }
+        if (!posicion) return;
+
+        const destino = [posicion.lat, posicion.lng];
+
+        if (yaCentrado.current) {
+            mapa.panTo(destino);                                    // se movió: el mapa lo acompaña
+        } else {
+            yaCentrado.current = true;                              // primera vez: vuela hasta él
+            mapa.flyTo(destino, Math.max(mapa.getZoom(), ZOOM_AL_CENTRAR));
+        }
+    }, [mapa, posicion, siguiendo]);
+
+    if (!posicion) return null;
+
+    return (
+        <>
+            {/* La precisión que reporta el dispositivo (en metros): GPS ~10 m, wifi/antenas puede ser mucho más */}
+            <Circle
+                center={[posicion.lat, posicion.lng]}
+                radius={posicion.precision}
+                interactive={false}
+                pathOptions={{ color: '#4285f4', weight: 1, fillColor: '#4285f4', fillOpacity: 0.12 }}
+            />
+            <Marker
+                position={[posicion.lat, posicion.lng]}
+                icon={ICONO_USUARIO}
+                interactive={false}
+                keyboard={false}
+                zIndexOffset={1000}
+            />
+        </>
+    );
+}
+
 export default function Mapa() {
     const [grupoActivo, setGrupoActivo] = useState('todos');
     const [masAbierto, setMasAbierto] = useState(false);
@@ -80,6 +141,37 @@ export default function Mapa() {
     const [truncado, setTruncado] = useState(false);
     const [estado, setEstado] = useState('cargando');   // 'cargando' | 'listo' | 'lejos' | 'error'
     const [seleccionadoId, setSeleccionadoId] = useState(null);
+
+    // ---------- Ubicación del usuario ----------
+    const [siguiendo, setSiguiendo] = useState(false);      // ¿el mapa lo acompaña al moverse?
+    const [avisoCerrado, setAvisoCerrado] = useState(null);
+
+    const { estado: estadoUbicacion, posicion, aviso, iniciar, detener } = useUbicacion({
+        alAutoIniciar: () => setSiguiendo(true),            // si ya había dado permiso antes, abre centrado en él
+    });
+
+    const ubicacionEncendida = estadoUbicacion === 'buscando' || estadoUbicacion === 'activa';
+
+    // Un solo botón:
+    //   apagada      -> empieza a seguirte y centra el mapa
+    //   encendida, pero moviste el mapa -> te vuelve a centrar
+    //   encendida y centrada -> deja de mostrar tu ubicación
+    const alPicarUbicacion = () => {
+        if (!ubicacionEncendida) {
+            setAvisoCerrado(null);
+            setSiguiendo(true);
+            iniciar();
+        } else if (!siguiendo) {
+            setSiguiendo(true);
+        } else {
+            setSiguiendo(false);
+            detener();
+        }
+    };
+
+    const tituloBotonUbicacion = !ubicacionEncendida
+        ? 'Mostrar mi ubicación'
+        : siguiendo ? 'Dejar de mostrar mi ubicación' : 'Centrar en mi ubicación';
 
     const mapaRef = useRef(null);
     const zonaRef = useRef(null);          // última zona visible
@@ -280,6 +372,11 @@ export default function Mapa() {
                     >
                         <TileLayer url={TILES_URL} attribution={TILES_ATRIBUCION} />
                         <EscuchaDelMapa alCambiarZona={alCambiarZona} />
+                        <UbicacionEnElMapa
+                            posicion={posicion}
+                            siguiendo={siguiendo}
+                            alMoverElUsuario={() => setSiguiendo(false)}
+                        />
 
                         {lugares.map((lugar) => {
                             const elegido = seleccionadoId === lugar.id;
@@ -304,6 +401,32 @@ export default function Mapa() {
                     </MapContainer>
 
                     {estado === 'cargando' && <span className='mapa-cargando'>Cargando lugares…</span>}
+
+                    {/* Botón "mi ubicación" */}
+                    <button
+                        type='button'
+                        className={`mapa-btn-ubicacion is-${estadoUbicacion} ${siguiendo && estadoUbicacion === 'activa' ? 'is-siguiendo' : ''}`}
+                        onClick={alPicarUbicacion}
+                        title={tituloBotonUbicacion}
+                        aria-label={tituloBotonUbicacion}
+                        aria-pressed={ubicacionEncendida && siguiendo}
+                    >
+                        <svg viewBox='0 0 24 24' width='22' height='22' fill='none' stroke='currentColor' strokeWidth='2' strokeLinecap='round' aria-hidden='true'>
+                            <circle cx='12' cy='12' r='6.5' />
+                            <circle cx='12' cy='12' r='2.2' fill='currentColor' />
+                            <line x1='12' y1='1.5' x2='12' y2='5' />
+                            <line x1='12' y1='19' x2='12' y2='22.5' />
+                            <line x1='1.5' y1='12' x2='5' y2='12' />
+                            <line x1='19' y1='12' x2='22.5' y2='12' />
+                        </svg>
+                    </button>
+
+                    {aviso && aviso !== avisoCerrado && (
+                        <div className='mapa-aviso-ubicacion' role='status'>
+                            <span>{aviso}</span>
+                            <button type='button' aria-label='Cerrar aviso' onClick={() => setAvisoCerrado(aviso)}>×</button>
+                        </div>
+                    )}
                 </main>
 
             </div>
