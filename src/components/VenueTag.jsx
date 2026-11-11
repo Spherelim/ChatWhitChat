@@ -47,7 +47,7 @@ export default function VenueTag({
                     // Sin foto: un fondo con el color de la categoría
                     <div
                         className='venue-sin-foto'
-                        style={color ? { background: `linear-gradient(135deg, ${color}, #2a4a5e)` } : undefined}
+                        style={color ? { background: `${color}` } : undefined}
                     />
                 )}
 

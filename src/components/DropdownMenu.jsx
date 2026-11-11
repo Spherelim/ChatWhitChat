@@ -85,14 +85,14 @@ export default function DropdownMenu({ user, onProfile, onFriend, onExplore, onL
                         Buscar Usuario
                     </button>
 
-                    <button className="dropdown-item" onClick={handleExplore}>
+                    {/* <button className="dropdown-item" onClick={handleExplore}>
                         <svg className="dropdown-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
                             <circle cx="12" cy="12" r="10" strokeWidth="2"/>
                             <line x1="2" y1="12" x2="22" y2="12" strokeWidth="2"/>
                             <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z" strokeWidth="2"/>
                         </svg>
                         Explorar y Itinerario
-                    </button>
+                    </button> */}
                     
                     <div className="dropdown-divider"></div>
 
