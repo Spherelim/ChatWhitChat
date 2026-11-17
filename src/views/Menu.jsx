@@ -1,8 +1,10 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import '../style/Menu.css'
 
 import NavBar from '../includes/NavBar.jsx'
 import { useAuth } from '../context/AuthContext.jsx'
+
+import { getPosts } from '../services/postService.js'
 
 import Post from '../components/Post.jsx'
 import ToggleChat from '../includes/ToggleChat.jsx'
@@ -14,11 +16,20 @@ export default function Menu() {
     const { user } = useAuth();
 
     const [mostrarToPost, setMostrarToPost] = useState(false);
-    const [misPosts, setMisPosts] = useState([]);
+    const [posts, setPosts] = useState([]);
 
-    const handleNuevoPost = (post) => {
-        setMisPosts(prev => [{ ...post, id: Date.now() }, ...prev]);
+    const cargarPosts = async () => {
+        try{
+            const data = await getPosts();
+            if (data.success) setPosts(data.posts);
+        }catch (err) { console.error('Error al cargar posts:', err); }
+    };
+
+    useEffect(() => { cargarPosts(); }, []);
+
+    const handleNuevoPost = () => {
         setMostrarToPost(false);
+        cargarPosts();
     };
 
     return (
@@ -43,26 +54,7 @@ export default function Menu() {
                     user && <p className='Bienvenida'>hola {user.username}, Bienvenido :) </p>
                 }
 
-                {/* <img src="/public/CwC_2.png" alt="Logo" className='menu-logo' />
-
-                    <h1 className='form-title'>Menú</h1>
-                    {
-                        user && <p className='Bienvenida'>Bienvenido, {user.username}!</p>
-                    } */}
-
-                {misPosts.map((post) => (
-                    <Post
-                        key={post.id}
-                        descripcion={post.descripcion}
-                        imagenes={post.imagenes}
-                        venue={post.venue}
-                    />
-                ))}
-
-                <Post></Post>
-                <Post></Post>
-                <Post></Post>
-
+                {posts.map(p => <Post key={p.id} post={p} />)}
 
             </div>
 

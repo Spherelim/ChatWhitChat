@@ -4,6 +4,8 @@ import Post from '../components/Post'
 import VenueTag from '../components/VenueTag'
 import InsigneaCard from '../components/InsigneaCard'
 
+import { getPostsUsuario } from '../services/postService.js'
+
 import { useAuth } from '../context/AuthContext'
 import { useParams } from 'react-router-dom'
 
@@ -63,6 +65,8 @@ export default  function Perfil(){
     const [linkInput,setLinkInput] = useState('');
     const [editandoLinkId,setEditandoLinkId] = useState(null);
 
+    const [posts, setPosts] = useState([]);
+
     const handleFollow = async () => {
         if(!user?.id || !currentUser?.id) return; // sin sesión no se puede seguir
 
@@ -117,13 +121,13 @@ export default  function Perfil(){
 
     useEffect(() => {
         if(!id) return;
-
         const loadProfile = async () =>{
             try{
                 const data = await getUserProfile(id);
 
                 if(data.success){
                     setProfileUser(data.user);
+                    setPosts(data.posts);
                 }
             }
             catch(err){
@@ -161,6 +165,19 @@ export default  function Perfil(){
         cargarSeguimiento();
     }, [user?.id, currentUser?.id]);
 
+    useEffect(() => {
+        if(!currentUser?.id) return;
+
+        const cargarPosts = async () => {
+            try{
+                const data = await getPostsUsuario(currentUser.id);
+                if(data.success) setPosts(data.posts);
+            }catch (err) { console.error('Error al cargar posts:', err); }
+        };
+
+        cargarPosts();
+    },[currentUser?.id]);
+    
     // Icono de la red que se está escribiendo en el input (null si no la reconoce)
     const redInput = detectarRed(linkInput);
 
@@ -231,9 +248,9 @@ export default  function Perfil(){
                     {
                         section === 'Posts' && (
                             <div className='post-content'>
-                                <Post></Post>
-                                <Post></Post>
-                                <Post></Post>
+                                {posts.length === 0 
+                                ? <p style={{color:'#c6d4df', textAlign:'center'}}>Aún no hay posts.</p>
+                                : posts.map(p => <Post key={p.id} post={p} />)}
                             </div>
                         )
                     }

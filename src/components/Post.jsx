@@ -12,30 +12,38 @@ import ShowComentarios from '../includes/ShowComentarios';
 import ShowMessage from '../includes/ShowMessage';
 import ShowGaleria from '../includes/ShowGaleria';
 
-export default function Post({
-    descripcion = 'Hola papus, este es un ejemplo de como se veria un post.\nEsto Tiene que a fuerzas hablar de un Lugar para poder comentar jeje.',
-    imagenes = null,
-    venue = null
-}){
+import { useAuth } from '../context/AuthContext';
+import { urlMedia } from '../services/postService';
 
-    const imagenesDemo = [
-        'https://i.pinimg.com/736x/2b/4a/68/2b4a687a6dc22912342c9e9dae2f1d1c.jpg',
-        'https://i.pinimg.com/736x/2b/4a/68/2b4a687a6dc22912342c9e9dae2f1d1c.jpg',
-        'https://i.pinimg.com/736x/2b/4a/68/2b4a687a6dc22912342c9e9dae2f1d1c.jpg',
-    ];
+// Ahora el Post recibe el objeto que manda el backend:
+// { id, descripcion, fecha, lugar:{id,nombre}, usuario:{id,username,email,foto}, totalComentarios, media:[{url,tipo}] }
+export default function Post({ post }){
 
-    const imgs = imagenes && imagenes.length > 0 ? imagenes : imagenesDemo;
+    const { user } = useAuth();
+
+    const {
+        id,
+        descripcion = '',
+        fecha,
+        lugar,
+        usuario,
+        media = [],
+        totalComentarios = 0
+    } = post || {};
+
+    // [{ url, tipo }] con la URL ya completa
+    const items = media.map(m => ({ url: urlMedia(m.url), tipo: m.tipo }));
 
     const [like,setlike] = useState(false);
     const [Count,setCount] = useState(0);
-
     const [Follow,setFollow] = useState(false);
 
     const [mostrarComentarios, setMostrarComentarios] = useState(false);
     const [mostrarReporte, setMostrarReporte] = useState(false);
+    const [comentarios, setComentarios] = useState(totalComentarios);
 
     // Visor de imágenes: solo existe si hay más de 3 (el post solo muestra 3 + el "+N")
-    const tieneGaleria = imgs.length > 3;
+    const tieneGaleria = items.length > 3;
     const [galeriaIndex, setGaleriaIndex] = useState(null); // null = cerrado
 
     const abrirGaleria = (i) => {
@@ -44,38 +52,47 @@ export default function Post({
 
     const handleLike = () => {
         setlike(prev => !prev);
-        if(like)
-            setCount(0);
-        else
-            setCount(1);
+        setCount(like ? 0 : 1);
     };
-    
+
     const handleFollow = () => setFollow(prev => !prev);
+
+    const esMio = user && usuario && user.id === usuario.id;
+
+    const fechaTexto = fecha
+        ? new Date(fecha).toLocaleDateString('es-MX', { day: 'numeric', month: 'short', year: 'numeric' })
+        : '';
+
+    const renderItem = (item, i) => item.tipo === 'video'
+        ? <video src={item.url} key={i} muted controls={!tieneGaleria} onClick={() => abrirGaleria(i)} />
+        : <img src={item.url} alt="multimedia" key={i} onClick={() => abrirGaleria(i)} />;
 
     return(
         <div className='Post-container'>
             <div className='post-perfil-info'>
-                <img src={DefaultFoto} alt="Foto"
+                <img src={usuario?.foto || DefaultFoto} alt="Foto"
                 className='avatar-img-post'/>
-                <h2 className='username-post'> UserName</h2>
-                <p className='user-email-post'>UserName@example.com</p>
-                <p className='date-post'>Date (14 Sep 2026)</p>
-                <button className={Follow ? 'btn-follow following' : 'btn-follow'} onClick={handleFollow}>{Follow ? 'Siguiendo' : 'Seguir'}</button>
+                <h2 className='username-post'>{usuario?.username || 'UserName'}</h2>
+                <p className='user-email-post'>{usuario?.email || ''}</p>
+                <p className='date-post'>{fechaTexto}</p>
+                {!esMio && (
+                    <button className={Follow ? 'btn-follow following' : 'btn-follow'} onClick={handleFollow}>{Follow ? 'Siguiendo' : 'Seguir'}</button>
+                )}
                 <img src={ReportIcon} alt="Report" className='report' onClick={() => setMostrarReporte(true)}/>
             </div>
             <div className='post-info'>
-                {venue && <p className='post-venue'>📍 {venue}</p>}
+                {lugar && <p className='post-venue'>{lugar.nombre}</p>}
                 <p className='description-post'>{descripcion}</p>
-                {imgs.length > 0 && (
+                {items.length > 0 && (
                     <div className={`multimedia-post ${tieneGaleria ? '' : 'sin-galeria'}`}>
-                        {imgs.slice(0, 3).map((src, i) => (
-                            i === 2 && imgs.length > 3 ? (
+                        {items.slice(0, 3).map((item, i) => (
+                            i === 2 && items.length > 3 ? (
                                 <div className='img-wrapper' key={i}>
-                                    <img src={src} alt="multimedia" onClick={() => abrirGaleria(i)} />
-                                    <span className='multimedia-more'>+{imgs.length - 3}</span>
+                                    {renderItem(item, i)}
+                                    <span className='multimedia-more'>+{items.length - 3}</span>
                                 </div>
                             ) : (
-                                <img src={src} alt="multimedia" key={i} onClick={() => abrirGaleria(i)} />
+                                renderItem(item, i)
                             )
                         ))}
                     </div>
@@ -86,16 +103,20 @@ export default function Post({
                 onClick={handleLike}/>
                 <p className='reaction-count'>{Count}</p>
                 <img src={ComentIcon} alt="comment" className='comment' onClick={() => setMostrarComentarios(true)}/>
-                <p className='comment-count'>0</p>
+                <p className='comment-count'>{comentarios}</p>
             </div>
 
             {mostrarComentarios && (
-                <ShowComentarios onClose={() => setMostrarComentarios(false)} />
+                <ShowComentarios
+                    post={post}
+                    onClose={() => setMostrarComentarios(false)}
+                    onTotal={setComentarios}
+                />
             )}
 
             {galeriaIndex !== null && (
                 <ShowGaleria
-                    imagenes={imgs}
+                    imagenes={items}
                     indiceInicial={galeriaIndex}
                     onClose={() => setGaleriaIndex(null)}
                 />

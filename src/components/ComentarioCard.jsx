@@ -1,6 +1,8 @@
 import '../style/components/ComentarioCard.css';
 import { useState } from 'react';
 
+import { urlMedia } from '../services/postService.js';
+
 import DefaultFoto from '../images/Cat.jpg';
 import ReportIcon from '../icons/ui/exclamacion-de-diamante (1).png';
 import ReactionIcon_Default from '../icons/ui/Post/reaction/corazon (1).png';
@@ -10,10 +12,8 @@ import ComentIcon from '../icons/ui/chat/faro (1).png';
 import ShowMessage from '../includes/ShowMessage';
 
 export default function ComentarioCard({
-    comentario = 'Esta horrible el lugar.',
-    esRespuesta = false,
-    esUltimo = false,
-    respondiendoA = null,
+    comentario = '', usuario = null, fecha= null,
+    esRespuesta = false, esUltimo = false, respondiendoA = null,
     onResponder = () => {}
 }){
 
@@ -28,7 +28,7 @@ export default function ComentarioCard({
                 {/* Esto es la parte de la Linea, si comenta un comentario cambia a la de la flecha */}
                 {/* si se puede interpretar o mejorar de otra manera mejor */}
                 <div className='comentario-despliegue'>
-                    <img src={DefaultFoto} alt="User-foto" className='comentario-user-avatar'/>
+                    <img src={usuario?.foto || DefaultFoto} alt="User-foto" className='comentario-user-avatar'/>
                     <svg className='comentario-linea' viewBox="0 0 40 100" preserveAspectRatio="none">
                         {esRespuesta ? (
                             <>
@@ -44,9 +44,13 @@ export default function ComentarioCard({
 
                 <div className='comentario-body'>
                     <div className='comentario-user-info'>
-                        <p className='comentario-username'>UserName</p>
-                        <p className='comentario-email'>Correo@mail.com</p>
-                        <p className='comentario-Time'>2d</p>
+                        <p className='comentario-username'>{usuario?.username}</p>
+                        <p className='comentario-email'>{usuario?.email}</p>
+
+                        <p className='comentario-Time'>{fecha? 
+                        new Date(fecha).toLocaleDateString('es-MX',
+                        {day:'numeric',month:'short'}) : ''}</p>
+                        
                     </div>
                     <div className='comentario-texto'>
                         <p className='comentario'>
