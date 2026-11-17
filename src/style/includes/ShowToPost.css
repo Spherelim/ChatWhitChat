@@ -134,6 +134,19 @@
     margin: 0;
 }
 
+.ToPost-Venue-lista{
+    max-height: 255px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    padding-right: 4px;
+}
+.ToPost-Venue-lista .Venues-grid.compact{ width: 100%; }
+.ToPost-Venue-lista::-webkit-scrollbar{ width: 6px; }
+.ToPost-Venue-lista::-webkit-scrollbar-thumb{ background: #4e9fbe; border-radius: 3px; }
+.ToPost-Venue-vacio{ font-size:.8rem; color:#9a9a9a; margin:0;}
+
 .ToPost-Multimedia-area{
     display: flex;
     gap: 10px;

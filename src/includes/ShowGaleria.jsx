@@ -11,6 +11,8 @@ export default function ShowGaleria({
     const [indice, setIndice] = useState(indiceInicial);
     const total = imagenes.length;
 
+    const item = imagenes[indice] || null;
+
     const anterior = () => setIndice(prev => (prev - 1 + total) % total);
     const siguiente = () => setIndice(prev => (prev + 1) % total);
 
@@ -42,11 +44,17 @@ export default function ShowGaleria({
             </button>
 
             <div className='ShowGaleria-Visor' onClick={(e) => e.stopPropagation()}>
-                <img
+                {/* <img
                     className='ShowGaleria-Img'
                     src={imagenes[indice]}
                     alt={`Imagen ${indice + 1} de ${total}`}
-                />
+                /> */}
+
+                {item.tipo === 'video'
+                ? <video className='ShowGaleria-Img' src={item.url} controls autoPlay/>
+                : <img className='ShowGaleria-Img' src={item.url} alt={`Imagen ${indice + 1} de ${total}`} />
+                }
+
                 <p className='ShowGaleria-Contador'>{indice + 1} / {total}</p>
             </div>
 
