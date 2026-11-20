@@ -36,10 +36,10 @@ const borrarArchivos = (files = []) =>
 // ---------- Helper: arma los posts con su multimedia ----------
 const POSTS_SQL = `
     SELECT p.ID_Post, p.Descripcion, p.Fecha, p.ID_Lugar, l.Nombre AS Lugar,
-           u.id AS UsuarioId, u.Nombre_De_Usuario, u.Correo, u.Foto,
+           u.Folio AS UsuarioId, u.Nombre_De_Usuario, u.Correo, u.Foto,
            (SELECT COUNT(*) FROM Comentario c WHERE c.ID_Post = p.ID_Post) AS TotalComentarios
     FROM Post p
-    INNER JOIN V_Usuarios u ON u.id = p.id_Usuario
+    INNER JOIN V_Usuarios u ON u.Folio = p.id_Usuario
     INNER JOIN Lugar l ON l.ID_Lugar = p.ID_Lugar
 `;
 
@@ -206,9 +206,9 @@ router.get('/Posts/Usuario/:id', (req, res) => {
 router.get('/Posts/:id/Comentarios', (req, res) => {
     const sql = `
         SELECT c.ID_Comentario, c.ID_Padre, c.Texto, c.Fecha,
-               u.id AS UsuarioId, u.Nombre_De_Usuario, u.Correo, u.Foto
+               u.Folio AS UsuarioId, u.Nombre_De_Usuario, u.Correo, u.Foto
         FROM Comentario c
-        INNER JOIN V_Usuarios u ON u.id = c.id_Usuario
+        INNER JOIN V_Usuarios u ON u.Folio = c.id_Usuario
         WHERE c.ID_Post = ?
         ORDER BY c.Fecha ASC, c.ID_Comentario ASC`;
 

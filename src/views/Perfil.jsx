@@ -127,7 +127,7 @@ export default  function Perfil(){
 
                 if(data.success){
                     setProfileUser(data.user);
-                    setPosts(data.posts);
+                    // setPosts(data.posts); //Que Pendejo me siento JAJAJAJ xd
                 }
             }
             catch(err){
@@ -171,7 +171,7 @@ export default  function Perfil(){
         const cargarPosts = async () => {
             try{
                 const data = await getPostsUsuario(currentUser.id);
-                if(data.success) setPosts(data.posts);
+                if(data.success) setPosts(data.posts ?? []);
             }catch (err) { console.error('Error al cargar posts:', err); }
         };
 

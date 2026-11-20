@@ -50,7 +50,7 @@ export default function ComentarioCard({
                         <p className='comentario-Time'>{fecha? 
                         new Date(fecha).toLocaleDateString('es-MX',
                         {day:'numeric',month:'short'}) : ''}</p>
-                        
+
                     </div>
                     <div className='comentario-texto'>
                         <p className='comentario'>
@@ -66,11 +66,11 @@ export default function ComentarioCard({
                                 src={like ? ReactionIcon_Active : ReactionIcon_Default}
                                 alt="Like" className='comentario-like'
                             />
-                            <span>{like ? 7 : 6}</span>
+                            <span>{0}</span>
                         </div>
                         <div className='reaccion-item' onClick={onResponder}>
                             <img src={ComentIcon} alt="Comentar" className='comentario-comentar'/>
-                            <span>3</span>
+                            <span>0</span>
                         </div>
                         <img
                             src={ReportIcon} alt="reportar" className='comentario-report'
