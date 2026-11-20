@@ -198,7 +198,7 @@ export default function ShowToPost({ onClose = () => {}, onPost = () => {} }){
 
                     {venueSeleccionado && (
                         <div className='ToPost-Venue-elegido'>
-                            <span>📍 {venueSeleccionado.nombre}</span>
+                            <span>{venueSeleccionado.nombre}</span>
                             <button onClick={handleCambiarVenue}>Cambiar</button>
                         </div>
                     )}
