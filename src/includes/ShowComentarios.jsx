@@ -27,6 +27,7 @@ function ordenarHilo(planos) {
             ...c,
             esRespuesta: c.idPadre != null,
             respondiendoA: c.idPadre != null ? porId.get(c.idPadre)?.usuario.username : null,
+            totalRespuestas: (porPadre.get(c.id) || []).length,
         });
         (porPadre.get(c.id) || []).forEach(visitar);
     };
@@ -49,7 +50,8 @@ export default function ShowComentarios({ post, onClose = () => {}, onTotal = ()
 
     const cargar = async () => {
         try {
-            const data = await getComentarios(post.id);
+            // user?.id: para saber qué comentarios ya tienen like mío
+            const data = await getComentarios(post.id, user?.id);
             if (data.success) {
                 setPlanos(data.comentarios);
                 onTotal(data.comentarios.length); // actualiza el contador del Post
@@ -61,7 +63,7 @@ export default function ShowComentarios({ post, onClose = () => {}, onTotal = ()
         }
     };
 
-    useEffect(() => { cargar(); }, [post.id]);
+    useEffect(() => { cargar(); }, [post.id, user?.id]);
 
     const handleResponder = (c) => {
         setRespondiendo({ id: c.id, username: c.usuario.username });
@@ -115,9 +117,13 @@ export default function ShowComentarios({ post, onClose = () => {}, onTotal = ()
                 {comentarios.map((c, i) => (
                     <ComentarioCard
                         key={c.id}
+                        id={c.id}
                         comentario={c.texto}
                         usuario={c.usuario}
                         fecha={c.fecha}
+                        leDiLike={c.leDiLike}
+                        totalLikes={c.totalLikes}
+                        totalRespuestas={c.totalRespuestas}
                         esRespuesta={c.esRespuesta}
                         respondiendoA={c.respondiendoA}
                         esUltimo={i === comentarios.length - 1}

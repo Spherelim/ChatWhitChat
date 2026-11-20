@@ -1,7 +1,8 @@
 import '../style/components/ComentarioCard.css';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
-import { urlMedia } from '../services/postService.js';
+import { useAuth } from '../context/AuthContext';
+import { likeComentario } from '../services/postService.js';
 
 import DefaultFoto from '../images/Cat.jpg';
 import ReportIcon from '../icons/ui/exclamacion-de-diamante (1).png';
@@ -12,15 +13,43 @@ import ComentIcon from '../icons/ui/chat/faro (1).png';
 import ShowMessage from '../includes/ShowMessage';
 
 export default function ComentarioCard({
-    comentario = '', usuario = null, fecha= null,
+    id = null,
+    comentario = '', usuario = null, fecha = null,
+    leDiLike = false, totalLikes = 0, totalRespuestas = 0,
     esRespuesta = false, esUltimo = false, respondiendoA = null,
     onResponder = () => {}
 }){
 
-    const [like, setLike] = useState(false);
+    const { user } = useAuth();
+
+    const [like, setLike] = useState(!!leDiLike);
+    const [count, setCount] = useState(totalLikes);
     const [mostrarReporte, setMostrarReporte] = useState(false);
 
-    const handleLike = () => setLike(prev => !prev);
+    // Cuando se recarga la lista de comentarios llegan los valores del servidor
+    useEffect(() => {
+        setLike(!!leDiLike);
+        setCount(totalLikes);
+    }, [leDiLike, totalLikes]);
+
+    const handleLike = async () => {
+        if (!user?.id || !id) return; // sin sesión no se puede dar like
+
+        const nuevo = !like;
+        setLike(nuevo);
+        setCount(c => c + (nuevo ? 1 : -1));
+
+        try {
+            const data = await likeComentario(id, user.id, nuevo);
+            if (!data.success) throw new Error(data.error);
+            setCount(data.totalLikes); // el número real del servidor
+        }
+        catch (err) {
+            console.error(err);
+            setLike(!nuevo);
+            setCount(c => c + (nuevo ? -1 : 1));
+        }
+    };
 
     return(
         <>
@@ -47,7 +76,7 @@ export default function ComentarioCard({
                         <p className='comentario-username'>{usuario?.username}</p>
                         <p className='comentario-email'>{usuario?.email}</p>
 
-                        <p className='comentario-Time'>{fecha? 
+                        <p className='comentario-Time'>{fecha ?
                         new Date(fecha).toLocaleDateString('es-MX',
                         {day:'numeric',month:'short'}) : ''}</p>
 
@@ -66,11 +95,11 @@ export default function ComentarioCard({
                                 src={like ? ReactionIcon_Active : ReactionIcon_Default}
                                 alt="Like" className='comentario-like'
                             />
-                            <span>{0}</span>
+                            <span>{count}</span>
                         </div>
                         <div className='reaccion-item' onClick={onResponder}>
                             <img src={ComentIcon} alt="Comentar" className='comentario-comentar'/>
-                            <span>0</span>
+                            <span>{totalRespuestas}</span>
                         </div>
                         <img
                             src={ReportIcon} alt="reportar" className='comentario-report'

@@ -33,20 +33,28 @@ const upload = multer({
 const borrarArchivos = (files = []) =>
     files.forEach(f => fs.unlink(f.path, () => {}));
 
+// El Usuario que está viendo (?viewer=ID). Si no hay sesión llega vacío y queda en 0
+// (0 no existe como usuario, así que "LeDiLike" y "LoSigo" salen en falso).
+const viewerDe = req => Number(req.query.viewer) || 0;
+
 // ---------- Helper: arma los posts con su multimedia ----------
 const POSTS_SQL = `
     SELECT p.ID_Post, p.Descripcion, p.Fecha, p.ID_Lugar, l.Nombre AS Lugar,
-           u.Folio AS UsuarioId, u.Nombre_De_Usuario, u.Correo, u.Foto,
-           (SELECT COUNT(*) FROM Comentario c WHERE c.ID_Post = p.ID_Post) AS TotalComentarios
+           u.id AS UsuarioId, u.Nombre_De_Usuario, u.Correo, u.Foto,
+           (SELECT COUNT(*) FROM Comentario c WHERE c.ID_Post = p.ID_Post) AS TotalComentarios,
+           (SELECT COUNT(*) FROM Post_Like pl WHERE pl.id_Post = p.ID_Post) AS TotalLikes,
+           EXISTS(SELECT 1 FROM Post_Like pl WHERE pl.id_Post = p.ID_Post AND pl.id_Usuario = ?) AS LeDiLike,
+           EXISTS(SELECT 1 FROM Follow f WHERE f.id_Seguidor = ? AND f.id_Usuario = p.id_Usuario) AS LoSigo
     FROM Post p
-    INNER JOIN V_Usuarios u ON u.Folio = p.id_Usuario
+    INNER JOIN V_Usuarios u ON u.id = p.id_Usuario
     INNER JOIN Lugar l ON l.ID_Lugar = p.ID_Lugar
 `;
 
-function cargarPosts(where, params, res, limit = 20, offset = 0) {
+function cargarPosts(where, params, res, { limit = 20, offset = 0, viewer = 0 } = {}) {
     const sql = `${POSTS_SQL} ${where} ORDER BY p.Fecha DESC LIMIT ? OFFSET ?`;
 
-    db.query(sql, [...params, limit, offset], (err, posts) => {
+    // el orden de los ? es: LeDiLike, LoSigo, WHERE..., LIMIT, OFFSET
+    db.query(sql, [viewer, viewer, ...params, limit, offset], (err, posts) => {
         if (err) {
             console.error('Error cargando posts:', err);
             return res.status(500).json({ success: false, error: err.message });
@@ -75,6 +83,9 @@ function cargarPosts(where, params, res, limit = 20, offset = 0) {
                         foto: p.Foto,
                     },
                     totalComentarios: p.TotalComentarios,
+                    totalLikes: Number(p.TotalLikes),
+                    leDiLike: !!p.LeDiLike,
+                    loSigo: !!p.LoSigo,
                     media: media
                         .filter(m => m.ID_Post === p.ID_Post)
                         .map(m => ({ url: m.Url, tipo: m.Tipo })),
@@ -89,6 +100,7 @@ function cargarPosts(where, params, res, limit = 20, offset = 0) {
 const paginacion = req => ({
     limit: Math.min(Number(req.query.limit) || 20, 50),
     offset: Number(req.query.offset) || 0,
+    viewer: viewerDe(req),
 });
 
 // =====================
@@ -189,15 +201,55 @@ router.post('/Posts', (req, res) => {
 // =====================
 // Inicio
 router.get('/Posts', (req, res) => {
-    const { limit, offset } = paginacion(req);
-    cargarPosts('', [], res, limit, offset);
+    cargarPosts('', [], res, paginacion(req));
 });
 
 // Perfil de un Usuario
 router.get('/Posts/Usuario/:id', (req, res) => {
-    const { limit, offset } = paginacion(req);
-    cargarPosts('WHERE p.id_Usuario = ?', [req.params.id], res, limit, offset);
+    cargarPosts('WHERE p.id_Usuario = ?', [req.params.id], res, paginacion(req));
 });
+
+// =====================
+// LIKES (Post y Comentario)
+// =====================
+// body: { idUsuario, like: true | false }
+// Es idempotente: dar like 2 veces no duplica, quitar uno que no existe no truena.
+const LIKES = {
+    post:       { tabla: 'Post_Like',       col: 'id_Post' },
+    comentario: { tabla: 'Comentario_Like', col: 'id_Comentario' },
+};
+
+function cambiarLike(tipo, req, res) {
+    const { tabla, col } = LIKES[tipo]; // constantes de arriba, nunca vienen del usuario
+    const { idUsuario, like } = req.body;
+
+    if (!idUsuario || typeof like !== 'boolean') {
+        return res.status(400).json({ success: false, error: 'Faltan el usuario o el like' });
+    }
+
+    const sql = like
+        ? `INSERT INTO ${tabla} (${col}, id_Usuario) VALUES (?,?)
+           ON DUPLICATE KEY UPDATE id_Usuario = id_Usuario`
+        : `DELETE FROM ${tabla} WHERE ${col} = ? AND id_Usuario = ?`;
+
+    db.query(sql, [req.params.id, idUsuario], (err) => {
+        if (err) {
+            if (err.code === 'ER_NO_REFERENCED_ROW_2') {
+                return res.status(404).json({ success: false, error: 'No existe el usuario o la publicación' });
+            }
+            console.error('Error cambiando like:', err);
+            return res.status(500).json({ success: false, error: err.message });
+        }
+
+        db.query(`SELECT COUNT(*) AS total FROM ${tabla} WHERE ${col} = ?`, [req.params.id], (err2, rows) => {
+            if (err2) return res.status(500).json({ success: false, error: err2.message });
+            res.status(200).json({ success: true, totalLikes: Number(rows[0].total), leDiLike: like });
+        });
+    });
+}
+
+router.post('/Posts/:id/Like', (req, res) => cambiarLike('post', req, res));
+router.post('/Comentarios/:id/Like', (req, res) => cambiarLike('comentario', req, res));
 
 // =====================
 // COMENTARIOS
@@ -206,13 +258,16 @@ router.get('/Posts/Usuario/:id', (req, res) => {
 router.get('/Posts/:id/Comentarios', (req, res) => {
     const sql = `
         SELECT c.ID_Comentario, c.ID_Padre, c.Texto, c.Fecha,
-               u.Folio AS UsuarioId, u.Nombre_De_Usuario, u.Correo, u.Foto
+               u.id AS UsuarioId, u.Nombre_De_Usuario, u.Correo, u.Foto,
+               (SELECT COUNT(*) FROM Comentario_Like cl WHERE cl.id_Comentario = c.ID_Comentario) AS TotalLikes,
+               EXISTS(SELECT 1 FROM Comentario_Like cl
+                      WHERE cl.id_Comentario = c.ID_Comentario AND cl.id_Usuario = ?) AS LeDiLike
         FROM Comentario c
-        INNER JOIN V_Usuarios u ON u.Folio = c.id_Usuario
+        INNER JOIN V_Usuarios u ON u.id = c.id_Usuario
         WHERE c.ID_Post = ?
         ORDER BY c.Fecha ASC, c.ID_Comentario ASC`;
 
-    db.query(sql, [req.params.id], (err, result) => {
+    db.query(sql, [viewerDe(req), req.params.id], (err, result) => {
         if (err) {
             console.error('Error cargando comentarios:', err);
             return res.status(500).json({ success: false, error: err.message });
@@ -224,6 +279,8 @@ router.get('/Posts/:id/Comentarios', (req, res) => {
                 idPadre: c.ID_Padre,
                 texto: c.Texto,
                 fecha: c.Fecha,
+                totalLikes: Number(c.TotalLikes),
+                leDiLike: !!c.LeDiLike,
                 usuario: {
                     id: c.UsuarioId,
                     username: c.Nombre_De_Usuario,
