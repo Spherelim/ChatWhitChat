@@ -20,12 +20,12 @@ export default function Menu() {
 
     const cargarPosts = async () => {
         try{
-            const data = await getPosts();
+            const data = await getPosts(user?.id);
             if (data.success) setPosts(data.posts);
         }catch (err) { console.error('Error al cargar posts:', err); }
     };
 
-    useEffect(() => { cargarPosts(); }, []);
+    useEffect(() => { cargarPosts(); }, [user?.id]);
 
     const handleNuevoPost = () => {
         setMostrarToPost(false);

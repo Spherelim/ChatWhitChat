@@ -22,18 +22,19 @@ export async function crearPost({ idUsuario, idLugar, descripcion, archivos = []
     return response.json();
 }
 
-export async function getPosts(limit = 20, offset = 0) {
-    const response = await fetch(`${API_URL}/Posts?limit=${limit}&offset=${offset}`);
+// viewerId = el Usuario que está viendo (para saber si ya dio like y si ya sigue al autor)
+export async function getPosts(viewerId = null, limit = 20, offset = 0) {
+    const response = await fetch(`${API_URL}/Posts?viewer=${viewerId ?? ''}&limit=${limit}&offset=${offset}`);
     return response.json();
 }
 
-export async function getPostsUsuario(id, limit = 20, offset = 0) {
-    const response = await fetch(`${API_URL}/Posts/Usuario/${id}?limit=${limit}&offset=${offset}`);
+export async function getPostsUsuario(id, viewerId = null, limit = 20, offset = 0) {
+    const response = await fetch(`${API_URL}/Posts/Usuario/${id}?viewer=${viewerId ?? ''}&limit=${limit}&offset=${offset}`);
     return response.json();
 }
 
-export async function getComentarios(idPost) {
-    const response = await fetch(`${API_URL}/Posts/${idPost}/Comentarios`);
+export async function getComentarios(idPost, viewerId = null) {
+    const response = await fetch(`${API_URL}/Posts/${idPost}/Comentarios?viewer=${viewerId ?? ''}`);
     return response.json();
 }
 
@@ -42,6 +43,25 @@ export async function crearComentario(idPost, { idUsuario, texto, idPadre = null
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ idUsuario, texto, idPadre }),
+    });
+    return response.json();
+}
+
+// like = true (dar like) | false (quitar like). Devuelve { success, totalLikes }
+export async function likePost(idPost, idUsuario, like) {
+    const response = await fetch(`${API_URL}/Posts/${idPost}/Like`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ idUsuario, like }),
+    });
+    return response.json();
+}
+
+export async function likeComentario(idComentario, idUsuario, like) {
+    const response = await fetch(`${API_URL}/Comentarios/${idComentario}/Like`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ idUsuario, like }),
     });
     return response.json();
 }

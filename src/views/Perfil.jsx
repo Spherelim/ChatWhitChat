@@ -170,13 +170,13 @@ export default  function Perfil(){
 
         const cargarPosts = async () => {
             try{
-                const data = await getPostsUsuario(currentUser.id);
+                const data = await getPostsUsuario(currentUser.id, user?.id);
                 if(data.success) setPosts(data.posts ?? []);
             }catch (err) { console.error('Error al cargar posts:', err); }
         };
 
         cargarPosts();
-    },[currentUser?.id]);
+    },[currentUser?.id, user?.id]);
     
     // Icono de la red que se está escribiendo en el input (null si no la reconoce)
     const redInput = detectarRed(linkInput);

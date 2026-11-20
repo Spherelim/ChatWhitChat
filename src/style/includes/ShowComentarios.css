@@ -9,7 +9,15 @@
 
     display: flex;
     flex-direction: column;
+    -webkit-overflow-scrolling: touch; /* para un desplazamiento más suave en iOS */
+    -webkit-tap-highlight-color: transparent; /* elimina el resaltado azul en iOS al tocar */
 }
+.MostrarComentario-container{ width: 100%; }
+.MostrarComentario-container::-webkit-scrollbar{ width: 6px; }
+.MostrarComentario-container::-webkit-scrollbar-thumb{ background: transparent; border-radius: 3px; }
+.ToPost-Venue-vacio{ font-size:.8rem; color:#9a9a9a; margin:0;}
+
+
 
 .MostrarComentario-close {
     position: sticky;
