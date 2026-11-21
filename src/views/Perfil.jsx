@@ -390,7 +390,7 @@ export default  function Perfil(){
                     {
                         section === 'LF' &&(
                             <div className='LV-content'>
-                                <VenueTag/>
+                                {/* <VenueTag/> */}
                             </div>
                         )
                     }

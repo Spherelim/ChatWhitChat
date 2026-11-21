@@ -202,6 +202,16 @@
 
     transition: all 0.3s ease-in-out;
 }
+.Header-sections :hover{
+    transition: all 0.3s ease-in-out;
+    color: #4E9FBE;
+    cursor: pointer;
+}
+.Header-sections :active{
+    background-color: rgba(0, 0, 0, 0.75);
+    transition: all 0.3s ease-in-out;
+    scale:0.95;
+}
 
 .Post-section, .LV-section,
 .LF-section, .Insigneas-section,

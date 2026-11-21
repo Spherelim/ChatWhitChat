@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from 'react';
 import VenueTag from '../components/VenueTag';
 import { useAuth } from '../context/AuthContext';
 import { buscarLugares, crearPost } from '../services/postService';
+import { getUserProfile } from '../services/authService';
 
 import MultimediaIcon from '../icons/ui/chat/multimedia/imagenes (1).png'
 import PerfilFoton from '../images/Cat.jpg'
@@ -30,8 +31,18 @@ export default function ShowToPost({ onClose = () => {}, onPost = () => {} }){
     const [buscando, setBuscando] = useState(false);
     const [venueSeleccionado, setVenueSeleccionado] = useState(null); // { id, nombre }
 
+    // Datos frescos del servidor (foto, nombre, correo). Mientras llegan se usa el user de la sesión.
+    const [perfil, setPerfil] = useState(null);
+    const mostrado = perfil ?? user;
+
     // Mientras escribe: espera 200 ms sin teclear, cancela la petición anterior y busca
     useEffect(() => {
+        if (!user?.id) return;
+
+        getUserProfile(user.id)
+            .then(data => { if (data.success) setPerfil(data.user); })
+            .catch(err => console.error(err));
+
         const q = busquedaVenue.trim();
 
         if (!q || venueSeleccionado) {
@@ -148,7 +159,7 @@ export default function ShowToPost({ onClose = () => {}, onPost = () => {} }){
                 <button className='ToPost-close' onClick={onClose}>x</button>
 
                 <div className='ToPost-Experiencia-txt'>
-                    <img src={user?.foto || PerfilFoton} alt="User-Avatar" className='ToPost-user-Avatar' />
+                    <img src={mostrado?.foto || PerfilFoton} alt="User-Avatar" className='ToPost-user-Avatar' />
                     <input
                         type="text"
                         className='Experiencia-txt'
