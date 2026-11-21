@@ -8,6 +8,7 @@ import authRoutes from './routes/auth.js';
 import chatRouter from './routes/Chat.js';
 import lugaresRouter from './routes/Lugares.js';
 import perfilRouter from './routes/Perfil.js';
+import favoritosRouter from './routes/Favoritos.js';
 import { iniciarSocket } from './routes/Chatsocket.js';
 
 const app = express();
@@ -19,6 +20,7 @@ app.use("/", authRoutes);
 app.use('/uploads', express.static(path.resolve('uploads')));
 app.use(postsRouter);
 app.use(perfilRouter);
+app.use(favoritosRouter);
 app.use(chatRouter);
 app.use(lugaresRouter);
 
