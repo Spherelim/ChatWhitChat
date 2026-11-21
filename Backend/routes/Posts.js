@@ -4,6 +4,7 @@ import path from 'path';
 import fs from 'fs';
 import crypto from 'crypto';
 import db from '../database/connection.js';
+import { urlPublica } from '../utils/urlPublica.js';
 
 const router = express.Router();
 
@@ -80,7 +81,7 @@ function cargarPosts(where, params, res, { limit = 20, offset = 0, viewer = 0 } 
                         id: p.UsuarioId,
                         username: p.Nombre_De_Usuario,
                         email: p.Correo,
-                        foto: p.Foto,
+                        foto: urlPublica(p.Foto, res.req),
                     },
                     totalComentarios: p.TotalComentarios,
                     totalLikes: Number(p.TotalLikes),
@@ -285,7 +286,7 @@ router.get('/Posts/:id/Comentarios', (req, res) => {
                     id: c.UsuarioId,
                     username: c.Nombre_De_Usuario,
                     email: c.Correo,
-                    foto: c.Foto,
+                    foto: urlPublica(c.Foto, res.req),
                 },
             })),
         });

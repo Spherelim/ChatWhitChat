@@ -469,6 +469,35 @@
     transform: scale(0.9);
 }
 
+.edit-img-Avatar,
+.edit-img-banner{
+    cursor: pointer;
+    transition: all 0.2s ease-in-out;
+}
+
+.edit-img-Avatar:hover,
+.edit-img-banner:hover{
+    filter: brightness(0.75);
+    transform: scale(1.03);
+}
+
+.edit-msg-error{
+    grid-column: 1 / -1;
+    color: #ff8a8a;
+    font-size: 0.85rem;
+    font-weight: 700;
+    text-align: right;
+}
+
+.btn-edit-save:disabled{
+    opacity: 0.5;
+    cursor: default;
+}
+
+/* varios enlaces seguidos en el perfil */
+.Social-Media{
+    flex-wrap: wrap;
+}
 
 /* ===== Responsive ===== */
 @media (max-width: 600px){

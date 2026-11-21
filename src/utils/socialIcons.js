@@ -1,31 +1,32 @@
-// src/utils/socialIcons.js
+// Detecta de qué red social (o servicio de pago) es un enlace y devuelve el icono que le toca.
 //
-// Detecta de qué red social es un enlace y devuelve el icono que le toca.
-//
-// Los iconos se cargan solos con import.meta.glob (Vite): busca todo lo que haya en
-// src/icons/Social/<Carpeta>/<archivo> y usa el primer archivo de cada carpeta.
-// Así no hace falta importar uno por uno ni saber cómo se llama cada archivo.
-//
-// Si tu proyecto NO usa Vite, avísame y lo cambio por require.context (webpack).
+// Los iconos se cargan solos con import.meta.glob (Vite): busca todo lo que haya dentro de
+// src/icons/Social/<Carpeta>/... y src/icons/Economy/<Carpeta>/... y usa el primer archivo
+// de cada carpeta (aunque esté en una subcarpeta).
+// Si agregas una carpeta nueva y no aparece, reinicia `npm run dev`.
 
-const archivos = import.meta.glob('../icons/Social/*/*.{png,jpg,jpeg,svg,webp}', {
-    eager: true,
-    import: 'default',
-});
+const archivos = import.meta.glob(
+    '../icons/{Social,Economy}/**/*.{png,jpg,jpeg,svg,webp,gif,avif,PNG,JPG,JPEG,SVG,WEBP}',
+    { eager: true, import: 'default' }
+);
 
-// { yt: '/src/icons/Social/YT/youtube.png', fb: '...', ... }  (claves en minúsculas)
+// { yt: '/src/icons/Social/YT/youtube.png', paypal: '...', ... }  (claves en minúsculas)
 const iconosPorCarpeta = {};
 
 Object.entries(archivos)
     .sort(([a], [b]) => a.localeCompare(b))
     .forEach(([ruta, url]) => {
-        const carpeta = ruta.split('/').slice(-2, -1)[0].toLowerCase();
-        if (!iconosPorCarpeta[carpeta]) iconosPorCarpeta[carpeta] = url;
+        const partes = ruta.split('/');
+        // la carpeta de la red es la que va justo después de Social/ o Economy/
+        const i = partes.findIndex(p => p === 'Social' || p === 'Economy');
+        const carpeta = partes[i + 1]?.toLowerCase();
+        if (carpeta && !iconosPorCarpeta[carpeta]) iconosPorCarpeta[carpeta] = url;
     });
 
-// carpeta = nombre EXACTO de la carpeta dentro de icons/Social
+// carpeta = nombre de la carpeta dentro de icons/Social o icons/Economy (no importan mayúsculas)
 // dominios = dominios (sin www) que identifican a esa red
 const REDES = [
+    // ---- Social ----
     { carpeta: 'YT',          dominios: ['youtube.com', 'youtu.be'] },
     { carpeta: 'FB',          dominios: ['facebook.com', 'fb.com', 'fb.me', 'fb.watch'] },
     { carpeta: 'IG',          dominios: ['instagram.com', 'instagr.am'] },
@@ -59,6 +60,13 @@ const REDES = [
     { carpeta: 'wattpad',     dominios: ['wattpad.com'] },
     { carpeta: 'wix',         dominios: ['wix.com', 'wixsite.com'] },
     { carpeta: 'Xing',        dominios: ['xing.com'] },
+
+    // ---- Economy ----
+    { carpeta: 'paypal',          dominios: ['paypal.com', 'paypal.me'] },
+    { carpeta: 'bitcoin',         dominios: ['bitcoin.org', 'bitcoin.com'] },
+    { carpeta: 'visa',            dominios: ['visa.com'] },
+    { carpeta: 'americanExpress', dominios: ['americanexpress.com', 'amex.com'] },
+    { carpeta: 'applepay',        dominios: ['apple.com'] },
 ];
 
 const esCorreo = (texto) =>
@@ -89,6 +97,16 @@ export function detectarRed(texto = '') {
     const red = REDES.find(({ dominios }) =>
         dominios.some((d) => host === d || host.endsWith(`.${d}`))
     );
+    if (!red) return null;
 
-    return red ? iconosPorCarpeta[red.carpeta.toLowerCase()] || null : null;
+    const icono = iconosPorCarpeta[red.carpeta.toLowerCase()];
+
+    // Si ves este aviso en la consola: la red se reconoció pero su carpeta no tiene imagen
+    // (o la carpeta se llama distinto). Solo ahí se verá el clip.
+    if (!icono && import.meta.env.DEV) {
+        console.warn(`[socialIcons] Reconocí "${red.carpeta}" pero no hay imagen en esa carpeta.`,
+            'Carpetas encontradas:', Object.keys(iconosPorCarpeta));
+    }
+
+    return icono || null;
 }
