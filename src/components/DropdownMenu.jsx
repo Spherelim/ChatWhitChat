@@ -2,11 +2,37 @@ import '../style/components/DropdownMenu.css'
 
 import { useState, useRef, useEffect} from 'react';
 
+import { getUserProfile } from '../services/authService'
+
 import DefaultImage from '../images/Cat.jpg'
 
 export default function DropdownMenu({ user, onProfile, onFriend, onExplore, onLogout}){
     const [isOpen, setIsOpen] = useState(false);
     const dropdownRef = useRef(null);
+
+    // Datos frescos del servidor (foto, nombre, correo). Mientras llegan se usa el user de la sesión.
+    const [perfil, setPerfil] = useState(null);
+    const mostrado = perfil ?? user;
+
+    useEffect(() => {
+        if(!user?.id) return;
+        let activo = true;
+
+        getUserProfile(user.id)
+            .then(data => { if(activo && data.success) setPerfil(data.user); })
+            .catch(err => console.error(err));
+
+        // Perfil.jsx avisa con este evento al guardar, para que la foto cambie al instante
+        const onCambio = (e) => {
+            if(String(e.detail?.id) === String(user.id)) setPerfil(e.detail);
+        };
+        window.addEventListener('perfil:actualizado', onCambio);
+
+        return () => {
+            activo = false;
+            window.removeEventListener('perfil:actualizado', onCambio);
+        };
+    }, [user?.id]);
 
     useEffect(() =>{
         const handleClickOutside = (event) => {
@@ -48,7 +74,7 @@ export default function DropdownMenu({ user, onProfile, onFriend, onExplore, onL
         <div className="dropdown" ref={dropdownRef}>
             <img 
                 className='img-user' 
-                src={user?.foto || DefaultImage} 
+                src={mostrado?.foto || DefaultImage} 
                 onClick={toggleDropdown}
                 alt="User avatar"
             />
@@ -58,12 +84,12 @@ export default function DropdownMenu({ user, onProfile, onFriend, onExplore, onL
                     <div className="dropdown-header">
                         <img 
                             className="dropdown-avatar" 
-                            src={user?.foto || DefaultImage} 
+                            src={mostrado?.foto || DefaultImage} 
                             alt="Avatar"
                         />
                         <div className="dropdown-user-info">
-                            <span className="dropdown-username">{user?.username || "Usuario"}</span>
-                            <span className="dropdown-email">{user?.email || "usuario@email.com"}</span>
+                            <span className="dropdown-username">{mostrado?.username || "Usuario"}</span>
+                            <span className="dropdown-email">{mostrado?.email || "usuario@email.com"}</span>
                         </div>
                     </div>
                     
