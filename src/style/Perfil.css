@@ -344,10 +344,19 @@
 }
 
 .edit-UserName:focus,
-.edit-Email:focus,
 .edit-Bio:focus,
 .link-text:focus{
     box-shadow: 0 0 0 2px #4E9FBE;
+}
+
+.edit-Email{
+    background-color: #c6c6c6;
+    color: #4a4a4a;
+    cursor: not-allowed;
+}
+
+.edit-Email:focus{
+    box-shadow: 0 0 0 2px #858585;
 }
 
 .btn-edit-save,

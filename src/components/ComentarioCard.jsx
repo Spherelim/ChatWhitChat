@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react';
 
 import { useAuth } from '../context/AuthContext';
 import { likeComentario } from '../services/postService.js';
+import { useIrAPerfil } from '../hook/useIrAPerfil';
 
 import DefaultFoto from '../images/Cat.jpg';
 import ReportIcon from '../icons/ui/exclamacion-de-diamante (1).png';
@@ -21,6 +22,7 @@ export default function ComentarioCard({
 }){
 
     const { user } = useAuth();
+    const irAPerfil = useIrAPerfil();
 
     const [like, setLike] = useState(!!leDiLike);
     const [count, setCount] = useState(totalLikes);
@@ -57,7 +59,8 @@ export default function ComentarioCard({
                 {/* Esto es la parte de la Linea, si comenta un comentario cambia a la de la flecha */}
                 {/* si se puede interpretar o mejorar de otra manera mejor */}
                 <div className='comentario-despliegue'>
-                    <img src={usuario?.foto || DefaultFoto} alt="User-foto" className='comentario-user-avatar'/>
+                    <img src={usuario?.foto || DefaultFoto} alt="User-foto" className='comentario-user-avatar'
+                    onClick={() => irAPerfil(usuario?.id)}/>
                     <svg className='comentario-linea' viewBox="0 0 40 100" preserveAspectRatio="none">
                         {esRespuesta ? (
                             <>
@@ -73,7 +76,9 @@ export default function ComentarioCard({
 
                 <div className='comentario-body'>
                     <div className='comentario-user-info'>
-                        <p className='comentario-username'>{usuario?.username}</p>
+                        <p className='comentario-username' onClick={() => irAPerfil(usuario?.id)}>
+                            {usuario?.username}
+                        </p>
                         <p className='comentario-email'>{usuario?.email}</p>
 
                         <p className='comentario-Time'>{fecha ?
@@ -84,9 +89,9 @@ export default function ComentarioCard({
                     <div className='comentario-texto'>
                         <p className='comentario'>
                             {esRespuesta && respondiendoA && (
-                                <span className='comentario-mencion'>@{respondiendoA} </span>
+                                <span className='comentario-mencion'>@{respondiendoA}</span>
                             )}
-                            {comentario}
+                            {' ' +comentario}
                         </p>
                     </div>
                     <div className='coentario-reacciones'>

@@ -7,7 +7,7 @@ import ImageCropper from '../includes/ImageCropper'
 
 import { getPostsUsuario } from '../services/postService.js'
 import { getContactos, actualizarPerfil, normalizarLink } from '../services/perfilService.js'
-import { getFavoritosUsuario } from '../services/favoritosService.js'
+import { getFavoritosUsuario } from '../services/FavoritosService.js'
 
 import { useAuth } from '../context/AuthContext'
 import { useParams } from 'react-router-dom'
@@ -464,9 +464,10 @@ export default  function Perfil(){
                                     <input type="text" className='edit-UserName' placeholder='UserName'
                                         value={form.username} maxLength={50}
                                         onChange={(e) => setForm(f => ({ ...f, username: e.target.value }))}/>
-                                    <input type="text" className='edit-Email' placeholder='Correo'
+                                    <input type="text"  className='edit-Email' placeholder='Correo'
                                         value={form.email} maxLength={150}
-                                        onChange={(e) => setForm(f => ({ ...f, email: e.target.value }))}/>
+                                        onChange={(e) => setForm(f => ({ ...f, email: e.target.value }))}
+                                        readOnly />
                                     <input type="text" className='edit-Bio' placeholder='Biografía'
                                         value={form.bio} maxLength={100}
                                         onChange={(e) => setForm(f => ({ ...f, bio: e.target.value }))}/>
