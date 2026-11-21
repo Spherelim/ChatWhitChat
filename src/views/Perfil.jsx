@@ -7,6 +7,7 @@ import ImageCropper from '../includes/ImageCropper'
 
 import { getPostsUsuario } from '../services/postService.js'
 import { getContactos, actualizarPerfil, normalizarLink } from '../services/perfilService.js'
+import { getFavoritosUsuario } from '../services/FavoritosService.js'
 
 import { useAuth } from '../context/AuthContext'
 import { useParams } from 'react-router-dom'
@@ -82,6 +83,7 @@ export default  function Perfil(){
     const bannerInput = useRef(null);
 
     const [posts, setPosts] = useState([]);
+    const [favoritos, setFavoritos] = useState(null); // null = cargando
 
     const handleFollow = async () => {
         if(!user?.id || !currentUser?.id) return; // sin sesión no se puede seguir
@@ -272,6 +274,19 @@ export default  function Perfil(){
         cargarPosts();
     },[currentUser?.id, user?.id]);
     
+    // Lugares favoritos del perfil que se está viendo (se piden al entrar a la pestaña)
+    useEffect(() => {
+        if(section !== 'LF' || !perfilId) return;
+        let activo = true;
+        setFavoritos(null);
+
+        getFavoritosUsuario(perfilId)
+            .then(data => { if(activo) setFavoritos(data.success ? data.lugares : []); })
+            .catch(err => { console.error(err); if(activo) setFavoritos([]); });
+
+        return () => { activo = false; };
+    }, [section, perfilId]);
+
     // Al abrir la Edición se llena el formulario con lo que hay guardado
     useEffect(() => {
         if(!editando || !currentUser) return;
@@ -390,7 +405,21 @@ export default  function Perfil(){
                     {
                         section === 'LF' &&(
                             <div className='LV-content'>
-                                <VenueTag/>
+                                {favoritos === null
+                                    ? <p style={{color:'#c6d4df', textAlign:'center'}}>Cargando...</p>
+                                    : favoritos.length === 0
+                                        ? <p style={{color:'#c6d4df', textAlign:'center'}}>Aún no hay lugares favoritos.</p>
+                                        : favoritos.map(l => (
+                                            <VenueTag
+                                                key={l.id}
+                                                id={l.id}
+                                                nombre={l.nombre}
+                                                categoria={l.categoria}
+                                                descripcion={l.descripcion}
+                                                foto={l.foto}
+                                                color={l.color}
+                                            />
+                                        ))}
                             </div>
                         )
                     }
@@ -435,9 +464,10 @@ export default  function Perfil(){
                                     <input type="text" className='edit-UserName' placeholder='UserName'
                                         value={form.username} maxLength={50}
                                         onChange={(e) => setForm(f => ({ ...f, username: e.target.value }))}/>
-                                    <input type="text" className='edit-Email' placeholder='Correo'
+                                    <input type="text"  className='edit-Email' placeholder='Correo'
                                         value={form.email} maxLength={150}
-                                        onChange={(e) => setForm(f => ({ ...f, email: e.target.value }))}/>
+                                        onChange={(e) => setForm(f => ({ ...f, email: e.target.value }))}
+                                        readOnly />
                                     <input type="text" className='edit-Bio' placeholder='Biografía'
                                         value={form.bio} maxLength={100}
                                         onChange={(e) => setForm(f => ({ ...f, bio: e.target.value }))}/>

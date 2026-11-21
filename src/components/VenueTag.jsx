@@ -2,6 +2,8 @@ import '../style/components/VenueTag.css'
 
 import { useState } from 'react';
 
+import { useFavoritos } from '../services/FavoritosService.js';
+
 import FavoritoIcon_Default from '../icons/ui/venue/estrella (2).png';
 import FavoritoIcon_Active from '../icons/ui/venue/estrella (1).png';
 import Compartir from '../icons/ui/venue/rehacer (1).png';
@@ -10,6 +12,7 @@ import Compartir from '../icons/ui/venue/rehacer (1).png';
 // Los valores por defecto son los de siempre (Arena Monterrey), así los lugares donde ya usas
 // <VenueTag/> sin props se ven exactamente igual. En el mapa se le pasan los datos reales.
 export default function VenueTag({
+    id = null,              // ID_Lugar. Con id, la estrella se guarda en la BD; sin id es solo de adorno
     compact = false,
     nombre = 'Arena Monterrey',
     categoria = 'Sala de Conciertos',
@@ -21,13 +24,19 @@ export default function VenueTag({
 }){
 
     const [agregar,setAgregar] = useState(false);
-    const [favorito,setFavorito] = useState(false);
+    const { esFavorito, alternar } = useFavoritos();
+    const [favoritoLocal,setFavoritoLocal] = useState(false); // solo para los <VenueTag/> de ejemplo (sin id)
+    const favorito = id ? esFavorito(id) : favoritoLocal;
     const [fotoFallo,setFotoFallo] = useState(false);   // la foto no cargó (link roto, sin internet...)
 
     // stopPropagation: picarle a un botón no debe contar como picarle a la tarjeta
     const handleAgregar = (e)=> { e.stopPropagation(); setAgregar(prev => !prev); };
 
-    const handleFavorito = (e)=> { e.stopPropagation(); setFavorito(prev => !prev); };
+    const handleFavorito = (e)=> {
+        e.stopPropagation();
+        if(id) alternar(id);
+        else setFavoritoLocal(prev => !prev);
+    };
 
     return(
         <div

@@ -15,6 +15,7 @@ import ShowGaleria from '../includes/ShowGaleria';
 import { useAuth } from '../context/AuthContext';
 import { urlMedia, likePost } from '../services/postService';
 import { setFollow, unFollow } from '../services/authService';
+import { useIrAPerfil } from '../hook/useIrAPerfil';
 
 // El Post recibe el objeto que manda el backend:
 // { id, descripcion, fecha, lugar:{id,nombre}, usuario:{id,username,email,foto},
@@ -22,6 +23,7 @@ import { setFollow, unFollow } from '../services/authService';
 export default function Post({ post }){
 
     const { user } = useAuth();
+    const irAPerfil = useIrAPerfil();
 
     const {
         id,
@@ -139,8 +141,11 @@ export default function Post({ post }){
         <div className='Post-container'>
             <div className='post-perfil-info'>
                 <img src={usuario?.foto || DefaultFoto} alt="Foto"
-                className='avatar-img-post'/>
-                <h2 className='username-post'>{usuario?.username || 'UserName'}</h2>
+                className='avatar-img-post'
+                onClick={() => irAPerfil(usuario?.id)}/>
+                <h2 className='username-post' onClick={() => irAPerfil(usuario?.id)}>
+                    {usuario?.username || 'UserName'}
+                </h2>
                 <p className='user-email-post'>{usuario?.email || ''}</p>
                 <p className='date-post'>{fechaTexto}</p>
                 {!esMio && (
