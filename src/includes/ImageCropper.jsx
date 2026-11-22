@@ -1,5 +1,6 @@
 import '../style/includes/ImageCropper.css';
 import { useEffect, useRef, useState } from 'react';
+import { createPortal } from 'react-dom';
 
 // Ventana para acomodar una imagen antes de subirla:
 //  - arrastras para moverla y con el slider (o la rueda del mouse) le haces zoom
@@ -103,7 +104,8 @@ export default function ImageCropper({
         }, 'image/webp', calidad);
     };
 
-    return (
+    // Portal a <body>: así cubre toda la pantalla aunque se abra dentro de un panel con "transform"
+    return createPortal(
         <div className='cropper-overlay' onClick={onCancel}>
             <div className='cropper-modal' onClick={(e) => e.stopPropagation()}>
                 <h3 className='cropper-title'>{titulo}</h3>
@@ -153,6 +155,7 @@ export default function ImageCropper({
                     )}
                 </div>
             </div>
-        </div>
+        </div>,
+        document.body
     );
 }

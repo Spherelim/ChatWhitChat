@@ -1,22 +1,15 @@
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import '../../style/ChildViews/Itinerario.css';
 
 import VenueTag from '../../components/VenueTag';
-import AsistentesTag from '../../components/AsistentesTag';
+import ImageCropper from '../../includes/ImageCropper';
+
+import { useAuth } from '../../context/AuthContext';
+import { getItinerario, guardarItinerario, avisarCambioItinerarios } from '../../services/ItinerarioService.js';
 
 import DefaultFoto_Itinerario from '../../images/Amigos.jpg';
 import Editar_Icon from '../../icons/ui/Edit/lapiz (1).png';
-import Compartir_Itinerario from '../../icons/ui/venue/rehacer (1).png';
 import User_Default from '../../images/Cat.jpg';
-
-// Datos de prueba: las "paradas" del itinerario (luego vienen del backend)
-// fechaISO / horaISO son los valores "crudos" que usan los <input date/time>;
-// dia/hora (formateados) se calculan a partir de esos para mostrarlos bonito.
-const PARADAS_DEMO = [
-    { id: 1, fechaISO: '2026-08-19', horaISO: '00:00', agregadoPor: 'UserName' },
-    { id: 2, fechaISO: '2026-08-19', horaISO: '00:00', agregadoPor: 'UserName' },
-    { id: 3, fechaISO: '2026-08-20', horaISO: '15:00', agregadoPor: 'UserName' },
-];
 
 const formatearFecha = (fechaISO) => {
     if(!fechaISO) return '';
@@ -34,29 +27,96 @@ const formatearHora = (horaISO) => {
     return `${hora12}:${m} ${ampm}`;
 };
 
+// itinerario = { id, nombre, foto } (lo que manda la lista)
 export default function Itinerario({ itinerario, onBack }){
-    const [paradas, setParadas] = useState(PARADAS_DEMO);
+    const { user } = useAuth();
+
+    // Las paradas: { id, fechaISO, horaISO, lugar, agregadoPor }
+    const [paradas, setParadas] = useState([]);
+    const [quitadas, setQuitadas] = useState([]);   // ids de paradas que se eliminaron en el modo edición
+    const [cargando, setCargando] = useState(true);
+    const [duenio, setDuenio] = useState(itinerario?.idUsuario ?? null);
+
     const [editando, setEditando] = useState(false);
+    const [guardando, setGuardando] = useState(false);
+    const [error, setError] = useState('');
 
     // Nombre y foto editables del itinerario
     const [nombreEditado, setNombreEditado] = useState(itinerario?.nombre || 'Nombre Itinerario');
     const [fotoPreview, setFotoPreview] = useState(itinerario?.foto || null);
+    const [fotoNueva, setFotoNueva] = useState(null);       // { blob, preview } ya recortada y comprimida
+    const [cropperFile, setCropperFile] = useState(null);
     const fotoInputRef = useRef(null);
 
+    // Solo el dueño puede editar
+    const esMio = !!user && String(duenio) === String(user.id);
+
+    const cargar = async () => {
+        if(!itinerario?.id) return;
+
+        try{
+            const data = await getItinerario(itinerario.id);
+            if(!data.success) throw new Error(data.error);
+
+            setDuenio(data.itinerario.idUsuario);
+            setNombreEditado(data.itinerario.nombre);
+            setFotoPreview(data.itinerario.foto);
+            setParadas(data.paradas.map(p => ({
+                id: p.id,
+                fechaISO: p.dia,
+                horaISO: p.hora,
+                lugar: p.lugar,
+                agregadoPor: p.agregadoPor,
+            })));
+        }
+        catch(err){
+            console.error('Error al cargar el itinerario:', err);
+        }
+        finally{
+            setCargando(false);
+        }
+    };
+
+    // Al abrirlo, y cada vez que se agrega un lugar desde el mapa (si no estoy a media edición)
+    useEffect(() => {
+        cargar();
+
+        const alCambiar = () => { if(!editando) cargar(); };
+        window.addEventListener('itinerario:cambio', alCambiar);
+        return () => window.removeEventListener('itinerario:cambio', alCambiar);
+    }, [itinerario?.id, editando]);
+
+    // ----- Foto -----
     const handleCambiarFoto = (e) => {
         const archivo = e.target.files?.[0];
-        if(archivo) setFotoPreview(URL.createObjectURL(archivo));
         e.target.value = '';
+        if(!archivo) return;
+
+        if(!archivo.type.startsWith('image/')){
+            setError('Ese archivo no es una imagen');
+            return;
+        }
+        setError('');
+        setCropperFile(archivo);
+    };
+
+    const handleFotoLista = (blob) => {
+        if(fotoNueva) URL.revokeObjectURL(fotoNueva.preview);
+        setFotoNueva({ blob, preview: URL.createObjectURL(blob) });
+        setCropperFile(null);
     };
 
     // refs para saber qué se está arrastrando y sobre cuál se soltó
     const dragItem = useRef(null);
     const dragOverItem = useRef(null);
 
-    const handleEditar = () => setEditando(prev => !prev);
-
     const handleCambiarFecha = (id, campo, valor) => {
         setParadas(prev => prev.map(p => p.id === id ? { ...p, [campo]: valor } : p));
+    };
+
+    const handleQuitar = (id) => {
+        setParadas(prev => prev.filter(p => p.id !== id));
+        setQuitadas(prev => [...prev, id]);
     };
 
     const handleDragStart = (index) => {
@@ -80,6 +140,61 @@ export default function Itinerario({ itinerario, onBack }){
         setParadas(copia);
     };
 
+    // ----- Editar / Guardar -----
+    const handleGuardar = async () => {
+        if(!nombreEditado.trim()){
+            setError('El itinerario necesita un nombre');
+            return;
+        }
+        if(paradas.some(p => !p.fechaISO || !p.horaISO)){
+            setError('Cada parada necesita un día y una hora');
+            return;
+        }
+
+        setGuardando(true);
+        setError('');
+
+        try{
+            const data = await guardarItinerario(itinerario.id, {
+                idUsuario: user.id,
+                nombre: nombreEditado.trim(),
+                foto: fotoNueva?.blob,
+                paradas: paradas.map(p => ({ id: p.id, dia: p.fechaISO, hora: p.horaISO })),
+                quitar: quitadas,
+            });
+
+            if(!data.success) throw new Error(data.error);
+
+            setNombreEditado(data.itinerario.nombre);
+            setFotoPreview(data.itinerario.foto);
+            setFotoNueva(null);
+            setQuitadas([]);
+            setEditando(false);
+
+            avisarCambioItinerarios(); // la lista de itinerarios se actualiza con el nombre/foto nuevos
+        }
+        catch(err){
+            console.error(err);
+            setError(err.message || 'No se pudo guardar');
+        }
+        finally{
+            setGuardando(false);
+        }
+    };
+
+    // El lápiz: la primera vez entra al modo edición, la segunda guarda todo
+    const handleEditar = () => {
+        if(guardando) return;
+
+        if(editando) handleGuardar();
+        else{
+            setError('');
+            setEditando(true);
+        }
+    };
+
+    const fotoMostrada = fotoNueva?.preview || fotoPreview || DefaultFoto_Itinerario;
+
     return(
         <div className='Itinerario-Container'>
 
@@ -90,7 +205,7 @@ export default function Itinerario({ itinerario, onBack }){
                 </button>
 
                 <img
-                    src={fotoPreview || DefaultFoto_Itinerario}
+                    src={fotoMostrada}
                     alt="Foto"
                     className={`itinerario-img ${editando ? 'editable' : ''}`}
                     onClick={() => editando && fotoInputRef.current?.click()}
@@ -117,34 +232,42 @@ export default function Itinerario({ itinerario, onBack }){
                             type="text"
                             className='itinerario-Name-edit'
                             value={nombreEditado}
+                            maxLength={100}
                             onChange={(e) => setNombreEditado(e.target.value)}
                             placeholder='Nombre del itinerario'
                         />
                     ) : (
                         <h3 className='itinerario-Name'>{nombreEditado}</h3>
                     )}
-                    {/* <button type='button' className='itinerario-Compartir' title='Compartir'>
-                        <img src={Compartir_Itinerario} alt="compartir" />
-                    </button> */}
-                    <button
-                        type='button'
-                        className={`itinerario-Editar ${editando ? 'activo' : ''}`}
-                        title={editando ? 'Terminar edición' : 'Editar'}
-                        onClick={handleEditar}
-                    >
-                        <img src={Editar_Icon} alt="Editar" />
-                    </button>
+                    {esMio && (
+                        <button
+                            type='button'
+                            className={`itinerario-Editar ${editando ? 'activo' : ''}`}
+                            title={editando ? 'Guardar cambios' : 'Editar'}
+                            onClick={handleEditar}
+                            disabled={guardando}
+                        >
+                            <img src={Editar_Icon} alt="Editar" />
+                        </button>
+                    )}
                 </div>
             </div>
 
             {editando && (
                 <p className='itinerario-editando-aviso'>
-                    Modo edición: cambia el nombre, la foto, la fecha/hora de cada parada, o arrástralas (⋮⋮) para reordenarlas.
+                    Modo edición: cambia el nombre, la foto, el día/hora de cada parada, o arrástralas (⋮⋮) para reordenarlas.
+                    Cuando termines, toca el lápiz otra vez para guardar.
                 </p>
             )}
 
+            {error && <p className='itinerario-error'>{error}</p>}
+
             {/* --- Lista de paradas (scrolleable) --- */}
             <div className='Itinerario-List'>
+                {!cargando && paradas.length === 0 && (
+                    <p className='itinerario-vacio'>Todavía no hay lugares. Agrégalos con el botón «Agregar +» de cada lugar en el mapa.</p>
+                )}
+
                 {paradas.map((parada, i) => (
                     <div
                         className='itinerario-parada'
@@ -157,9 +280,17 @@ export default function Itinerario({ itinerario, onBack }){
                     >
 
                         <div className='itinerario-Venues'>
-                            <AsistentesTag />
 
-                            <VenueTag compact/>
+                            <VenueTag
+                                compact
+                                mostrarAgregar={false}
+                                id={parada.lugar.id}
+                                nombre={parada.lugar.nombre}
+                                categoria={parada.lugar.categoria}
+                                descripcion={parada.lugar.descripcion}
+                                foto={parada.lugar.foto}
+                                color={parada.lugar.color}
+                            />
 
                             <div className='itinerario-fecha'>
                                 {editando ? (
@@ -189,9 +320,20 @@ export default function Itinerario({ itinerario, onBack }){
 
                             <div className='itinerario-adder'>
                                 <p className='Agregado'>Agregado:</p>
-                                <img src={User_Default} alt="user-avatar" className='itinerario-user-adder'/>
-                                <p className='itinerario-username'>{parada.agregadoPor}</p>
+                                <img src={parada.agregadoPor?.foto || User_Default} alt="user-avatar" className='itinerario-user-adder'/>
+                                <p className='itinerario-username'>{parada.agregadoPor?.username}</p>
                             </div>
+
+                            {editando && (
+                                <button
+                                    type='button'
+                                    className='itinerario-parada-quitar'
+                                    title='Quitar del itinerario'
+                                    onClick={() => handleQuitar(parada.id)}
+                                >
+                                    ×
+                                </button>
+                            )}
                         </div>
 
                         {editando && (
@@ -209,6 +351,18 @@ export default function Itinerario({ itinerario, onBack }){
                     </div>
                 ))}
             </div>
+
+            {cropperFile && (
+                <ImageCropper
+                    file={cropperFile}
+                    aspect={3.5}
+                    outWidth={1200}
+                    calidad={0.8}
+                    titulo='Ajustar foto del itinerario'
+                    onDone={handleFotoLista}
+                    onCancel={() => setCropperFile(null)}
+                />
+            )}
 
         </div>
     )

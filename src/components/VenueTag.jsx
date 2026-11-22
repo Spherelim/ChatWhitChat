@@ -1,8 +1,11 @@
 import '../style/components/VenueTag.css'
 
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 import { useFavoritos } from '../services/FavoritosService.js';
+import { useAuth } from '../context/AuthContext';
+import { getItinerarios, agregarParada, quitarParada, avisarCambioItinerarios } from '../services/ItinerarioService.js';
+import ShowItinerarios from '../includes/ShowItinerarios';
 
 import FavoritoIcon_Default from '../icons/ui/venue/estrella (2).png';
 import FavoritoIcon_Active from '../icons/ui/venue/estrella (1).png';
@@ -20,17 +23,107 @@ export default function VenueTag({
     foto = 'https://thumb.wikimedia.org/wikipedia/commons/thumb/7/71/La_Arena_Mty.jpg/3840px-La_Arena_Mty.jpg?utm_source=es.wikipedia.org&utm_campaign=index&utm_content=thumbnail',
     color = null,           // color de la categoría (se usa cuando el lugar no tiene foto)
     seleccionado = false,   // resalta la tarjeta (lo usa el mapa)
+    mostrarAgregar = true,  // false = sin el botón "Agregar +" (dentro de un itinerario no tiene sentido)
     onClick,                // si se pasa, la tarjeta es clicable
 }){
 
-    const [agregar,setAgregar] = useState(false);
+    const { user } = useAuth();
+
+    // ----- Agregar a un itinerario -----
+    const [agregadoA,setAgregadoA] = useState(null);      // { idItinerario, idParada } cuando ya lo agregué
+    const [agregarLocal,setAgregarLocal] = useState(false); // solo para los <VenueTag/> de ejemplo (sin id)
+    const [eligiendo,setEligiendo] = useState(null);      // lista de mis itinerarios (abre ShowItinerarios)
+    const [ocupado,setOcupado] = useState(false);
+    const [aviso,setAviso] = useState('');
+    const temporizador = useRef(null);
+
+    const agregar = id ? !!agregadoA : agregarLocal;      // true = el botón dice "Eliminar -"
+
+    useEffect(() => () => clearTimeout(temporizador.current), []);
+
+    const mostrarAviso = (texto) => {
+        setAviso(texto);
+        clearTimeout(temporizador.current);
+        temporizador.current = setTimeout(() => setAviso(''), 2500);
+    };
+
     const { esFavorito, alternar } = useFavoritos();
     const [favoritoLocal,setFavoritoLocal] = useState(false); // solo para los <VenueTag/> de ejemplo (sin id)
     const favorito = id ? esFavorito(id) : favoritoLocal;
     const [fotoFallo,setFotoFallo] = useState(false);   // la foto no cargó (link roto, sin internet...)
 
     // stopPropagation: picarle a un botón no debe contar como picarle a la tarjeta
-    const handleAgregar = (e)=> { e.stopPropagation(); setAgregar(prev => !prev); };
+    // Guarda el lugar en el itinerario elegido
+    const agregarAItinerario = async (itinerario) => {
+        setEligiendo(null);
+        setOcupado(true);
+
+        try{
+            const data = await agregarParada(itinerario.id, user.id, id);
+            if(!data.success) throw new Error(data.error);
+
+            setAgregadoA({ idItinerario: itinerario.id, idParada: data.parada.id });
+            mostrarAviso(`Agregado a «${itinerario.nombre}»`);
+            avisarCambioItinerarios();
+        }
+        catch(err){
+            console.error(err);
+            mostrarAviso(err.message || 'No se pudo agregar');
+        }
+        finally{
+            setOcupado(false);
+        }
+    };
+
+    const quitarDelItinerario = async () => {
+        setOcupado(true);
+
+        try{
+            const data = await quitarParada(agregadoA.idItinerario, agregadoA.idParada, user.id);
+            if(!data.success) throw new Error(data.error);
+
+            setAgregadoA(null);
+            mostrarAviso('Quitado del itinerario');
+            avisarCambioItinerarios();
+        }
+        catch(err){
+            console.error(err);
+            mostrarAviso(err.message || 'No se pudo quitar');
+        }
+        finally{
+            setOcupado(false);
+        }
+    };
+
+    const handleAgregar = async (e)=> {
+        e.stopPropagation();
+
+        if(!id){ setAgregarLocal(prev => !prev); return; }   // VenueTag de ejemplo
+        if(ocupado) return;
+        if(!user?.id){ mostrarAviso('Inicia sesión para agregar lugares'); return; }
+
+        if(agregadoA){ quitarDelItinerario(); return; }
+
+        // Mis itinerarios: 0 -> aviso | 1 -> se guarda directo ahí | varios -> se elige en ShowItinerarios
+        setOcupado(true);
+        let lista;
+        try{
+            const data = await getItinerarios(user.id);
+            if(!data.success) throw new Error(data.error);
+            lista = data.itinerarios;
+        }
+        catch(err){
+            console.error(err);
+            mostrarAviso('No se pudieron cargar tus itinerarios');
+            setOcupado(false);
+            return;
+        }
+        setOcupado(false);
+
+        if(lista.length === 0) mostrarAviso('Crea un itinerario primero');
+        else if(lista.length === 1) agregarAItinerario(lista[0]);
+        else setEligiendo(lista);
+    };
 
     const handleFavorito = (e)=> {
         e.stopPropagation();
@@ -65,10 +158,14 @@ export default function VenueTag({
                     <img src={favorito ?  FavoritoIcon_Active : FavoritoIcon_Default} alt="favorito"
                     className='btn-favorite' onClick={handleFavorito}/>
 
-                    <button className={agregar ? 'btn-delete' : 'btn-add'}
-                    onClick={handleAgregar}>{agregar ? 'Eliminar -' : 'Agregar +'}</button>
+                    {mostrarAgregar ? (
+                        <button className={agregar ? 'btn-delete' : 'btn-add'}
+                        onClick={handleAgregar} disabled={ocupado}>{agregar ? 'Eliminar -' : 'Agregar +'}</button>
+                    ) : <span />}
 
                 </div>
+
+                {aviso && <span className='venue-aviso'>{aviso}</span>}
 
                 {/* Ahora el encabezado va DENTRO de la foto, pegado abajo */}
                 <div className='venue-header'>
@@ -83,6 +180,18 @@ export default function VenueTag({
                     <div className='venue-description'>
                         <p>{descripcion}</p>
                     </div>
+                </div>
+            )}
+
+            {/* El modal vive en un portal, pero sus clics suben por React hasta la tarjeta: se cortan aquí */}
+            {eligiendo && (
+                <div onClick={(e) => e.stopPropagation()}>
+                    <ShowItinerarios
+                        itinerarios={eligiendo}
+                        titulo='Agregar a un itinerario'
+                        onClose={() => setEligiendo(null)}
+                        onSelect={agregarAItinerario}
+                    />
                 </div>
             )}
 
