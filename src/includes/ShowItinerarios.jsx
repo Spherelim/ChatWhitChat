@@ -1,20 +1,33 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { createPortal } from 'react-dom';
 
 import ItinerarioCards from '../components/ItinerarioCards';
 import '../style/includes/ShowItinerarios.css';
 
-// Datos de prueba (luego los traes del backend)
-const ITINERARIOS_DEMO = [
-    { id: 1, nombre: 'Fin de semana en MTY', foto: null },
-    { id: 2, nombre: 'Nombre de Itinerario', foto: null },
-    { id: 3, nombre: 'Nombre de Itinerario', foto: null },
-    { id: 4, nombre: 'Nombre de Itinerario', foto: null },
-    { id: 5, nombre: 'Nombre de Itinerario', foto: null },
-];
+import { useAuth } from '../context/AuthContext';
+import { getItinerarios } from '../services/ItinerarioService';
 
-export default function ShowItinerarios({ onClose, onSelect }){
-    const [itinerarios] = useState(ITINERARIOS_DEMO);
+// Ventana para ELEGIR uno de mis itinerarios (agregar un lugar, enviarlo por el chat...).
+//   itinerarios  lista ya cargada (opcional). Si no se pasa, se piden al servidor.
+//   titulo       texto del encabezado
+export default function ShowItinerarios({ onClose, onSelect, itinerarios: lista = null, titulo = 'Mis Itinerarios' }){
+    const { user } = useAuth();
+
+    const [itinerarios, setItinerarios] = useState(lista ?? []);
+    const [cargando, setCargando] = useState(lista === null);
+
+    useEffect(() => {
+        if(lista !== null) return;
+        if(!user?.id){ setCargando(false); return; }
+
+        let activo = true;
+        getItinerarios(user.id)
+            .then(data => { if(activo && data.success) setItinerarios(data.itinerarios); })
+            .catch(err => console.error(err))
+            .finally(() => { if(activo) setCargando(false); });
+
+        return () => { activo = false; };
+    }, [lista, user?.id]);
 
     // Se monta con un portal directo a <body>: el chat vive dentro de un
     // contenedor con "transform" (ToggleChat), y eso rompe el position:fixed
@@ -25,7 +38,7 @@ export default function ShowItinerarios({ onClose, onSelect }){
             <div className='ShowItinerarios-container' onClick={(e) => e.stopPropagation()}>
 
                 <div className='ShowItinerarios-Header'>
-                    <p>Mis Itinerarios</p>
+                    <p>{titulo}</p>
                     <button
                         type='button'
                         className='ShowItinerarios-close'
@@ -45,6 +58,10 @@ export default function ShowItinerarios({ onClose, onSelect }){
                             onSelect={() => onSelect?.(it)}
                         />
                     ))}
+
+                    {!cargando && itinerarios.length === 0 && (
+                        <p className='ShowItinerarios-vacio'>Aún no tienes itinerarios. Crea uno desde el panel de Itinerarios.</p>
+                    )}
                 </div>
 
             </div>
