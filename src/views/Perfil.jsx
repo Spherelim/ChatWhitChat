@@ -24,6 +24,7 @@ import DeleteIcon from '../icons/ui/others/basura (1).png'
 import linckIcon from '../icons/ui/others/enlace.png'
 
 import '../style/Perfil.css'
+import ToggleMap from '../includes/ToggleMap.jsx'
 
 // Nota (Mau): por una cosa borre lo que tenia XD (Contacs.jsx, UserTag.jsx & This).
 
@@ -311,6 +312,7 @@ export default  function Perfil(){
         <>
             <NavBar />
             <ToggleChat/>
+            <ToggleMap/>
             <div className='perfil-container'>
                 <div className='banner-container'>
                     <img className='banner-img' src={currentUser?.banner || BannerFoton} alt='Banner' />

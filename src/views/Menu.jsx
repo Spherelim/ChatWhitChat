@@ -8,6 +8,7 @@ import { getPosts } from '../services/postService.js'
 
 import Post from '../components/Post.jsx'
 import ToggleChat from '../includes/ToggleChat.jsx'
+import ToggleMap from '../includes/ToggleMap.jsx'
 import ShowToPost from '../includes/ShowToPost.jsx'
 
 import AddPostIcon from '../icons/ui/others/burbuja-de-pensamiento (2).png'
@@ -37,6 +38,9 @@ export default function Menu() {
             <NavBar />
             {                
                 user && <ToggleChat/>
+            }
+            {
+                user && <ToggleMap/>
             }
             <div className='Buscador-Conteiner'>
                 <div className='buscador-wrapper'>

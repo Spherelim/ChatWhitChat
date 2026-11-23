@@ -60,10 +60,10 @@ export default function DropdownMenu({ user, onProfile, onFriend, onExplore, onL
         onFriend();
     }
 
-    const handleExplore = () => {
-        setIsOpen(false);
-        onExplore();
-    }
+    // const handleExplore = () => {
+    //     setIsOpen(false);
+    //     onExplore();
+    // }
 
     const handleLogout = () => {
         setIsOpen(false);
@@ -111,15 +111,28 @@ export default function DropdownMenu({ user, onProfile, onFriend, onExplore, onL
                         Buscar Usuario
                     </button>
 
-                    <button className="dropdown-item" onClick={handleExplore}>
+                    {/* <button className="dropdown-item" onClick={handleExplore}>
                         <svg className="dropdown-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
                             <circle cx="12" cy="12" r="10" strokeWidth="2"/>
                             <line x1="2" y1="12" x2="22" y2="12" strokeWidth="2"/>
                             <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z" strokeWidth="2"/>
                         </svg>
                         Explorar y Itinerario
-                    </button>
+                    </button> */}
                     
+                    <button className="dropdown-item" onClick={null}>
+                        <svg className="dropdown-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                            <circle cx="12" cy="12" r="3" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                            <path
+                                d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"
+                                strokeWidth="2"
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                            />
+                        </svg>
+                        Ajustes
+                    </button>
+
                     <div className="dropdown-divider"></div>
 
                     <button className="dropdown-item" onClick={handleLogout}>
