@@ -9,14 +9,15 @@ import DefaultBanner from '../images/RomanStatue.png';
 import { useEffect, useState } from 'react';
 import { setFollow, unFollow, getFollowing } from '../services/authService';
 
-export default function UserTag({users}){
+// incluirYo: por defecto no te muestra a ti en la lista (Amigos, búsqueda...); en los integrantes de un itinerario sí
+export default function UserTag({users = [], incluirYo = false}){
 
     const navigate = useNavigate();
     const { user: loggedUser } = useAuth();
 
     const [siguiendo, setSiguiendo] = useState({});
 
-    const filteredUsers = loggedUser ? users.filter(user => user.id !== loggedUser.id)
+    const filteredUsers = loggedUser && !incluirYo ? users.filter(user => user.id !== loggedUser.id)
     : users;
 
     // Al cargar: ¿a quién sigo ya? (para que los botones salgan como "Siguiendo")

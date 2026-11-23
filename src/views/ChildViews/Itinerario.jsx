@@ -3,6 +3,7 @@ import '../../style/ChildViews/Itinerario.css';
 
 import VenueTag from '../../components/VenueTag';
 import ImageCropper from '../../includes/ImageCropper';
+import ShowIntegrantes from '../../includes/ShowIntegrantes';
 
 import { useAuth } from '../../context/AuthContext';
 import { getItinerario, guardarItinerario, avisarCambioItinerarios } from '../../services/ItinerarioService.js';
@@ -16,6 +17,13 @@ const formatearFecha = (fechaISO) => {
     const fecha = new Date(fechaISO + 'T00:00:00');
     const texto = fecha.toLocaleDateString('es-MX', { day: '2-digit', month: 'short', year: 'numeric' });
     return texto.replace('.', '');
+};
+
+// "2026-11-24 12:45:10" (así lo manda el servidor) -> "24 nov 2026 12:45 p.m."
+const formatearFechaHora = (texto) => {
+    if(!texto) return '';
+    const [dia, hora = ''] = texto.split(' ');
+    return `${formatearFecha(dia)} ${formatearHora(hora.slice(0, 5))}`.trim();
 };
 
 const formatearHora = (horaISO) => {
@@ -37,6 +45,11 @@ export default function Itinerario({ itinerario, onBack }){
     const [cargando, setCargando] = useState(true);
     const [duenio, setDuenio] = useState(itinerario?.idUsuario ?? null);
 
+    // Integrantes (el dueño + los que se unieron) y el último cambio que se hizo
+    const [integrantes, setIntegrantes] = useState([]);
+    const [ultimaMod, setUltimaMod] = useState(null);
+    const [mostrarIntegrantes, setMostrarIntegrantes] = useState(false);
+
     const [editando, setEditando] = useState(false);
     const [guardando, setGuardando] = useState(false);
     const [error, setError] = useState('');
@@ -48,17 +61,25 @@ export default function Itinerario({ itinerario, onBack }){
     const [cropperFile, setCropperFile] = useState(null);
     const fotoInputRef = useRef(null);
 
-    // Solo el dueño puede editar
-    const esMio = !!user && String(duenio) === String(user.id);
+    // Cualquier integrante puede editar las paradas; el nombre y la foto son solo del dueño
+    const esDuenio = !!user && String(duenio) === String(user.id);
+    const esIntegrante = esDuenio || (!!user && integrantes.some(i => String(i.id) === String(user.id)));
+
+    // En la cabecera: hasta 4 fotos y un "+N" con los demás (solo si hay más de 1 integrante)
+    const MAX_FOTOS = 4;
+    const fotosVisibles = integrantes.slice(0, MAX_FOTOS);
+    const restantes = integrantes.length - fotosVisibles.length;
 
     const cargar = async () => {
         if(!itinerario?.id) return;
 
         try{
-            const data = await getItinerario(itinerario.id);
+            const data = await getItinerario(itinerario.id, user?.id);
             if(!data.success) throw new Error(data.error);
 
             setDuenio(data.itinerario.idUsuario);
+            setIntegrantes(data.integrantes || []);
+            setUltimaMod(data.ultimaModificacion || null);
             setNombreEditado(data.itinerario.nombre);
             setFotoPreview(data.itinerario.foto);
             setParadas(data.paradas.map(p => ({
@@ -84,7 +105,7 @@ export default function Itinerario({ itinerario, onBack }){
         const alCambiar = () => { if(!editando) cargar(); };
         window.addEventListener('itinerario:cambio', alCambiar);
         return () => window.removeEventListener('itinerario:cambio', alCambiar);
-    }, [itinerario?.id, editando]);
+    }, [itinerario?.id, user?.id, editando]);
 
     // ----- Foto -----
     const handleCambiarFoto = (e) => {
@@ -142,7 +163,7 @@ export default function Itinerario({ itinerario, onBack }){
 
     // ----- Editar / Guardar -----
     const handleGuardar = async () => {
-        if(!nombreEditado.trim()){
+        if(esDuenio && !nombreEditado.trim()){
             setError('El itinerario necesita un nombre');
             return;
         }
@@ -158,7 +179,7 @@ export default function Itinerario({ itinerario, onBack }){
             const data = await guardarItinerario(itinerario.id, {
                 idUsuario: user.id,
                 nombre: nombreEditado.trim(),
-                foto: fotoNueva?.blob,
+                foto: esDuenio ? fotoNueva?.blob : null,
                 paradas: paradas.map(p => ({ id: p.id, dia: p.fechaISO, hora: p.horaISO })),
                 quitar: quitadas,
             });
@@ -169,7 +190,7 @@ export default function Itinerario({ itinerario, onBack }){
             setFotoPreview(data.itinerario.foto);
             setFotoNueva(null);
             setQuitadas([]);
-            setEditando(false);
+            setEditando(false);   // al salir del modo edición se vuelve a cargar (y se actualiza el último cambio)
 
             avisarCambioItinerarios(); // la lista de itinerarios se actualiza con el nombre/foto nuevos
         }
@@ -204,14 +225,36 @@ export default function Itinerario({ itinerario, onBack }){
                     ‹
                 </button>
 
+                {/* Fotos de los integrantes (solo si son más de 1). Al tocarlas se abre ShowIntegrantes */}
+                {integrantes.length > 1 && (
+                    <div
+                        className='Itinerario-Integrantes'
+                        role='button'
+                        tabIndex={0}
+                        title='Ver integrantes'
+                        onClick={() => setMostrarIntegrantes(true)}
+                        onKeyDown={(e) => (e.key === 'Enter' || e.key === ' ') && setMostrarIntegrantes(true)}
+                    >
+                        {restantes > 0 && <span className='integrantes-mas'>+{restantes}</span>}
+                        {fotosVisibles.map(u => (
+                            <img
+                                key={u.id}
+                                src={u.foto || User_Default}
+                                alt={u.username}
+                                className='integrante-foto'
+                            />
+                        ))}
+                    </div>
+                )}
+
                 <img
                     src={fotoMostrada}
                     alt="Foto"
-                    className={`itinerario-img ${editando ? 'editable' : ''}`}
-                    onClick={() => editando && fotoInputRef.current?.click()}
+                    className={`itinerario-img ${editando && esDuenio ? 'editable' : ''}`}
+                    onClick={() => editando && esDuenio && fotoInputRef.current?.click()}
                 />
 
-                {editando && (
+                {editando && esDuenio && (
                     <div className='itinerario-img-overlay' onClick={() => fotoInputRef.current?.click()}>
                         <img src={Editar_Icon} alt="Cambiar foto" className='itinerario-img-overlay-icon'/>
                         <span>Cambiar foto</span>
@@ -227,7 +270,7 @@ export default function Itinerario({ itinerario, onBack }){
                 />
 
                 <div className='itinerario-name-and-buttons'>
-                    {editando ? (
+                    {editando && esDuenio ? (
                         <input
                             type="text"
                             className='itinerario-Name-edit'
@@ -239,7 +282,7 @@ export default function Itinerario({ itinerario, onBack }){
                     ) : (
                         <h3 className='itinerario-Name'>{nombreEditado}</h3>
                     )}
-                    {esMio && (
+                    {esIntegrante && (
                         <button
                             type='button'
                             className={`itinerario-Editar ${editando ? 'activo' : ''}`}
@@ -253,10 +296,22 @@ export default function Itinerario({ itinerario, onBack }){
                 </div>
             </div>
 
+            {/* Mensaje de Modificaciones (la última modificación) */}
+            {ultimaMod && (
+                <div className='Message-Mod'>
+                    <p className='Itinerario-Message'>
+                        <strong>{ultimaMod.usuario.username}</strong> {ultimaMod.accion}
+                    </p>
+                    <p className='Itinerario-Fech-Mod'>{formatearFechaHora(ultimaMod.fecha)}</p>
+                </div>
+            )}
+
             {editando && (
                 <p className='itinerario-editando-aviso'>
-                    Modo edición: cambia el nombre, la foto, el día/hora de cada parada, o arrástralas (⋮⋮) para reordenarlas.
-                    Cuando termines, toca el lápiz otra vez para guardar.
+                    {esDuenio
+                        ? 'Modo edición: cambia el nombre, la foto, el día/hora de cada parada, o arrástralas (⋮⋮) para reordenarlas.'
+                        : 'Modo edición: cambia el día/hora de cada parada, o arrástralas (⋮⋮) para reordenarlas.'}
+                    {' '}Cuando termines, toca el lápiz otra vez para guardar.
                 </p>
             )}
 
@@ -351,6 +406,13 @@ export default function Itinerario({ itinerario, onBack }){
                     </div>
                 ))}
             </div>
+
+            {mostrarIntegrantes && (
+                <ShowIntegrantes
+                    integrantes={integrantes}
+                    onClose={() => setMostrarIntegrantes(false)}
+                />
+            )}
 
             {cropperFile && (
                 <ImageCropper

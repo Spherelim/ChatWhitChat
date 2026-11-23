@@ -9,7 +9,7 @@ const json = (idUsuario, extra = {}) => ({
     body: JSON.stringify({ idUsuario, ...extra }),
 });
 
-// Mis itinerarios: [{ id, nombre, foto, completado, totalParadas }]
+// Mis itinerarios (los míos y a los que me uní): [{ id, nombre, foto, completado, totalParadas, totalIntegrantes, esDuenio }]
 export async function getItinerarios(idUsuario) {
     const response = await fetch(`${API_URL}/Itinerarios/Usuario/${idUsuario}`);
     return response.json();
@@ -25,9 +25,23 @@ export async function eliminarItinerario(idItinerario, idUsuario) {
     return response.json();
 }
 
-// { itinerario, paradas: [{ id, dia, hora, orden, lugar, agregadoPor }] }
-export async function getItinerario(idItinerario) {
-    const response = await fetch(`${API_URL}/Itinerarios/${idItinerario}`);
+// { itinerario, integrantes, ultimaModificacion, paradas: [{ id, dia, hora, orden, lugar, agregadoPor }] }
+// Solo lo pueden abrir los integrantes (por eso se manda quién lo pide)
+export async function getItinerario(idItinerario, idUsuario) {
+    const response = await fetch(`${API_URL}/Itinerarios/${idItinerario}?viewer=${idUsuario ?? ''}`);
+    return response.json();
+}
+
+// Para la tarjeta del chat: nombre/foto actuales + si yo ya soy integrante
+// -> { existe, esIntegrante, itinerario: { id, nombre, foto, totalIntegrantes } }
+export async function getResumenItinerario(idItinerario, idUsuario) {
+    const response = await fetch(`${API_URL}/Itinerarios/${idItinerario}/Resumen?viewer=${idUsuario ?? ''}`);
+    return response.json();
+}
+
+// "+ Unirse" del mensaje del chat
+export async function unirseItinerario(idItinerario, idUsuario) {
+    const response = await fetch(`${API_URL}/Itinerarios/${idItinerario}/Unirse`, json(idUsuario));
     return response.json();
 }
 

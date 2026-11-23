@@ -1,0 +1,84 @@
+.ShowIntegrantes-backdrop {
+    position: fixed;
+    inset: 0;
+    z-index: 1000;
+    background-color: rgba(0, 0, 0, 0.55);
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.ShowIntegrantes-container {
+    position: relative;
+    width: min(380px, 90vw);
+    max-height: 80vh;
+
+    display: flex;
+    flex-direction: column;
+
+    background-color: #1c1c1c;
+    border-radius: 14px;
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.5);
+
+    animation: integrantes-in 0.2s ease-out;
+}
+
+@keyframes integrantes-in {
+    from { opacity: 0; transform: scale(0.97); }
+    to   { opacity: 1; transform: scale(1); }
+}
+
+.ShowIntegrantes-close {
+    position: absolute;
+    top: 8px;
+    right: 12px;
+    z-index: 2;
+
+    border: none;
+    background: transparent;
+    color: #fff;
+    font-size: 1.1rem;
+    font-weight: 700;
+    cursor: pointer;
+
+    transition: transform 0.2s ease-in-out, color 0.2s ease-in-out;
+}
+
+.ShowIntegrantes-close:hover {
+    color: #4e9fbe;
+    transform: scale(1.15);
+}
+
+/* Lista scrolleable */
+.ShowIntegrantes-lista {
+    flex: 1;
+    min-height: 0;
+    overflow-y: auto;
+    overflow-x: hidden;
+
+    padding: 34px 18px 18px;
+}
+
+.ShowIntegrantes-lista::-webkit-scrollbar {
+    width: 6px;
+}
+.ShowIntegrantes-lista::-webkit-scrollbar-track {
+    background: transparent;
+}
+.ShowIntegrantes-lista::-webkit-scrollbar-thumb {
+    background-color: #4e9fbe;
+    border-radius: 3px;
+}
+
+/* Una sola columna, sin importar cómo esté el grid de UserTag en otras páginas */
+.ShowIntegrantes-lista .users-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+
+    height: auto;
+    max-height: none;
+    overflow: visible;
+    padding: 0;
+}
