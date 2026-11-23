@@ -99,7 +99,7 @@ export default function Contacts({ collapsed = false, activeId = null, onSelect 
                 <input
                     type="search"
                     className='contacts-search'
-                    placeholder='Buscar Por Nombre'
+                    placeholder='Buscar Usuario...'
                     value={query}
                     onChange={(e) => setQuery(e.target.value)}
                 />
@@ -142,7 +142,7 @@ export default function Contacts({ collapsed = false, activeId = null, onSelect 
                     <input
                         type="text"
                         className='grupo-nombre-input'
-                        placeholder='Nombre del Grupo'
+                        placeholder='Nombre del Grupo...'
                         value={nombreGrupo}
                         onChange={(e) => setNombreGrupo(e.target.value)}
                     />

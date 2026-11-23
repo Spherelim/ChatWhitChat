@@ -165,8 +165,8 @@
     border-radius: 16px;
     outline: none;
 
-    background-color: #ffffff;
-    color: #2b2b2b;
+    background-color: #2b2b2b;
+    color: #ffffff;
     font-size: 0.85rem;
 }
 
@@ -178,8 +178,9 @@
     flex-shrink: 0;
 
     border: none;
-    background: transparent;
-    color: #000000;
+    border-radius: 30px;
+    background: #d81111;
+    color: #fffdfd;
     font-size: 0.75rem;
     text-align: center;
     padding: 4px;
@@ -189,7 +190,7 @@
 }
 
 .btn-grupo-cancelar:hover {
-    color: #e53935;
+    color: #740000;
 }
 
 /* --- Zona scrolleable de contactos --- */

@@ -26,6 +26,7 @@ export default function ToggleChat(){
                 onClick={handleToggle}
                 aria-expanded={open}
                 aria-label={open ? 'Cerrar chat' : 'Abrir chat'}
+                title='Chats'
             >
                 <img src={ChatIcon} alt="chat" className='chat-icon'/>
             </button>
