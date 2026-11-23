@@ -29,6 +29,12 @@
     border: 3px solid #000;
     position: relative;
     z-index: 2;
+    transition: all 0.2s ease-in-out;
+}
+
+.comentario-user-avatar:hover {
+    transform: scale(1.05);
+    cursor: pointer;
 }
 
 .comentario-linea {
@@ -72,6 +78,11 @@
     margin: 0;
 }
 
+.comentario-username:hover {
+    text-decoration: underline;
+    cursor: pointer;
+}
+
 .comentario-email {
     font-size: 0.78rem;
     text-decoration: underline;
@@ -95,6 +106,11 @@
 .comentario-mencion {
     font-weight: 700;
     text-decoration: underline;
+    transition: all 0.2s ease-in-out;
+}
+
+.comentario-mencion:hover {
+    color: #e0f4ff;
 }
 
 .coentario-reacciones {

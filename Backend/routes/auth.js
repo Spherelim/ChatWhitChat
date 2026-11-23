@@ -1,5 +1,6 @@
 import express from "express"
 import db from "../database/connection.js"
+import { urlPublica } from "../utils/urlPublica.js"
 
 import nodemailer from 'nodemailer';
 import bcrypt from 'bcrypt';
@@ -298,8 +299,8 @@ router.post("/login", (req,res)=>{
                         id: usuario.id,
                         username: usuario.Nombre_De_Usuario,
                         email: usuario.Correo,
-                        foto: usuario.Foto,
-                        banner: usuario.Banner,
+                        foto: urlPublica(usuario.Foto, req),
+                        banner: urlPublica(usuario.Banner, req),
                         bio: usuario.Bio,
                         rol: usuario.Tipo
                     }
@@ -398,8 +399,8 @@ router.get("/friends",(req,res)=>{
 
                 const users = result.map(user => ({
                     id: user.id,
-                    foto:user.Foto,
-                    banner: user.Banner,
+                    foto: urlPublica(user.Foto, req),
+                    banner: urlPublica(user.Banner, req),
                     username: user.Nombre_De_Usuario,
                     email: user.Correo,
                     biografia: user.Biografia,
@@ -437,8 +438,8 @@ router.get("/friends/search",(req,res)=>{
 
                 const users = result.map(user => ({
                     id: user.id,
-                    foto:user.Foto,
-                    banner: user.Banner,
+                    foto: urlPublica(user.Foto, req),
+                    banner: urlPublica(user.Banner, req),
                     username: user.Nombre_De_Usuario,
                     email: user.Correo,
                     biografia: user.Biografia,
@@ -476,8 +477,8 @@ router.get("/following/:id",(req,res)=>{
         // Si no sigue a nadie NO es un error: lista vacía y 200
         const users = result.map(user => ({
             id: user.id,
-            foto: user.Foto,
-            banner: user.Banner,
+            foto: urlPublica(user.Foto, req),
+            banner: urlPublica(user.Banner, req),
             username: user.Nombre_De_Usuario,
             email: user.Correo,
             biografia: user.Biografia,
@@ -501,8 +502,8 @@ router.get("/Perfil/Usuario/:id",(req,res)=>{
             if(result.length > 0){
                 const user = {
                     id:result[0].id,
-                    foto:result[0].Foto,
-                    banner:result[0].Banner,
+                    foto: urlPublica(result[0].Foto, req),
+                    banner: urlPublica(result[0].Banner, req),
                     username:result[0].Nombre_De_Usuario,
                     email:result[0].Correo,
                     bio:result[0].Biografia,

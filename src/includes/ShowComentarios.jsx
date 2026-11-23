@@ -1,42 +1,97 @@
 import '../style/includes/ShowComentarios.css';
-import { useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 
 import ComentarioCard from '../components/ComentarioCard';
 import Post from '../components/Post';
 
+import { useAuth } from '../context/AuthContext';
+import { getComentarios, crearComentario } from '../services/postService';
+
 import SendIcon from '../icons/ui/chat/parte-superior-del-avion-de-papel (1).png';
 
-export default function ShowComentarios({ onClose = () => {} }){
+// Convierte la lista plana (con idPadre) en un orden de hilo:
+// cada comentario seguido de sus respuestas (y las respuestas de las respuestas)
+function ordenarHilo(planos) {
+    const porPadre = new Map();
+    planos.forEach(c => {
+        const k = c.idPadre ?? 0;
+        if (!porPadre.has(k)) porPadre.set(k, []);
+        porPadre.get(k).push(c);
+    });
 
-    const [comentarios, setComentarios] = useState([
-        { id: 1, texto: 'Esta horrible el lugar.', esRespuesta: false, respondiendoA: null },
-        { id: 2, texto: 'Quiero despertar y decirme que me alegra estarlo, soñar por las noches, pero no pesadillas.', esRespuesta: true, respondiendoA: 'UserName' },
-        { id: 3, texto: 'Esta horrible el lugar.', esRespuesta: false, respondiendoA: null },
-    ]);
+    const porId = new Map(planos.map(c => [c.id, c]));
+    const salida = [];
 
-    const [texto, setTexto] = useState('');
-    const [respondiendo, setRespondiendo] = useState(null); // username al que se está respondiendo
-
-    const handleResponder = (username) => {
-        setRespondiendo(username);
-        setTexto(`@${username} `);
+    const visitar = (c) => {
+        salida.push({
+            ...c,
+            esRespuesta: c.idPadre != null,
+            respondiendoA: c.idPadre != null ? porId.get(c.idPadre)?.usuario.username : null,
+            totalRespuestas: (porPadre.get(c.id) || []).length,
+        });
+        (porPadre.get(c.id) || []).forEach(visitar);
     };
 
-    const handleEnviar = () => {
-        if (!texto.trim()) return;
+    (porPadre.get(0) || []).forEach(visitar);
+    return salida;
+}
 
-        setComentarios(prev => [
-            ...prev,
-            {
-                id: Date.now(),
-                texto: respondiendo ? texto.replace(`@${respondiendo} `, '') : texto,
-                esRespuesta: !!respondiendo,
-                respondiendoA: respondiendo
+export default function ShowComentarios({ post, onClose = () => {}, onTotal = () => {} }){
+
+    const { user } = useAuth();
+
+    const [planos, setPlanos] = useState([]);
+    const [cargando, setCargando] = useState(true);
+    const [texto, setTexto] = useState('');
+    const [respondiendo, setRespondiendo] = useState(null); // { id, username }
+    const [enviando, setEnviando] = useState(false);
+
+    const comentarios = useMemo(() => ordenarHilo(planos), [planos]);
+
+    const cargar = async () => {
+        try {
+            // user?.id: para saber qué comentarios ya tienen like mío
+            const data = await getComentarios(post.id, user?.id);
+            if (data.success) {
+                setPlanos(data.comentarios);
+                onTotal(data.comentarios.length); // actualiza el contador del Post
             }
-        ]);
+        } catch (err) {
+            console.error(err);
+        } finally {
+            setCargando(false);
+        }
+    };
 
-        setTexto('');
-        setRespondiendo(null);
+    useEffect(() => { cargar(); }, [post.id, user?.id]);
+
+    const handleResponder = (c) => {
+        setRespondiendo({ id: c.id, username: c.usuario.username });
+        setTexto(`@${c.usuario.username} `);
+    };
+
+    const handleEnviar = async () => {
+        const limpio = respondiendo ? texto.replace(`@${respondiendo.username} `, '') : texto;
+        if (!limpio.trim() || !user?.id || enviando) return;
+
+        setEnviando(true);
+        try {
+            const data = await crearComentario(post.id, {
+                idUsuario: user.id,
+                texto: limpio,
+                idPadre: respondiendo?.id ?? null
+            });
+
+            if (!data.success) throw new Error(data.error);
+
+            setTexto('');
+            setRespondiendo(null);
+            await cargar();
+        } catch (err) {
+            console.error(err);
+        } finally {
+            setEnviando(false);
+        }
     };
 
     const handleKeyDown = (e) => {
@@ -51,18 +106,28 @@ export default function ShowComentarios({ onClose = () => {} }){
 
             {/* Todo esto es scrolleable */}
             <div className='MostrarComentario-Post'>
-                <Post/>
+                <Post post={post}/>
             </div>
 
             <div className='Comentarios-List'>
+                {!cargando && comentarios.length === 0 && (
+                    <p style={{ color: '#9a9a9a', textAlign: 'center' }}>Aún no hay comentarios. ¡Sé el primero!</p>
+                )}
+
                 {comentarios.map((c, i) => (
                     <ComentarioCard
                         key={c.id}
+                        id={c.id}
                         comentario={c.texto}
+                        usuario={c.usuario}
+                        fecha={c.fecha}
+                        leDiLike={c.leDiLike}
+                        totalLikes={c.totalLikes}
+                        totalRespuestas={c.totalRespuestas}
                         esRespuesta={c.esRespuesta}
                         respondiendoA={c.respondiendoA}
                         esUltimo={i === comentarios.length - 1}
-                        onResponder={() => handleResponder('UserName')}
+                        onResponder={() => handleResponder(c)}
                     />
                 ))}
             </div>
@@ -70,7 +135,7 @@ export default function ShowComentarios({ onClose = () => {} }){
             <div className='Comentarios-comentar'>
                 {respondiendo && (
                     <span className='Comentarios-respondiendo'>
-                        Respondiendo a @{respondiendo}
+                        Respondiendo a @{respondiendo.username}
                         <button onClick={() => { setRespondiendo(null); setTexto(''); }}>×</button>
                     </span>
                 )}
@@ -78,8 +143,10 @@ export default function ShowComentarios({ onClose = () => {} }){
                     <input
                         type="text"
                         className='Comentarios-comentar-texto'
-                        placeholder='Escribe un comentario...'
+                        placeholder={user ? 'Escribe un comentario...' : 'Inicia sesión para comentar'}
                         value={texto}
+                        maxLength={1000}
+                        disabled={!user}
                         onChange={(e) => setTexto(e.target.value)}
                         onKeyDown={handleKeyDown}
                     />

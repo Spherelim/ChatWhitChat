@@ -344,6 +344,7 @@ export default function Mapa() {
                         {lugares.map((lugar) => (
                             <div id={`lugar-${lugar.id}`} key={lugar.id}>
                                 <VenueTag
+                                    id={lugar.id}
                                     nombre={lugar.nombre}
                                     categoria={lugar.categoria.nombre}
                                     descripcion={lugar.descripcion || lugar.direccion}

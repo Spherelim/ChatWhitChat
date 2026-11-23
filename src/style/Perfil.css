@@ -202,6 +202,16 @@
 
     transition: all 0.3s ease-in-out;
 }
+.Header-sections :hover{
+    transition: all 0.3s ease-in-out;
+    color: #4E9FBE;
+    cursor: pointer;
+}
+.Header-sections :active{
+    background-color: rgba(0, 0, 0, 0.75);
+    transition: all 0.3s ease-in-out;
+    scale:0.95;
+}
 
 .Post-section, .LV-section,
 .LF-section, .Insigneas-section,
@@ -334,10 +344,19 @@
 }
 
 .edit-UserName:focus,
-.edit-Email:focus,
 .edit-Bio:focus,
 .link-text:focus{
     box-shadow: 0 0 0 2px #4E9FBE;
+}
+
+.edit-Email{
+    background-color: #c6c6c6;
+    color: #4a4a4a;
+    cursor: not-allowed;
+}
+
+.edit-Email:focus{
+    box-shadow: 0 0 0 2px #858585;
 }
 
 .btn-edit-save,
@@ -469,6 +488,35 @@
     transform: scale(0.9);
 }
 
+.edit-img-Avatar,
+.edit-img-banner{
+    cursor: pointer;
+    transition: all 0.2s ease-in-out;
+}
+
+.edit-img-Avatar:hover,
+.edit-img-banner:hover{
+    filter: brightness(0.75);
+    transform: scale(1.03);
+}
+
+.edit-msg-error{
+    grid-column: 1 / -1;
+    color: #ff8a8a;
+    font-size: 0.85rem;
+    font-weight: 700;
+    text-align: right;
+}
+
+.btn-edit-save:disabled{
+    opacity: 0.5;
+    cursor: default;
+}
+
+/* varios enlaces seguidos en el perfil */
+.Social-Media{
+    flex-wrap: wrap;
+}
 
 /* ===== Responsive ===== */
 @media (max-width: 600px){
