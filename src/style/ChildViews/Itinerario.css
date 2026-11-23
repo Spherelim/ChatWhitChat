@@ -386,6 +386,138 @@
     background-color: #4e9fbe;
 }
 
+/* Fotos de los integrantes, arriba a la derecha de la portada */
+.Itinerario-Integrantes {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    z-index: 2;
+
+    display: flex;
+    align-items: center;
+
+    padding: 3px 4px 3px 8px;
+    border-radius: 20px;
+    background-color: rgba(20, 20, 20, 0.7);
+    cursor: pointer;
+
+    transition: background-color 0.2s ease-in-out;
+}
+
+.Itinerario-Integrantes:hover {
+    background-color: rgba(20, 20, 20, 0.9);
+}
+
+.integrantes-mas {
+    margin-right: 6px;
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: #fff;
+}
+
+.integrante-foto {
+    width: 26px;
+    height: 26px;
+    border-radius: 50%;
+    object-fit: cover;
+    background-color: #d9d9d9;
+    border: 2px solid #1c1c1c;
+}
+
+/* se encimen un poquito, como en tu diseño */
+.integrante-foto + .integrante-foto {
+    margin-left: -8px;
+}
+
+/* Último mensaje de modificación */
+.Message-Mod {
+    flex-shrink: 0;
+
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+
+    padding: 0 4px;
+}
+
+.Itinerario-Message {
+    margin: 0;
+    min-width: 0;
+    font-size: 0.72rem;
+    color: #cfcfcf;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.Itinerario-Message strong {
+    color: #fff;
+}
+
+.Itinerario-Fech-Mod {
+    margin: 0;
+    flex-shrink: 0;
+    font-size: 0.68rem;
+    color: #8a9ba3;
+}
+
+@media (max-width: 480px) {
+    .Message-Mod {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 2px;
+    }
+
+    .integrante-foto {
+        width: 22px;
+        height: 22px;
+    }
+}
+
+
+/* =====================================================
+   2) Pégalo al final de  style/components/Message.css
+   ===================================================== */
+
+.message-itinerario-portada {
+    position: relative;
+}
+
+/* "+ Unirse": solo existe si todavía no eres integrante */
+.message-itinerario.puede-unirse {
+    cursor: pointer;
+}
+
+.message-itinerario-unirse {
+    position: absolute;
+    inset: 0;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    background-color: rgba(0, 0, 0, 0.45);
+    color: #fff;
+    font-size: 0.85rem;
+    font-weight: 700;
+
+    opacity: 0;
+    transition: opacity 0.15s ease-in-out;
+}
+
+.message-itinerario.puede-unirse:hover .message-itinerario-unirse,
+.message-itinerario.puede-unirse:focus-visible .message-itinerario-unirse {
+    opacity: 1;
+}
+
+@media (hover: none) {
+    .message-itinerario-unirse {
+        opacity: 1;
+        background-color: rgba(0, 0, 0, 0.3);
+    }
+}
+
 /* ---------- Responsividad ---------- */
 @media (max-width: 700px) {
     .itinerario-img {

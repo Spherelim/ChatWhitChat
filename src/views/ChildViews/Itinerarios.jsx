@@ -54,7 +54,15 @@ export default function Itinerarios({ onSelect }){
 
     const eliminar = async (it) => {
         if(!user?.id) return;
-        if(!window.confirm(`¿Eliminar "${it.nombre}" y todas sus paradas?`)) return;
+
+        // Si soy el dueño se elimina para todos; si solo me uní, únicamente salgo de él
+        const mensaje = !it.esDuenio
+            ? `¿Salir de "${it.nombre}"? Dejará de aparecer en tus itinerarios (a los demás integrantes les sigue existiendo).`
+            : it.totalIntegrantes > 1
+                ? `¿Eliminar "${it.nombre}" para sus ${it.totalIntegrantes} integrantes, junto con todas sus paradas?`
+                : `¿Eliminar "${it.nombre}" y todas sus paradas?`;
+
+        if(!window.confirm(mensaje)) return;
 
         try{
             const data = await eliminarItinerario(it.id, user.id);
