@@ -6,6 +6,7 @@ import UserTag from '../components/UserTag'
 
 import { useState, useEffect, useCallback, useRef } from 'react'
 import { getAllUsers, searchUsers } from '../services/authService';
+import ToggleMap from '../includes/ToggleMap'
 
 export default function Friends(){
 
@@ -126,6 +127,7 @@ export default function Friends(){
         <>
             <NavBar/>
             <ToggleChat/>
+            <ToggleMap/>
 
             <div className='Search-Container'>
                 <div className='search-wrapper'>

@@ -39,9 +39,9 @@ export default function Menu() {
             {                
                 user && <ToggleChat/>
             }
-            {/* {
+            {
                 user && <ToggleMap/>
-            } */}
+            }
             <div className='Buscador-Conteiner'>
                 <div className='buscador-wrapper'>
                     <input type="search" className='Buscador' placeholder='Busca Post o Lugar...'/>

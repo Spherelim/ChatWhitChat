@@ -1,31 +1,25 @@
-:root {
-    --chat-width: 340px;        /* ancho del panel desplegable */
-    --chat-width-open: 620px;
-    --chat-blue: #4e9fbe;
-    --chat-blue-dark: #3d8ba6;
-    --navbar-height: 52px;      /* altura de tu barra superior */
-}
+.toggle-map {
+    --map-tab-offset: 152px;
 
-/* Contenedor que arrastra pestaña + panel */
-.toggle-Map {
     position: fixed;
-    top: var(--navbar-height);
+    top: calc(var(--navbar-height, 52px) + var(--map-tab-offset));
     right: 0;
-    height: calc(100vh - var(--navbar-height) - 12px);
     z-index: 900;
 
-    display: flex;
-    align-items: flex-start;
-
-    /* cerrado: el panel se esconde, la pestaña queda visible */
-    transform: translateX(var(--chat-width));
     transition: transform 0.35s ease-in-out;
 }
 
+.toggle-chat.is-open ~ .toggle-map {
+    transform: translateX(calc(-1 * var(--chat-width, 340px)));
+}
 
-/* --- Pestaña (el botón que sobresale) --- */
-.eyelash {
-    margin-top: 90px;           /* qué tan abajo queda la pestaña */
+/* Con una conversación abierta el panel del chat se ensancha */
+.toggle-chat.chat-open ~ .toggle-map {
+    transform: translateX(calc(-1 * var(--chat-width-open, 620px)));
+}
+
+/* --- La pestaña (igual a la del chat) --- */
+.map-eyelash {
     padding: 10px 12px;
 
     display: flex;
@@ -33,7 +27,7 @@
     justify-content: center;
 
     border: none;
-    background-color: var(--chat-blue);
+    background-color: var(--chat-blue, #4e9fbe);
     border-top-left-radius: 12px;
     border-bottom-left-radius: 12px;
 
@@ -44,26 +38,20 @@
                 box-shadow 0.3s ease-in-out;
 }
 
-.eyelash:hover {
-    background-color: var(--chat-blue-dark);
+.map-eyelash:hover {
+    background-color: var(--chat-blue-dark, #3d8ba6);
     box-shadow: -4px 4px 15px rgba(0, 0, 0, 0.4);
 }
 
-.eyelash:active .chat-icon {
+.map-eyelash:active .map-icon {
     transform: scale(0.9);
 }
 
-.chat-icon {
+.map-icon {
     width: 30px;
-    height: auto;
+    height: 30px;
+    color: #000000;
     user-select: none;
     pointer-events: none;
     transition: transform 0.2s ease-in-out;
-}
-
-@media (max-width: 700px) {
-    :root {
-        --chat-width: 85vw;
-        --chat-width-open: 95vw;
-    }
 }
