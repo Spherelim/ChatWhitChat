@@ -6,6 +6,7 @@ import crypto from "crypto";
 import { fileURLToPath } from "url";
 
 import { query, entero, obtenerMensajes, ErrorChat } from "./ChatCore.js";
+import { opcionesUploads } from "../utils/uploadsEstaticos.js";
 
 const router = express.Router();
 
@@ -23,20 +24,39 @@ const MAX_MB = Number(process.env.CHAT_MAX_ARCHIVO_MB) || 25;
 // Extensiones permitidas -> el mime "de verdad" (lo decide el servidor por la extensión,
 // no lo que diga el navegador, que se puede falsificar).
 const PERMITIDOS = {
+    // Fotos, video y audio (se ven dentro del chat)
     ".png": "image/png", ".jpg": "image/jpeg", ".jpeg": "image/jpeg", ".webp": "image/webp", ".gif": "image/gif",
     ".mp4": "video/mp4", ".webm": "video/webm", ".mov": "video/quicktime",
     ".mp3": "audio/mpeg", ".wav": "audio/wav", ".ogg": "audio/ogg", ".m4a": "audio/mp4", ".aac": "audio/aac",
-    ".pdf": "application/pdf", ".txt": "text/plain",
+
+    // Documentos
+    ".pdf": "application/pdf", ".txt": "text/plain", ".rtf": "application/rtf",
     ".doc": "application/msword",
     ".docx": "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+    ".docm": "application/vnd.ms-word.document.macroEnabled.12",
+    ".odt": "application/vnd.oasis.opendocument.text",
     ".xls": "application/vnd.ms-excel",
     ".xlsx": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+    ".xlsm": "application/vnd.ms-excel.sheet.macroEnabled.12",
+    ".csv": "text/csv",
     ".ppt": "application/vnd.ms-powerpoint",
     ".pptx": "application/vnd.openxmlformats-officedocument.presentationml.presentation",
-};
 
-// Estos se descargan en vez de abrirse en el navegador
-const SOLO_DESCARGA = new Set([".doc", ".docx", ".xls", ".xlsx", ".ppt", ".pptx"]);
+    // Comprimidos
+    ".zip": "application/zip", ".rar": "application/vnd.rar", ".7z": "application/x-7z-compressed",
+
+    // Código y datos (siempre se descargan, nunca se ejecutan en tu servidor)
+    ".xml": "application/xml", ".json": "application/json", ".sql": "application/sql",
+    ".html": "text/html", ".css": "text/css", ".js": "text/javascript", ".php": "application/x-httpd-php",
+    ".cpp": "text/x-c++src", ".svg": "image/svg+xml",
+
+    // Diseño, fuentes, 3D, música
+    ".psd": "image/vnd.adobe.photoshop", ".ps": "application/postscript",
+    ".indd": "application/x-indesign", ".id": "application/x-indesign",
+    ".otf": "font/otf", ".ttf": "font/ttf",
+    ".obj": "model/obj", ".dwg": "image/vnd.dwg", ".dxf": "image/vnd.dxf",
+    ".mid": "audio/midi", ".midi": "audio/midi"
+};
 
 const upload = multer({
     storage: multer.diskStorage({
@@ -88,17 +108,8 @@ router.post("/chat/upload", (req, res) => {
     });
 });
 
-// Servir los archivos subidos
-router.use("/uploads", express.static(CARPETA_UPLOADS, {
-    index: false,
-    setHeaders: (res, rutaArchivo) => {
-        // Que el navegador NO adivine el tipo (evita que un archivo disfrazado se ejecute como página)
-        res.setHeader("X-Content-Type-Options", "nosniff");
-        if(SOLO_DESCARGA.has(path.extname(rutaArchivo).toLowerCase())){
-            res.setHeader("Content-Disposition", "attachment");
-        }
-    },
-}));
+// Servir los archivos subidos (las reglas de qué se abre y qué se descarga viven en utils/uploadsEstaticos.js)
+router.use("/uploads", express.static(CARPETA_UPLOADS, opcionesUploads));
 
 // ==========================================================
 // CONVERSACIONES

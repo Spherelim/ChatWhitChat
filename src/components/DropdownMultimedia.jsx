@@ -1,4 +1,5 @@
 import { useRef } from 'react';
+import { EXTENSIONES_DOCUMENTO } from '../utils/iconosArchivo.js';
 import '../style/components/DropdownMultimedia.css';
 
 import DocumetoIcon from '../icons/ui/chat/multimedia/documento-firmado (2).png';
@@ -45,7 +46,7 @@ export default function DropdownMultimedia({ onClose, onArchivo, onUbicacion, on
             <input
                 ref={inputDocRef}
                 type='file'
-                accept='.pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.txt'
+                accept={EXTENSIONES_DOCUMENTO.map(e => `.${e}`).join(',')}
                 hidden
                 onChange={(e) => archivoSeleccionado(e, 'documento')}
             />
