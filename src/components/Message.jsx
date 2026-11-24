@@ -5,6 +5,7 @@ import DefaultFoto_Itinerario from '../images/Amigos.jpg';
 import { urlArchivo } from '../services/Chatservice.js';
 
 import { useAuth } from '../context/AuthContext.jsx';
+import { iconoDeArchivo, extensionDe } from '../utils/iconosArchivo.js';
 import { getResumenItinerario, unirseItinerario, avisarCambioItinerarios } from '../services/ItinerarioService.js';
 
 /*
@@ -13,6 +14,8 @@ import { getResumenItinerario, unirseItinerario, avisarCambioItinerarios } from 
   status -> 'seen' | 'sent' | 'error' | 'pending'  (solo aplica si own === true)
 
   Archivos:   url (la del servidor), previewLocal (blob: mientras se sube), nombre, mime, size
+  Documentos: paginas (PDF/Word = páginas, PowerPoint = diapositivas), preview (miniatura del PDF en el servidor),
+              miniaturaLocal (la misma miniatura mientras se sube)
   Ubicación:  lat, lng
   Itinerario: itinerarioId, nombre, foto  (nombre y foto se refrescan solos desde el servidor)
   onMediaLoad -> se llama cuando una foto/video termina de cargar (para que el chat baje el scroll)
@@ -20,29 +23,103 @@ import { getResumenItinerario, unirseItinerario, avisarCambioItinerarios } from 
 
 const EXTENSIONES_VIDEO = ['mp4', 'webm', 'mov'];
 
-const extension = (nombre = '') => nombre.split('.').pop().toLowerCase();
+const extension = extensionDe;
 
 const esVideo = (mime, nombre) =>
     mime ? mime.startsWith('video/') : EXTENSIONES_VIDEO.includes(extension(nombre));
 
-// Icono y nombre legible según la extensión del documento
-const TIPOS_DOCUMENTO = {
-    pdf:  { icono: '📕', etiqueta: 'PDF' },
-    doc:  { icono: '📘', etiqueta: 'Word' },
-    docx: { icono: '📘', etiqueta: 'Word' },
-    xls:  { icono: '📗', etiqueta: 'Excel' },
-    xlsx: { icono: '📗', etiqueta: 'Excel' },
-    ppt:  { icono: '📙', etiqueta: 'PowerPoint' },
-    pptx: { icono: '📙', etiqueta: 'PowerPoint' },
-    txt:  { icono: '📄', etiqueta: 'Texto' },
-};
-
+// 96 kB, 1.4 MB...
 const formatearTamano = (bytes) => {
     if(!bytes) return '';
     if(bytes < 1024) return `${bytes} B`;
-    if(bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(0)} KB`;
+    if(bytes < 1024 * 1024) return `${Math.round(bytes / 1024)} kB`;
     return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
 };
+
+// "9 páginas" / "1 página" / "12 diapositivas"
+const textoPaginas = (paginas, ext) => {
+    if(!paginas) return '';
+    if(ext === 'pptx') return `${paginas} ${paginas === 1 ? 'diapositiva' : 'diapositivas'}`;
+    return `${paginas} ${paginas === 1 ? 'página' : 'páginas'}`;
+};
+
+// ---------- Enlaces y correos dentro de un mensaje de texto ----------
+// Solo se reconocen http(s)://, www. y correos; así nunca se arma un "javascript:" ni nada raro.
+const PATRON_ENLACE = /(https?:\/\/[^\s<>"']+|www\.[^\s<>"']+)|([A-Za-z0-9._%+-]+@[A-Za-z0-9-]+(?:\.[A-Za-z0-9-]+)+)/gi;
+
+// Los signos al final ("mira https://x.com.") no son parte del enlace
+const separarPuntuacion = (texto) => {
+    const m = texto.match(/[.,;:!?)\]}]+$/);
+    return m ? [texto.slice(0, -m[0].length), m[0]] : [texto, ''];
+};
+
+function TextoConEnlaces({ texto = '' }){
+    const partes = [];
+    let ultimo = 0;
+
+    for(const m of texto.matchAll(PATRON_ENLACE)){
+        const [bruto] = m;
+        const [coincidencia, cola] = separarPuntuacion(bruto);
+
+        if(m.index > ultimo) partes.push(texto.slice(ultimo, m.index));
+
+        if(m[1]){
+            const href = coincidencia.startsWith('www.') ? `https://${coincidencia}` : coincidencia;
+            partes.push(
+                <a key={m.index} className='message-enlace' href={href} target='_blank' rel='noopener noreferrer nofollow'>
+                    {coincidencia}
+                </a>
+            );
+        }
+        else{
+            partes.push(
+                <a key={m.index} className='message-enlace' href={`mailto:${coincidencia}`}>
+                    {coincidencia}
+                </a>
+            );
+        }
+
+        if(cola) partes.push(cola);
+        ultimo = m.index + bruto.length;
+    }
+
+    if(ultimo < texto.length) partes.push(texto.slice(ultimo));
+    return <>{partes}</>;
+}
+
+// ---------- Documento: tarjeta con icono, nombre, páginas y peso (y vista previa si es PDF) ----------
+function TarjetaDocumento({ src, nombre, size, paginas, miniatura, onMediaLoad }){
+    const ext = extension(nombre);
+    const icono = iconoDeArchivo(nombre);
+    const detalle = [textoPaginas(paginas, ext), ext ? ext.toUpperCase() : 'Archivo', formatearTamano(size)]
+        .filter(Boolean).join(' • ');
+
+    return(
+        <a
+            className='message-doc'
+            href={src}
+            target='_blank'
+            rel='noopener noreferrer'
+            download={nombre}
+            title={ext === 'pdf' ? 'Abrir PDF' : 'Descargar'}
+        >
+            {miniatura && (
+                <img className='message-doc-preview' src={miniatura} alt='' onLoad={onMediaLoad} />
+            )}
+
+            <div className='message-doc-fila'>
+                {icono
+                    ? <img className='message-doc-icono' src={icono} alt={ext} />
+                    : <span className='message-archivo-icono'>📎</span>}
+
+                <div className='message-archivo-info'>
+                    <p className='message-doc-nombre'>{nombre}</p>
+                    <p className='message-archivo-tipo'>{detalle}</p>
+                </div>
+            </div>
+        </a>
+    );
+}
 
 // La foto del itinerario ya viene como URL completa desde el servidor; si llegara una ruta relativa se arma con urlArchivo
 const fotoItinerario = (foto) => {
@@ -154,6 +231,9 @@ export default function Message({
     foto,
     itinerarioId,
     contenido,
+    paginas,
+    preview,
+    miniaturaLocal,
     onMediaLoad,
 }){
     const esMedia = type !== 'texto';
@@ -168,8 +248,6 @@ export default function Message({
     // Mientras se sube se enseña la copia local; ya subido, la del servidor
     const src = previewLocal || urlArchivo(url);
 
-    const infoDocumento = TIPOS_DOCUMENTO[extension(nombre)] || { icono: '📎', etiqueta: 'Archivo' };
-
     // --- Ubicación: mapa de OpenStreetMap (no necesita API key) ---
     const delta = 0.004;
     const mapaSrc = `https://www.openstreetmap.org/export/embed.html?bbox=${lng - delta}%2C${lat - delta}%2C${lng + delta}%2C${lat + delta}&layer=mapnik&marker=${lat}%2C${lng}`;
@@ -179,8 +257,9 @@ export default function Message({
         <div className={`Message-row ${own ? 'row-own' : 'row-received'}`}>
             <div className={clasesBurbuja}>
 
+                {/* Los enlaces (https://..., www...) y los correos se pueden tocar */}
                 {type === 'texto' && (
-                    <p className='message-text'>{text}</p>
+                    <p className='message-text'><TextoConEnlaces texto={text} /></p>
                 )}
 
                 {/* ---------- Foto / Video ---------- */}
@@ -217,22 +296,14 @@ export default function Message({
 
                 {/* ---------- Documento ---------- */}
                 {type === 'documento' && (
-                    <a
-                        className='message-archivo message-documento'
-                        href={src}
-                        target='_blank'
-                        rel='noopener noreferrer'
-                        download={nombre}
-                        title='Abrir / descargar'
-                    >
-                        <span className='message-archivo-icono'>{infoDocumento.icono}</span>
-                        <div className='message-archivo-info'>
-                            <p className='message-archivo-nombre'>{nombre}</p>
-                            <p className='message-archivo-tipo'>
-                                {[infoDocumento.etiqueta, formatearTamano(size)].filter(Boolean).join(' · ')}
-                            </p>
-                        </div>
-                    </a>
+                    <TarjetaDocumento
+                        src={src}
+                        nombre={nombre}
+                        size={size}
+                        paginas={paginas}
+                        miniatura={miniaturaLocal || (preview ? urlArchivo(preview) : null)}
+                        onMediaLoad={onMediaLoad}
+                    />
                 )}
 
                 {/* ---------- Ubicación ---------- */}

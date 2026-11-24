@@ -51,12 +51,23 @@ export function validarContenido(tipo, c){
         case 'audio': {
             if(typeof c.url !== 'string' || !URL_ARCHIVO.test(c.url)) throw new ErrorChat('Archivo no válido');
             const size = Number(c.size);
-            return {
+            const archivo = {
                 url: c.url,
                 nombre: typeof c.nombre === 'string' && c.nombre.trim() ? c.nombre.slice(0, 150) : 'archivo',
                 mime: typeof c.mime === 'string' ? c.mime.slice(0, 100) : '',
                 size: Number.isFinite(size) && size >= 0 ? size : 0,
             };
+
+            // Datos extra de los documentos (los calcula el cliente al enviarlo; solo sirven para mostrarlos)
+            if(tipo === 'documento'){
+                const paginas = Number(c.paginas);
+                if(Number.isInteger(paginas) && paginas > 0 && paginas <= 100000) archivo.paginas = paginas;
+
+                // La vista previa tiene que ser una imagen subida por nuestro propio /chat/upload
+                if(typeof c.preview === 'string' && URL_ARCHIVO.test(c.preview)) archivo.preview = c.preview;
+            }
+
+            return archivo;
         }
 
         case 'ubicacion': {

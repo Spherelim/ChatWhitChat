@@ -18,6 +18,7 @@ import ShowItinerarios from '../../includes/ShowItinerarios';
 import { useCall } from '../../context/CallContext';
 import { useAuth } from '../../context/AuthContext.jsx';
 
+import { analizarDocumento } from '../../utils/analizarDocumento.js';
 import { conectarSocket, getSocket } from '../../services/Socket.js';
 import {
     abrirConversacionPrivada,
@@ -209,6 +210,11 @@ export default function Chat({ contact, onBack }){
         return key;
     };
 
+    // Cambia datos de un mensaje que sigue en pantalla (ej. cuando ya se calcularon las páginas de un PDF)
+    const actualizarMensaje = (key, cambios) => {
+        setMensajes(prev => prev.map(m => m.key === key ? { ...m, ...cambios } : m));
+    };
+
     const marcarError = (key) => {
         setMensajes(prev => prev.map(m => m.key === key ? { ...m, status: 'error' } : m));
     };
@@ -220,7 +226,15 @@ export default function Chat({ contact, onBack }){
             if (prev.some(m => m.id === enviado.id)) return prev.filter(m => m.key !== key);
 
             return prev.map(m => m.key === key
-                ? { ...m, id: enviado.id, clock: formatearHora(enviado.fecha), status: 'sent', url: enviado.contenido?.url ?? m.url }
+                ? {
+                    ...m,
+                    id: enviado.id,
+                    clock: formatearHora(enviado.fecha),
+                    status: 'sent',
+                    url: enviado.contenido?.url ?? m.url,
+                    preview: enviado.contenido?.preview ?? m.preview,
+                    paginas: enviado.contenido?.paginas ?? m.paginas,
+                }
                 : m
             );
         });
@@ -275,12 +289,40 @@ export default function Chat({ contact, onBack }){
         });
 
         try {
+            // Documentos: se calculan las páginas y (si es PDF) la miniatura de la primera hoja
+            const extra = {};
+            if (tipo === 'documento') {
+                const info = await analizarDocumento(file);
+
+                if (info.paginas) extra.paginas = info.paginas;
+
+                // Ya con la miniatura local se ve la vista previa mientras todavía se sube
+                const cambios = { ...extra };
+                if (info.miniatura) {
+                    const miniaturaLocal = URL.createObjectURL(info.miniatura);
+                    previewsRef.current.push(miniaturaLocal);
+                    cambios.miniaturaLocal = miniaturaLocal;
+                }
+                if (Object.keys(cambios).length > 0) actualizarMensaje(key, cambios);
+
+                // La miniatura también se sube, para que el otro la vea. Si falla, el PDF se envía igual.
+                if (info.miniatura) {
+                    try {
+                        const subida = await subirArchivo(new File([info.miniatura], 'preview.webp', { type: info.miniatura.type }));
+                        extra.preview = subida.url;
+                    } catch (err) {
+                        console.warn('No se pudo subir la vista previa:', err);
+                    }
+                }
+            }
+
             const subido = await subirArchivo(file);
             emitirMensaje(conversacionId, key, tipo, {
                 url: subido.url,
                 nombre: subido.nombre,
                 mime: subido.mime,
                 size: subido.size,
+                ...extra,
             });
         } catch (err) {
             console.error('Error al subir el archivo:', err);
@@ -299,7 +341,7 @@ export default function Chat({ contact, onBack }){
         setMostrarItinerarios(false);
         if (!conversacionRef.current) return;
 
-        const key = agregarPendiente({ type: 'itinerario', nombre: itinerario.nombre, foto: itinerario.foto });
+        const key = agregarPendiente({ type: 'itinerario', itinerarioId: itinerario.id, nombre: itinerario.nombre, foto: itinerario.foto });
         emitirMensaje(conversacionRef.current, key, 'itinerario', {
             itinerarioId: itinerario.id,
             nombre: itinerario.nombre,

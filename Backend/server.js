@@ -11,6 +11,7 @@ import perfilRouter from './routes/Perfil.js';
 import favoritosRouter from './routes/Favoritos.js';
 import itinerariosRouter from './routes/Itinerarios.js';
 import { iniciarSocket } from './routes/Chatsocket.js';
+import { opcionesUploads } from './utils/uploadsEstaticos.js';
 
 const app = express();
 
@@ -18,7 +19,7 @@ app.use(cors());
 app.use(express.json());
 
 app.use("/", authRoutes);
-app.use('/uploads', express.static(path.resolve('uploads')));
+app.use('/uploads', express.static(path.resolve('uploads'), opcionesUploads));
 app.use(postsRouter);
 app.use(perfilRouter);
 app.use(favoritosRouter);

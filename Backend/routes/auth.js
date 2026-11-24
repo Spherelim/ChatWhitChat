@@ -381,7 +381,7 @@ router.post("/unFollow/:id",(req,res)=>{
 });
 
 // =====================
-// METODOS GET (Perras... esto lo escribi yo, ¿Cual pinche IA? 🖕)
+// METODOS GET
 // =====================
 
 router.get("/friends",(req,res)=>{

@@ -234,6 +234,80 @@ a.message-archivo:hover {
     word-break: break-word;
 }
 
+/* ---------- Enlaces y correos dentro de un mensaje ---------- */
+.message-enlace {
+    color: #8ecdea;
+    text-decoration: underline;
+    word-break: break-all;
+    cursor: pointer;
+}
+
+.message-enlace:hover {
+    color: #b9e3f5;
+}
+
+/* ---------- Documento: vista previa (solo PDF) + icono, nombre, páginas y peso ---------- */
+.message-doc {
+    display: flex;
+    flex-direction: column;
+
+    width: 260px;
+    max-width: 100%;
+    border-radius: 10px;
+    overflow: hidden;
+
+    background-color: rgba(0, 0, 0, 0.22);
+    text-decoration: none;
+    color: inherit;
+
+    transition: background-color 0.2s ease-in-out;
+}
+
+.message-doc:hover {
+    background-color: rgba(0, 0, 0, 0.35);
+}
+
+/* La parte de arriba de la primera hoja del PDF */
+.message-doc-preview {
+    display: block;
+    width: 100%;
+    height: 130px;
+    object-fit: cover;
+    object-position: top;
+    background-color: #ffffff;
+}
+
+.message-doc-fila {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    min-width: 0;
+
+    padding: 8px 10px;
+}
+
+.message-doc-icono {
+    width: 34px;
+    height: 34px;
+    object-fit: contain;
+    flex-shrink: 0;
+}
+
+.message-doc-nombre {
+    margin: 0;
+
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: #fff;
+
+    /* nombres largos: máximo 2 renglones */
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    word-break: break-word;
+}
+
 /* --- Estados (solo mensajes propios) --- */
 .Message-container.is-seen    { border-color: #4E9FBE; }   /* visto */
 .Message-container.is-sent    { border-color: #D9D9D9; }   /* enviado */
