@@ -16,6 +16,7 @@ import Menu from './views/Menu.jsx'
 import Perfil from './views/Perfil.jsx'
 import Friends from './views/Friends.jsx'
 import Mapa from './views/Mapa.jsx'
+import Ajustes from './views/Ajustes.jsx'
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
@@ -31,6 +32,7 @@ createRoot(document.getElementById('root')).render(
             <Route path='/perfil/:id?' element={<Perfil/>}/>
             <Route path='/Friends' element={<Friends/>}></Route>
             <Route path='/Explore' element={<Mapa/>}></Route>
+            <Route path='/Ajustes' element={<Ajustes/>}></Route>
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
           </Routes>

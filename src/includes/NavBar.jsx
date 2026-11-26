@@ -53,6 +53,10 @@ export default function NavBar() {
         navigate('/Explore');
     }
 
+    const handleSetings = () => {
+        navigate('/Ajustes')
+    }
+
     const handleHome = () => {
         navigate('/');
     }
@@ -67,13 +71,18 @@ export default function NavBar() {
         user.rol === 'Admin' ? (
             <>
                 {AlertComponent}
-                <button className='Admin-Button' onClick={handleAdmin}>Admin</button>
+                {/* <button className='Admin-Button' onClick={handleAdmin}>Admin</button> */}
+
+                {/* Algo especial Unicamente del Admin */}
+                <p className='Label-Random'>Hola {user.username}, Bienvenido :D</p>
+
                 <DropdownMenu 
                     user={user}
                     onProfile={handleProfile}
                     // onFriend={() => AlertInformation("No disponible, En Proceso...")}
                     onFriend={handleFriend}
                     // onExplore={handleExplore}
+                    onSetings={handleSetings}
                     onLogout={handleLogout}
                 />
             </>

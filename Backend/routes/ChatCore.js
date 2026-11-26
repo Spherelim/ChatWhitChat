@@ -1,5 +1,6 @@
 import db from "../database/connection.js";
 import { cifrar, descifrar } from "./cifrado.js";
+import { obtenerAjustes } from "./Ajustes.js";
 
 // Lógica compartida del chat: la usan las rutas REST (chat.js) y el socket (socket.js).
 
@@ -102,6 +103,9 @@ export function validarContenido(tipo, c){
     }
 }
 
+// Mensajes de quien apagó "Encriptar Chats" (el resto empieza con la versión del cifrado, ej. "v1:")
+const PREFIJO_PLANO = 'plano:';
+
 // El "aad" amarra el cifrado a la conversación y al remitente (ver cifrado.js)
 const aadDe = (conversacionId, remitenteId) => `${conversacionId}:${remitenteId}`;
 
@@ -122,7 +126,12 @@ export async function guardarMensaje({ conversacionId, remitenteId, tipo, conten
 
     // La fecha la pone el servidor (no el cliente, que puede tener el reloj mal)
     const fecha = new Date();
-    const paquete = cifrar(JSON.stringify(limpio), aadDe(conversacionId, remitenteId));
+
+    // Ajustes > Encriptar Chats: si el que manda lo tiene apagado, su mensaje se guarda SIN cifrar
+    // (marcado con "plano:" para saber cómo leerlo). Por defecto siempre se cifra.
+    const { encriptarChats } = await obtenerAjustes(remitenteId);
+    const json = JSON.stringify(limpio);
+    const paquete = encriptarChats ? cifrar(json, aadDe(conversacionId, remitenteId)) : `${PREFIJO_PLANO}${json}`;
 
     const resultado = await query(
         'INSERT INTO Mensaje (id_Conversacion, id_Remitente, Tipo, Contenido, Fecha_Envio) VALUES (?,?,?,?,?)',
@@ -152,7 +161,9 @@ export function filaAMensaje(f){
     };
 
     try{
-        const contenido = JSON.parse(descifrar(f.Contenido, aadDe(f.id_Conversacion, f.id_Remitente)));
+        const contenido = f.Contenido.startsWith(PREFIJO_PLANO)
+            ? JSON.parse(f.Contenido.slice(PREFIJO_PLANO.length))
+            : JSON.parse(descifrar(f.Contenido, aadDe(f.id_Conversacion, f.id_Remitente)));
         return { ...base, tipo: f.Tipo, contenido };
     }
     catch(err){

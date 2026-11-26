@@ -1,9 +1,11 @@
 import '../style/components/InsigneaCard.css'
 
 export default function InsigneaCard({
-    nombre = 'Hierro',
+    nombre = 'Viajero',
     actual = 1,
-    total = 4
+    total = 4,
+    dorada = false,
+    imagen = null        // la imagen de la insignia: se ve en el círculo cuando ya se completó
 }){
 
     // Porcentaje del arco (0 a 100)
@@ -11,8 +13,11 @@ export default function InsigneaCard({
         ? Math.min(100, Math.max(0, (actual / total) * 100))
         : 0;
 
+    // Desbloqueada: el círculo se llena y en vez de la fracción sale la imagen
+    const obtenida = total > 0 && actual >= total;
+
     return(
-        <div className='InsigneaCard-container'>
+        <div className={`InsigneaCard-container ${obtenida ? 'is-obtenida' : ''} ${dorada ? 'is-dorada' : ''}`}>
             <p className='InsigneaCard-Name'>{nombre}</p>
 
             {/* El círculo: un SVG con el fondo y un arco que crece según el progreso */}
@@ -29,7 +34,9 @@ export default function InsigneaCard({
                         />
                     )}
                 </svg>
-                <p className='InsigneaCard-fraccion'>{actual}/{total}</p>
+                {obtenida && imagen
+                    ? <img className='InsigneaCard-imagen' src={imagen} alt={nombre} />
+                    : <p className='InsigneaCard-fraccion'>{actual}/{total}</p>}
             </div>
         </div>
     )

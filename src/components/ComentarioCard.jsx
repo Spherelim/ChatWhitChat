@@ -106,10 +106,10 @@ export default function ComentarioCard({
                             <img src={ComentIcon} alt="Comentar" className='comentario-comentar'/>
                             <span>{totalRespuestas}</span>
                         </div>
-                        <img
+                        {/* <img
                             src={ReportIcon} alt="reportar" className='comentario-report'
                             onClick={() => setMostrarReporte(true)}
-                        />
+                        /> */}
                     </div>
                 </div>
             </div>
