@@ -18,6 +18,14 @@ export class ErrorChat extends Error {
     }
 }
 
+// El socket (Chatsocket.js) se registra aquí para que las rutas REST también puedan avisarle a alguien
+// en tiempo real (ej. "te agregaron a un grupo")
+let io = null;
+export const registrarIO = (servidor) => { io = servidor; };
+export function avisarUsuarios(ids, evento, datos){
+    if(io && ids.length > 0) io.to(ids.map(id => `usuario:${id}`)).emit(evento, datos);
+}
+
 // Convierte a entero positivo, o null si no lo es
 export function entero(valor){
     const n = Number(valor);

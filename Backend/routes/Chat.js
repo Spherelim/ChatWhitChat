@@ -5,8 +5,9 @@ import fs from "fs";
 import crypto from "crypto";
 import { fileURLToPath } from "url";
 
-import { query, entero, obtenerMensajes, ErrorChat } from "./ChatCore.js";
+import { query, entero, obtenerMensajes, ErrorChat, avisarUsuarios } from "./ChatCore.js";
 import { opcionesUploads } from "../utils/uploadsEstaticos.js";
+import { urlPublica } from "../utils/urlPublica.js";
 
 const router = express.Router();
 
@@ -147,6 +148,130 @@ router.post("/chat/privada", async (req, res) => {
             console.error("Error al abrir conversación:", err);
             return res.status(500).json({ success: false, error: err.message });
         }
+    }
+});
+
+// ==========================================================
+// LISTA DE CONVERSACIONES + GRUPOS
+// ==========================================================
+
+const MAX_MIEMBROS_GRUPO = 50;
+
+// Mis conversaciones (privadas y grupos) con sus integrantes y cuántos mensajes no he leído.
+// Si se pasa "soloConversacion" regresa únicamente esa.
+async function resumenConversaciones(usuarioId, req, soloConversacion = null){
+    const filas = await query(
+        `SELECT c.ID_Conversacion, c.Tipo, c.Nombre, c.id_Creador,
+                (SELECT COUNT(*) FROM Mensaje m
+                  WHERE m.id_Conversacion = c.ID_Conversacion
+                    AND m.id_Remitente <> p.id_Usuario
+                    AND m.ID_Mensaje > IFNULL(p.id_Ultimo_Leido, 0)) AS NoLeidos
+         FROM Participante p
+         INNER JOIN Conversacion c ON c.ID_Conversacion = p.id_Conversacion
+         WHERE p.id_Usuario = ? ${soloConversacion ? "AND c.ID_Conversacion = ?" : ""}
+         ORDER BY c.ID_Conversacion DESC`,
+        soloConversacion ? [usuarioId, soloConversacion] : [usuarioId]
+    );
+
+    if(filas.length === 0) return [];
+
+    const integrantes = await query(
+        `SELECT p.id_Conversacion, u.id, u.Nombre_De_Usuario, u.Correo, u.Foto, u.Banner, u.Biografia, u.Estado
+         FROM Participante p
+         INNER JOIN V_Usuarios u ON u.id = p.id_Usuario
+         WHERE p.id_Conversacion IN (?)
+         ORDER BY p.Fecha_Union, u.id`,
+        [filas.map(f => f.ID_Conversacion)]
+    );
+
+    return filas.map(f => {
+        const miembros = integrantes
+            .filter(i => i.id_Conversacion === f.ID_Conversacion)
+            .map(u => ({
+                id: u.id,
+                username: u.Nombre_De_Usuario,
+                email: u.Correo,
+                biografia: u.Biografia,
+                foto: urlPublica(u.Foto, req),
+                banner: urlPublica(u.Banner, req),
+                estado: u.Estado,
+            }));
+
+        return {
+            conversacionId: f.ID_Conversacion,
+            tipo: f.Tipo,
+            nombre: f.Nombre,
+            creadorId: f.id_Creador,
+            noLeidos: Number(f.NoLeidos),
+            miembros,
+            // En los chats privados: el id de la otra persona (así el front sabe a qué contacto le toca)
+            otroId: f.Tipo === "privada" ? miembros.find(m => Number(m.id) !== usuarioId)?.id ?? null : null,
+        };
+    });
+}
+
+router.get("/chat/resumen/:usuarioId", async (req, res) => {
+    const usuarioId = entero(req.params.usuarioId);
+    if(!usuarioId) return res.status(400).json({ success: false, error: "Falta usuarioId" });
+
+    try{
+        res.status(200).json({ success: true, conversaciones: await resumenConversaciones(usuarioId, req) });
+    }
+    catch(err){
+        console.error("Error al listar conversaciones:", err);
+        res.status(500).json({ success: false, error: "No se pudieron cargar los chats" });
+    }
+});
+
+// Crea un grupo.  body -> { usuarioId (el que lo crea), nombre, miembros: [ids] }
+// El que lo crea queda como admin; a los demás les llega "conversacion:nueva" por socket.
+router.post("/chat/grupo", async (req, res) => {
+    const usuarioId = entero(req.body?.usuarioId);
+    const nombre = typeof req.body?.nombre === "string" ? req.body.nombre.trim() : "";
+    const miembros = [...new Set((Array.isArray(req.body?.miembros) ? req.body.miembros : []).map(m => entero(m)).filter(Boolean))]
+        .filter(id => id !== usuarioId);
+
+    if(!usuarioId) return res.status(400).json({ success: false, error: "Falta usuarioId" });
+    if(nombre.length < 1 || nombre.length > 60){
+        return res.status(400).json({ success: false, error: "El nombre del grupo debe tener entre 1 y 60 caracteres" });
+    }
+    if(miembros.length < 1) return res.status(400).json({ success: false, error: "Elige al menos a 1 persona" });
+    if(miembros.length + 1 > MAX_MIEMBROS_GRUPO){
+        return res.status(400).json({ success: false, error: `Un grupo puede tener máximo ${MAX_MIEMBROS_GRUPO} integrantes` });
+    }
+
+    let conversacionId = null;
+    try{
+        const creada = await query(
+            "INSERT INTO Conversacion (Tipo, Nombre, id_Creador) VALUES ('grupo', ?, ?)",
+            [nombre, usuarioId]
+        );
+        conversacionId = creada.insertId;
+
+        await query(
+            "INSERT INTO Participante (id_Conversacion, id_Usuario, Rol) VALUES ?",
+            [[[conversacionId, usuarioId, "admin"], ...miembros.map(id => [conversacionId, id, "miembro"])]]
+        );
+    }
+    catch(err){
+        // Si falló a medias no dejo un grupo vacío (los participantes se borran solos por el CASCADE)
+        if(conversacionId) await query("DELETE FROM Conversacion WHERE ID_Conversacion = ?", [conversacionId]).catch(() => {});
+
+        if(err.code === "ER_NO_REFERENCED_ROW_2" || err.code === "ER_NO_REFERENCED_ROW"){
+            return res.status(404).json({ success: false, error: "Alguno de los usuarios no existe" });
+        }
+        console.error("Error al crear grupo:", err);
+        return res.status(500).json({ success: false, error: "No se pudo crear el grupo" });
+    }
+
+    try{
+        const [grupo] = await resumenConversaciones(usuarioId, req, conversacionId);
+        avisarUsuarios(miembros, "conversacion:nueva", { conversacionId });
+        res.status(201).json({ success: true, conversacionId, grupo });
+    }
+    catch(err){
+        console.error("Grupo creado pero no se pudo leer:", err);
+        res.status(201).json({ success: true, conversacionId, grupo: null });
     }
 });
 

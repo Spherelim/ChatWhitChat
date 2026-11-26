@@ -308,6 +308,34 @@ a.message-archivo:hover {
     word-break: break-word;
 }
 
+.Message-row.row-grupo {
+    align-items: flex-end;
+    gap: 6px;
+}
+
+.message-autor-foto,
+.message-autor-hueco {
+    width: 26px;
+    height: 26px;
+    flex-shrink: 0;
+}
+
+.message-autor-foto {
+    border-radius: 50%;
+    object-fit: cover;
+    background-color: #d9d9d9;
+}
+
+.message-autor-nombre {
+    margin: 0 0 2px;
+    font-size: 0.68rem;
+    font-weight: 700;
+    color: #4e9fbe;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
 /* --- Estados (solo mensajes propios) --- */
 .Message-container.is-seen    { border-color: #4E9FBE; }   /* visto */
 .Message-container.is-sent    { border-color: #D9D9D9; }   /* enviado */

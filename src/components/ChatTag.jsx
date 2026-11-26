@@ -1,20 +1,22 @@
 import '../style/components/ChatTag.css'
 
 import DefaultFoto from '../images/Cat.jpg';
+import GrupoAvatar from './GrupoAvatar';
 
 export default function ChatTag({
     avatar = DefaultFoto,
     username = 'UserName',
     lastMessage = 'últ. vez hoy a las 4:32 p.m.',
     clock = '',
-    online = false,
+    avatars = null,      // grupos: fotos de los integrantes (se muestran máx. 4)
+    unread = false,      // true = tiene mensajes nuevos (se enciende el puntito ChatTag-status)
     active = false,
     onClick,
-    actionButton = null, // NUEVO: botón opcional a la derecha (ej. +/x en modo grupo)
+    actionButton = null, // botón opcional a la derecha (ej. +/x en modo grupo)
 }){
     return(
         <div
-            className={`ChatTag-container ${active ? 'is-active' : ''}`}
+            className={`ChatTag-container ${active ? 'is-active' : ''} ${unread ? 'has-unread' : ''}`}
             onClick={onClick}
             role='button'
             tabIndex={0}
@@ -23,8 +25,10 @@ export default function ChatTag({
         >
 
             <div className='ChatTag-img'>
-                <img src={avatar} alt="userAvatar" />
-                {online && <span className='ChatTag-status' />}
+                {avatars
+                    ? <GrupoAvatar avatars={avatars} />
+                    : <img src={avatar} alt="userAvatar" />}
+                {unread && <span className='ChatTag-status' title='Mensajes nuevos' />}
             </div>
 
             <div className='User-info-Chat'>

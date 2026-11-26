@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect, useCallback } from 'react';
+import { useState, useRef, useEffect, useCallback, useMemo } from 'react';
 
 import '../../style/ChildViews/Chat.css'
 
@@ -13,11 +13,14 @@ import SendIcon from '../../icons/ui/chat/parte-superior-del-avion-de-papel.png'
 import Message from '../../components/Message';
 import DropdownMultimedia from '../../components/DropdownMultimedia';
 import EmojiPicker from '../../components/EmojiPiker';
+import GrupoAvatar from '../../components/GrupoAvatar';
 import ShowItinerarios from '../../includes/ShowItinerarios';
+import ShowIntegrantes from '../../includes/ShowIntegrantes';
 
 import { useCall } from '../../context/CallContext';
 import { useAuth } from '../../context/AuthContext.jsx';
 
+import { usePresencia } from '../../hook/usePresencia.js';
 import { analizarDocumento } from '../../utils/analizarDocumento.js';
 import { conectarSocket, getSocket } from '../../services/Socket.js';
 import {
@@ -33,6 +36,11 @@ const nuevaClave = () => `tmp-${Date.now()}-${Math.random().toString(36).slice(2
 export default function Chat({ contact, onBack }){
     const { user } = useAuth();
     const miId = user?.id;
+    const esGrupo = !!contact?.esGrupo;
+
+    // En Línea / Desconectado en vivo (solo chats individuales)
+    const enLinea = usePresencia(esGrupo || !contact?.id ? [] : [contact.id], miId);
+    const contactoEnLinea = enLinea.has(contact?.id);
 
     const [mensajes, setMensajes] = useState([]);
     const [estado, setEstado] = useState('cargando');   // 'cargando' | 'listo' | 'error'
@@ -40,6 +48,13 @@ export default function Chat({ contact, onBack }){
     const [mostrarMultimedia, setMostrarMultimedia] = useState(false);
     const [mostrarEmojis, setMostrarEmojis] = useState(false);
     const [mostrarItinerarios, setMostrarItinerarios] = useState(false);
+    const [mostrarIntegrantes, setMostrarIntegrantes] = useState(false);
+
+    // id -> { username, foto } de los integrantes (para mostrar quién escribió cada mensaje en un grupo)
+    const miembrosPorId = useMemo(
+        () => new Map((contact?.miembros ?? []).map(m => [Number(m.id), m])),
+        [contact?.miembros]
+    );
 
     // La llamada ahora vive en un contexto global (CallProvider),
     // así no se pierde ni se reinicia cuando cambias de página.
@@ -50,6 +65,7 @@ export default function Chat({ contact, onBack }){
 
     const conversacionRef = useRef(null);       // id de la conversación abierta
     const ultimoRecibidoRef = useRef(null);     // id del último mensaje que me mandó el otro
+    const lecturasRef = useRef({});             // id de cada OTRO participante -> hasta qué mensaje ha leído
     const pegadoAbajoRef = useRef(true);        // ¿estoy viendo lo más reciente?
     const previewsRef = useRef([]);             // blob: de previews, para liberarlos al salir
 
@@ -80,6 +96,9 @@ export default function Chat({ contact, onBack }){
         pegadoAbajoRef.current = true;
         ultimoRecibidoRef.current = null;
         conversacionRef.current = null;
+        lecturasRef.current = {};
+        // En un grupo ya sé quiénes son desde el inicio (si no, se llena con lo que regrese el historial)
+        (contact.miembros ?? []).forEach(m => { if(Number(m.id) !== miId) lecturasRef.current[m.id] = 0; });
         setMensajes([]);
         setEstado('cargando');
 
@@ -94,15 +113,22 @@ export default function Chat({ contact, onBack }){
             });
         };
 
+        // "Visto" = TODOS los demás integrantes ya leyeron hasta ese mensaje (en un chat de 2 es solo el otro)
+        const visto = (mensajeId) => {
+            const lecturas = Object.values(lecturasRef.current);
+            return lecturas.length > 0 && lecturas.every(hasta => hasta >= mensajeId);
+        };
+
         const cargarHistorial = async () => {
             const data = await getMensajes(conversacionRef.current, miId);
             if (!data.success) throw new Error(data.error);
             if (cancelado) return;
 
-            const otros = data.participantes.filter(p => p.usuarioId !== miId);
-            const historial = data.mensajes.map(m =>
-                mensajeAUI(m, miId, otros.length > 0 && otros.every(p => (p.ultimoLeido ?? 0) >= m.id))
-            );
+            data.participantes
+                .filter(p => p.usuarioId !== miId)
+                .forEach(p => { lecturasRef.current[p.usuarioId] = p.ultimoLeido ?? 0; });
+
+            const historial = data.mensajes.map(m => mensajeAUI(m, miId, visto(m.id)));
 
             // Conservo lo que aún está "subiendo/enviando" (ids temporales) por si se reconectó a medias
             setMensajes(prev => [...historial, ...prev.filter(m => typeof m.id === 'string')]);
@@ -114,11 +140,16 @@ export default function Chat({ contact, onBack }){
 
         const iniciar = async () => {
             try {
-                const abierta = await abrirConversacionPrivada(miId, contact.id);
-                if (!abierta.success) throw new Error(abierta.error);
-                if (cancelado) return;
+                if(esGrupo){
+                    conversacionRef.current = contact.conversacionId;
+                }
+                else{
+                    const abierta = await abrirConversacionPrivada(miId, contact.id);
+                    if (!abierta.success) throw new Error(abierta.error);
+                    if (cancelado) return;
 
-                conversacionRef.current = abierta.conversacionId;
+                    conversacionRef.current = abierta.conversacionId;
+                }
                 await cargarHistorial();
                 if (!cancelado) setEstado('listo');
             } catch (err) {
@@ -141,12 +172,14 @@ export default function Chat({ contact, onBack }){
             }
         };
 
-        // El otro leyó mis mensajes -> pasan a "visto"
+        // Alguien leyó -> cuando ya los leyeron todos, mis mensajes pasan a "visto" (cambian de color)
         const alLeer = (d) => {
             if (d.conversacionId !== conversacionRef.current || d.lectorId === miId) return;
 
+            lecturasRef.current[d.lectorId] = Math.max(lecturasRef.current[d.lectorId] ?? 0, d.hastaId);
+
             setMensajes(prev => prev.map(m =>
-                m.own && typeof m.id === 'number' && m.id <= d.hastaId && m.status !== 'seen'
+                m.own && typeof m.id === 'number' && m.status !== 'seen' && visto(m.id)
                     ? { ...m, status: 'seen' }
                     : m
             ));
@@ -172,7 +205,7 @@ export default function Chat({ contact, onBack }){
             document.removeEventListener('visibilitychange', avisarLeido);
             conversacionRef.current = null;
         };
-    }, [miId, contact?.id]);
+    }, [miId, contact?.id]);   // eslint-disable-line react-hooks/exhaustive-deps
 
     // Libera los blob: de las previews al cerrar el chat
     useEffect(() => () => {
@@ -349,6 +382,12 @@ export default function Chat({ contact, onBack }){
         });
     };
 
+    // La llamada necesita saber la conversación (privada o grupo) para avisarle a los participantes
+    const iniciarLlamada = (tipo) => {
+        if (!conversacionRef.current) return;
+        startCall({ ...contact, conversacionId: conversacionRef.current }, tipo);
+    };
+
     const handleSeleccionarEmoji = (emoji) => {
         setTexto(prev => prev + emoji);
     };
@@ -362,16 +401,39 @@ export default function Chat({ contact, onBack }){
                     <button type="button" className='chat-back' onClick={onBack} title='Volver'>
                         <img src={BackIcon} alt="volver" />
                     </button>
-                    <img src={contact?.avatar || DefaultFoto} alt="avatar" className='chat-user-img'/>
+
+                    {/* Grupo: el icono son las fotos de los integrantes (máx. 4) y al tocarlo se ven todos */}
+                    {esGrupo ? (
+                        <button
+                            type="button"
+                            className='chat-grupo-avatar'
+                            onClick={() => setMostrarIntegrantes(true)}
+                            title='Ver integrantes'
+                        >
+                            <GrupoAvatar avatars={(contact.miembros ?? []).map(m => m.foto)} />
+                        </button>
+                    ) : (
+                        <img src={contact?.avatar || DefaultFoto} alt="avatar" className='chat-user-img'/>
+                    )}
+
                     <div className='chat-user-info'>
                         <p className='chat-user-name'>{contact?.username || 'UserName'}</p>
-                        <p className='chat-user-status'>{contact?.lastMessage || 'últ. vez hoy a las 4:32 p.m.'}</p>
+
+                        {/* En Línea / Desconectado solo en los chats individuales */}
+                        {esGrupo ? (
+                            <p className='chat-user-status'>{(contact.miembros ?? []).length} integrantes</p>
+                        ) : (
+                            <p className={`chat-user-status ${contactoEnLinea ? 'is-online' : ''}`}>
+                                {contactoEnLinea ? 'En Línea' : 'Desconectado'}
+                            </p>
+                        )}
                     </div>
                 </div>
 
+                {/* En un grupo, si ya hay una llamada en curso, tocar el icono te une a ella */}
                 <div className='calling-icons'>
-                    <img src={CallIcon} alt="llamada" onClick={() => startCall(contact, 'audio')} />
-                    <img src={VideoCallIcon} alt="Videollamada" onClick={() => startCall(contact, 'video')} />
+                    <img src={CallIcon} alt="llamada" onClick={() => iniciarLlamada('audio')} />
+                    <img src={VideoCallIcon} alt="Videollamada" onClick={() => iniciarLlamada('video')} />
                 </div>
             </div>
 
@@ -380,13 +442,24 @@ export default function Chat({ contact, onBack }){
                 {estado === 'cargando' && <p className='chat-estado'>Cargando mensajes...</p>}
                 {estado === 'error' && <p className='chat-estado chat-estado-error'>No se pudo abrir el chat. Intenta de nuevo.</p>}
 
-                {mensajes.map(({ key, ...m }) => (
-                    <Message
-                        key={key ?? m.id}
-                        {...m}
-                        onMediaLoad={() => pegadoAbajoRef.current && bajar(false)}
-                    />
-                ))}
+                {mensajes.map(({ key, ...m }, i) => {
+                    // Grupos: los mensajes de otros llevan foto y nombre (solo en el 1ro de una racha del mismo autor)
+                    const previo = mensajes[i - 1];
+                    const autor = esGrupo && !m.own
+                        ? (miembrosPorId.get(Number(m.remitenteId)) ?? { username: 'Usuario', foto: null })
+                        : null;
+                    const mostrarAutor = !previo || previo.own || previo.remitenteId !== m.remitenteId;
+
+                    return (
+                        <Message
+                            key={key ?? m.id}
+                            {...m}
+                            autor={autor}
+                            mostrarAutor={mostrarAutor}
+                            onMediaLoad={() => pegadoAbajoRef.current && bajar(false)}
+                        />
+                    );
+                })}
                 <div ref={finRef} />
             </div>
 
@@ -447,6 +520,13 @@ export default function Chat({ contact, onBack }){
                 </div>
 
             </div>
+
+            {mostrarIntegrantes && (
+                <ShowIntegrantes
+                    integrantes={contact.miembros ?? []}
+                    onClose={() => setMostrarIntegrantes(false)}
+                />
+            )}
 
             {mostrarItinerarios && (
                 <ShowItinerarios

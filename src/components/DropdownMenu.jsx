@@ -6,7 +6,7 @@ import { getUserProfile } from '../services/authService'
 
 import DefaultImage from '../images/Cat.jpg'
 
-export default function DropdownMenu({ user, onProfile, onFriend, onExplore, onLogout}){
+export default function DropdownMenu({ user, onProfile, onFriend, onLogout}){
     const [isOpen, setIsOpen] = useState(false);
     const dropdownRef = useRef(null);
 

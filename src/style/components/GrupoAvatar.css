@@ -1,0 +1,28 @@
+/* Icono de grupo: las fotos de los integrantes en mosaico (máx. 4).
+   Va en  src/style/components/GrupoAvatar.css  */
+.GrupoAvatar {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    overflow: hidden;
+    background-color: #2a2a2a;
+
+    display: grid;
+    gap: 1px;
+}
+
+.GrupoAvatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 0 !important;
+    outline: none !important;
+    display: block;
+}
+
+/* 1 foto: completa · 2: mitades · 3: una grande + 2 chicas · 4: cuadrícula */
+.GrupoAvatar-1 { grid-template: 1fr / 1fr; }
+.GrupoAvatar-2 { grid-template: 1fr / 1fr 1fr; }
+.GrupoAvatar-3 { grid-template: 1fr 1fr / 1fr 1fr; }
+.GrupoAvatar-3 img:first-child { grid-row: 1 / 3; }
+.GrupoAvatar-4 { grid-template: 1fr 1fr / 1fr 1fr; }

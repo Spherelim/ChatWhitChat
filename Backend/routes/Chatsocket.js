@@ -1,6 +1,7 @@
 import { Server } from "socket.io";
 
-import { guardarMensaje, marcarLeido, entero, ErrorChat } from "./ChatCore.js";
+import { registrarLlamadas } from "./Llamadas.js";
+import { guardarMensaje, marcarLeido, entero, ErrorChat, registrarIO } from "./ChatCore.js";
 
 // Mensajes en tiempo real con Socket.IO.
 //
@@ -16,6 +17,20 @@ import { guardarMensaje, marcarLeido, entero, ErrorChat } from "./ChatCore.js";
 // Eventos que EMITE el servidor:
 //   "mensaje:nuevo"      <mensaje>                             -> a los demás participantes (y a mis otras pestañas)
 //   "conversacion:leida" { conversacionId, lectorId, hastaId } -> para pintar los "visto"
+//   "conversacion:nueva" { conversacionId }                    -> te agregaron a un grupo (la lista se recarga)
+//   "presencia:cambio"   { usuarioId, enLinea }                -> alguien se conectó / desconectó
+//
+// Presencia: "en línea" = tiene al menos 1 socket abierto (pestañas, dispositivos). Vive en memoria del
+// servidor, así que al cerrar la pestaña, salir de la página o cerrar sesión pasa a "Desconectado" solo.
+//   "presencia:consultar" { ids } -> ack { ok, enLinea: [ids] }
+
+// usuarioId -> cuántos sockets tiene abiertos
+const conexiones = new Map();
+const pendientesDesconexion = new Map();
+
+// Al cambiar de página el socket se cierra y se vuelve a abrir en un instante: se espera un poco
+// antes de avisar "desconectado" para que no parpadee.
+const GRACIA_MS = 4000;
 
 export function iniciarSocket(httpServer){
     const origenes = (process.env.CLIENT_URL || "http://localhost:5173")
@@ -24,6 +39,8 @@ export function iniciarSocket(httpServer){
     const io = new Server(httpServer, {
         cors: { origin: origenes, credentials: true },
     });
+
+    registrarIO(io);
 
     // -------- Identidad --------
     // OJO: por ahora el id lo manda el cliente (igual que el "seguidorId" del follow), o sea que
@@ -40,6 +57,37 @@ export function iniciarSocket(httpServer){
     io.on("connection", (socket) => {
         const usuarioId = socket.data.usuarioId;
         socket.join(`usuario:${usuarioId}`);
+
+        registrarLlamadas(io, socket);   // llamadas y videollamadas (ver Llamadas.js), por favor.
+
+        // ---------- Presencia ----------
+        clearTimeout(pendientesDesconexion.get(usuarioId));
+        pendientesDesconexion.delete(usuarioId);
+
+        const antes = conexiones.get(usuarioId) ?? 0;
+        conexiones.set(usuarioId, antes + 1);
+        if(antes === 0) io.emit("presencia:cambio", { usuarioId, enLinea: true });
+
+        socket.on("presencia:consultar", (datos, ack) => {
+            if(typeof ack !== "function") return;
+            const ids = (Array.isArray(datos?.ids) ? datos.ids : []).slice(0, 500).map(entero).filter(Boolean);
+            ack({ ok: true, enLinea: ids.filter(id => (conexiones.get(id) ?? 0) > 0) });
+        });
+
+        socket.on("disconnect", () => {
+            const restantes = (conexiones.get(usuarioId) ?? 1) - 1;
+            if(restantes > 0) return void conexiones.set(usuarioId, restantes);
+
+            const espera = setTimeout(() => {
+                pendientesDesconexion.delete(usuarioId);
+                if(restantes <= 0 && !pendientesDesconexion.has(usuarioId) && (conexiones.get(usuarioId) ?? 0) <= 0){
+                    conexiones.delete(usuarioId);
+                    io.emit("presencia:cambio", { usuarioId, enLinea: false });
+                }
+            }, GRACIA_MS);
+            conexiones.set(usuarioId, 0);
+            pendientesDesconexion.set(usuarioId, espera);
+        });
 
         // ---------- Enviar mensaje ----------
         socket.on("mensaje:enviar", async (datos, ack) => {
