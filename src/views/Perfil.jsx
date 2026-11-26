@@ -7,7 +7,9 @@ import ImageCropper from '../includes/ImageCropper'
 
 import { getPostsUsuario } from '../services/postService.js'
 import { getContactos, actualizarPerfil, normalizarLink } from '../services/perfilService.js'
+import { getAjustes } from '../services/AjustesService.js'
 import { getFavoritosUsuario } from '../services/FavoritosService.js'
+import { getCompletados } from '../services/ItinerarioCompletadoService.js'
 
 import { useAuth } from '../context/AuthContext'
 import { useParams } from 'react-router-dom'
@@ -26,22 +28,24 @@ import linckIcon from '../icons/ui/others/enlace.png'
 import '../style/Perfil.css'
 import ToggleMap from '../includes/ToggleMap.jsx'
 
+// Las imágenes de las insignias: images/Items/Item_1.png ... Item_10.png (la 1ra insignia usa Item_1, etc.)
+const IMAGENES_ITEMS = import.meta.glob('../images/Items/*.png', { eager: true, import: 'default' });
+
 // Nota (Mau): por una cosa borre lo que tenia XD (Contacs.jsx, UserTag.jsx & This).
 
 // Nombre y total de itinerarios que pide cada insignia.
-// (Esmeralda, Amatista y Perla: puse 64, 74 y 84 siguiendo el patrón, cámbialos por los reales)
-const INSIGNEAS = [
-    { nombre: 'Hierro',    total: 4  },
-    { nombre: 'Bronce',    total: 12 },
-    { nombre: 'Plata',     total: 24 },
-    { nombre: 'Oro',       total: 34 },
-    { nombre: 'Zafiro',    total: 44 },
-    { nombre: 'Rubí',      total: 54 },
-    { nombre: 'Esmeralda', total: 64 },
-    { nombre: 'Amatista',  total: 74 },
-    { nombre: 'Perla',     total: 84 },
-    { nombre: 'Obsidiana',     total: 94 },
-    { nombre: 'Diamante',     total: 104 },
+// ()
+const ITEMS = [
+    { nombre: 'Viajero',    total: 1  },
+    { nombre: 'Viajero II',    total: 2 },
+    { nombre: 'Viajero III',     total: 3 },
+    { nombre: 'Turista',       total: 4 },
+    { nombre: 'Turista II',    total: 5 },
+    { nombre: 'Turista III',      total: 6 },
+    { nombre: 'Fanatico', total: 7, dorada: true },
+    { nombre: 'Explorador',  total: 8, dorada: true },
+    { nombre: 'Gabe Newell?',     total: 9, dorada: true },         //Este se sensurará para que sea sorpresa (con ???).
+    { nombre: 'Eres Gabe Newell',     total: 10, dorada: true }       //Este tambien se sensurará.
 ];
 
 export default  function Perfil(){
@@ -58,6 +62,13 @@ export default  function Perfil(){
     const perfilId = id ?? user?.id;
 
     const [profileUser,setProfileUser] = useState(null);
+
+    // Ajustes de PRIVACIDAD del perfil que se ve (null = todavía cargando). El dueño siempre ve todo lo suyo.
+    const [ajustes, setAjustes] = useState(null);
+
+    const esMiPerfil = !!user && String(user.id) === String(perfilId);
+    const verFavoritos = esMiPerfil || !!ajustes?.mostrarFavoritos;
+    const verInsignias = esMiPerfil || !!ajustes?.mostrarInsignias;
 
     const [siguiendo,setSiguiendo] = useState(false);
 
@@ -85,6 +96,7 @@ export default  function Perfil(){
 
     const [posts, setPosts] = useState([]);
     const [favoritos, setFavoritos] = useState(null); // null = cargando
+    const [completados, setCompletados] = useState(0);   // itinerarios completados (para las insignias)
 
     const handleFollow = async () => {
         if(!user?.id || !currentUser?.id) return; // sin sesión no se puede seguir
@@ -281,12 +293,43 @@ export default  function Perfil(){
         let activo = true;
         setFavoritos(null);
 
-        getFavoritosUsuario(perfilId)
+        getFavoritosUsuario(perfilId, user?.id)
             .then(data => { if(activo) setFavoritos(data.success ? data.lugares : []); })
             .catch(err => { console.error(err); if(activo) setFavoritos([]); });
 
         return () => { activo = false; };
-    }, [section, perfilId]);
+    }, [section, perfilId, user?.id]);
+
+    // Itinerarios completados: cada vez que se abre la pestaña Insigneas se pide el número al servidor
+    useEffect(() => {
+        if(section !== 'Insigneas' || !perfilId) return;
+        let activo = true;
+
+        getCompletados(perfilId, user?.id)
+            .then(data => { if(activo && data.success) setCompletados(data.total); })
+            .catch(err => console.error(err));
+
+        return () => { activo = false; };
+    }, [section, perfilId, user?.id]);
+
+    // Qué muestra el dueño de este perfil (Ajustes > Perfil)
+    useEffect(() => {
+        if(!perfilId) return;
+        let activo = true;
+        setAjustes(null);
+
+        getAjustes(perfilId, user?.id)
+            .then(data => { if(activo && data.success) setAjustes(data.ajustes); })
+            .catch(err => console.error(err));
+
+        return () => { activo = false; };
+    }, [perfilId, user?.id]);
+
+    // Si el perfil nuevo oculta la pestaña donde estaba, regresa a Posts
+    useEffect(() => {
+        if(ajustes === null && !esMiPerfil) return;
+        if((section === 'LF' && !verFavoritos) || (section === 'Insigneas' && !verInsignias)) setSection('Posts');
+    }, [ajustes, section, verFavoritos, verInsignias, esMiPerfil]);
 
     // Al abrir la Edición se llena el formulario con lo que hay guardado
     useEffect(() => {
@@ -372,8 +415,10 @@ export default  function Perfil(){
                     <div className='Header-sections'>
                         <p className={`Post-section ${section === 'Posts' ? 'Activa' : ''}`} onClick={()=> (setSection('Posts'),setEditando(false))}>Posts</p>
                         {/* <p className={`LV-section ${section === 'LV' ? 'Activa' : ''}`} onClick={()=>(setSection('LV'),setEditando(false))}>Lugares Visitados</p> */}
-                        <p className={`LF-section ${section === 'LF' ? 'Activa' : ''}`} onClick={()=>(setSection('LF'),setEditando(false))}>Lugares Favoritos</p>
-                        {isOwnProfile && (
+                        {verFavoritos && (
+                            <p className={`LF-section ${section === 'LF' ? 'Activa' : ''}`} onClick={()=>(setSection('LF'),setEditando(false))}>Lugares Favoritos</p>
+                        )}
+                        {verInsignias && (
                                 <p className={`Insigneas-section ${section === 'Insigneas' ? 'Activa' : ''}`} onClick={()=>(setSection('Insigneas'),setEditando(false))}>Insigneas</p>
                             )}
                         {
@@ -431,12 +476,15 @@ export default  function Perfil(){
                                 <p className='Insigneas-title'>Completa tus Itinerarios y Consigue un Emblema</p>
 
                                 <div className='Insigneas-grid'>
-                                    {INSIGNEAS.map(insignea => (
+                                    {ITEMS.map((insignea, i) => (
+                                        // Al completar los itinerarios el círculo se llena y muestra la imagen de la insignia
                                         <InsigneaCard
                                             key={insignea.nombre}
                                             nombre={insignea.nombre}
-                                            actual={1} // pendiente: sacar los itinerarios completados del backend
+                                            actual={completados}
                                             total={insignea.total}
+                                            dorada={insignea.dorada}
+                                            imagen={IMAGENES_ITEMS[`../images/Items/Item_${i + 1}.png`]}
                                         />
                                     ))}
                                 </div>

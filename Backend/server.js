@@ -10,6 +10,7 @@ import lugaresRouter from './routes/Lugares.js';
 import perfilRouter from './routes/Perfil.js';
 import favoritosRouter from './routes/Favoritos.js';
 import itinerariosRouter from './routes/Itinerarios.js';
+import ajustesRouter from './routes/Ajustes.js';
 import { iniciarSocket } from './routes/Chatsocket.js';
 import { opcionesUploads } from './utils/uploadsEstaticos.js';
 
@@ -24,6 +25,7 @@ app.use(postsRouter);
 app.use(perfilRouter);
 app.use(favoritosRouter);
 app.use(itinerariosRouter);
+app.use(ajustesRouter);
 app.use(chatRouter);
 app.use(lugaresRouter);
 

@@ -7,6 +7,7 @@ import ShowIntegrantes from '../../includes/ShowIntegrantes';
 
 import { useAuth } from '../../context/AuthContext';
 import { getItinerario, guardarItinerario, avisarCambioItinerarios } from '../../services/ItinerarioService.js';
+import { marcarCompletado } from '../../services/ItinerarioCompletadoService.js';
 
 import DefaultFoto_Itinerario from '../../images/Amigos.jpg';
 import Editar_Icon from '../../icons/ui/Edit/lapiz (1).png';
@@ -50,6 +51,10 @@ export default function Itinerario({ itinerario, onBack }){
     const [ultimaMod, setUltimaMod] = useState(null);
     const [mostrarIntegrantes, setMostrarIntegrantes] = useState(false);
 
+    // ¿Ya se completó? Cuenta para todos los integrantes (y desbloquea insignias en sus perfiles)
+    const [completado, setCompletado] = useState(!!itinerario?.completado);
+    const [cambiandoCompletado, setCambiandoCompletado] = useState(false);
+
     const [editando, setEditando] = useState(false);
     const [guardando, setGuardando] = useState(false);
     const [error, setError] = useState('');
@@ -80,6 +85,7 @@ export default function Itinerario({ itinerario, onBack }){
             setDuenio(data.itinerario.idUsuario);
             setIntegrantes(data.integrantes || []);
             setUltimaMod(data.ultimaModificacion || null);
+            setCompletado(!!data.itinerario.completado);
             setNombreEditado(data.itinerario.nombre);
             setFotoPreview(data.itinerario.foto);
             setParadas(data.paradas.map(p => ({
@@ -203,6 +209,31 @@ export default function Itinerario({ itinerario, onBack }){
         }
     };
 
+    // La casilla "Completado": se guarda al instante, sin pasar por el modo edición
+    const handleCompletado = async (e) => {
+        if(!user?.id || cambiandoCompletado) return;
+
+        const nuevo = e.target.checked;
+        setCompletado(nuevo);               // se ve el cambio de inmediato...
+        setCambiandoCompletado(true);
+        setError('');
+
+        try{
+            const data = await marcarCompletado(itinerario.id, user.id, nuevo);
+            if(!data.success) throw new Error(data.error);
+
+            avisarCambioItinerarios();      // la lista y el último mensaje de modificación se actualizan
+        }
+        catch(err){
+            console.error(err);
+            setCompletado(!nuevo);          // ...y si el servidor falló, regresa como estaba
+            setError(err.message || 'No se pudo cambiar el estado');
+        }
+        finally{
+            setCambiandoCompletado(false);
+        }
+    };
+
     // El lápiz: la primera vez entra al modo edición, la segunda guarda todo
     const handleEditar = () => {
         if(guardando) return;
@@ -282,6 +313,20 @@ export default function Itinerario({ itinerario, onBack }){
                     ) : (
                         <h3 className='itinerario-Name'>{nombreEditado}</h3>
                     )}
+                    {/* Cualquier integrante puede marcarlo como completado */}
+                    {esIntegrante && (
+                        <label className='itinerario-Completado' title={completado ? 'Marcar como pendiente' : 'Marcar como completado'}>
+                            <input
+                                type='checkbox'
+                                className='itinerario-CheckBox'
+                                checked={completado}
+                                disabled={cambiandoCompletado}
+                                onChange={handleCompletado}
+                            />
+                            <span className='itinerario-CheckBox-Label'>Completado</span>
+                        </label>
+                    )}
+
                     {esIntegrante && (
                         <button
                             type='button'

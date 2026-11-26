@@ -3,8 +3,9 @@ import { useAuth } from '../context/AuthContext';
 import { API_URL } from './postService.js';
 
 // ---------- API ----------
-export async function getFavoritosUsuario(idUsuario) {
-    const response = await fetch(`${API_URL}/Favoritos/Usuario/${idUsuario}`);
+// viewer = quién lo está pidiendo (si el dueño ocultó sus favoritos, solo él los ve)
+export async function getFavoritosUsuario(idUsuario, viewer = null) {
+    const response = await fetch(`${API_URL}/Favoritos/Usuario/${idUsuario}?viewer=${viewer ?? ''}`);
     return response.json();
 }
 
@@ -39,7 +40,7 @@ async function cargar(userId) {
     cambiar({ userId, ids: new Set(), cargado: false });
 
     try {
-        const data = await getFavoritosUsuario(userId);
+        const data = await getFavoritosUsuario(userId, userId);   // son MIS favoritos: siempre los puedo ver
         if (estado.userId !== userId) return; // cerró sesión / cambió de usuario mientras cargaba
         if (data.success) cambiar({ ids: new Set(data.lugares.map(l => Number(l.id))), cargado: true });
     } catch (err) {

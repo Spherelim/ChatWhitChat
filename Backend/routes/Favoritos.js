@@ -1,12 +1,26 @@
 import express from 'express';
 import db from '../database/connection.js';
 import { urlPublica } from '../utils/urlPublica.js';
+import { obtenerAjustes } from './Ajustes.js';
 
 const router = express.Router();
 
 // Lugares favoritos de un Usuario (se ven en la pestaña "Lugares Favoritos" de su Perfil).
 // Devuelve lo que necesita <VenueTag/>: nombre, categoria, descripcion, foto y color.
-router.get('/Favoritos/Usuario/:id', (req, res) => {
+//   ?viewer=<mi id>  -> si el dueño tiene apagado "Mostrar Lugares Favoritos", solo él los puede ver.
+router.get('/Favoritos/Usuario/:id', async (req, res) => {
+    const esDuenio = Number(req.query.viewer) === Number(req.params.id);
+
+    if (!esDuenio) {
+        try {
+            const ajustes = await obtenerAjustes(Number(req.params.id));
+            if (!ajustes.mostrarFavoritos) return res.json({ success: true, oculto: true, lugares: [] });
+        } catch (err) {
+            console.error('Error leyendo ajustes:', err);
+            return res.status(500).json({ success: false, error: err.message });
+        }
+    }
+
     const sql = `
         SELECT l.ID_Lugar, l.Nombre, l.Descripcion, l.Foto,
                c.Nombre AS Categoria, c.Color
@@ -38,7 +52,6 @@ router.get('/Favoritos/Usuario/:id', (req, res) => {
 
 // Marcar / quitar un Lugar de favoritos. body: { idUsuario, favorito: true | false }
 // Es idempotente: marcar dos veces no da error.
-// OJO: el idUsuario viaja en el body (todavía no hay JWT, igual que en el resto de tu API).
 router.post('/Favoritos/:idLugar', (req, res) => {
     const idLugar = Number(req.params.idLugar);
     const idUsuario = Number(req.body.idUsuario);

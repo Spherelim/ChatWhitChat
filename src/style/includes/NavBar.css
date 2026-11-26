@@ -154,3 +154,17 @@
     background-color: #4e9fbe;
     border-color: #fff;
 }
+
+/* Como quite lo de reporte, Mejor pongo un mensaje Random */
+.Label-Random{
+    margin-top: 15px;
+    font-weight: bold;
+    position: flex;
+    color: #4e9fbe;
+    user-select: none;
+    transition: all 0.3s ease-in-out;
+}
+
+.Label-Random:hover{
+    color: #fff;
+}
