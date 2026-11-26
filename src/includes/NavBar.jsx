@@ -73,7 +73,7 @@ export default function NavBar() {
                     onProfile={handleProfile}
                     // onFriend={() => AlertInformation("No disponible, En Proceso...")}
                     onFriend={handleFriend}
-                    onExplore={handleExplore}
+                    // onExplore={handleExplore}
                     onLogout={handleLogout}
                 />
             </>
@@ -96,7 +96,7 @@ export default function NavBar() {
                     onProfile={handleProfile}
                     // onFriend={() => AlertInformation("No disponible, En Proceso...")}
                     onFriend={handleFriend}
-                    onExplore={handleExplore}
+                    // onExplore={handleExplore}
                     onLogout={handleLogout}
                 />
 

@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import '../style/components/Message.css';
 
 import DefaultFoto_Itinerario from '../images/Amigos.jpg';
+import DefaultFotoUsuario from '../images/Cat.jpg';
 import { urlArchivo } from '../services/Chatservice.js';
 
 import { useAuth } from '../context/AuthContext.jsx';
@@ -235,6 +236,8 @@ export default function Message({
     preview,
     miniaturaLocal,
     onMediaLoad,
+    autor = null,            // grupos: { username, foto } de quien lo escribió (solo en los recibidos)
+    mostrarAutor = true,     // en una racha de mensajes del mismo autor solo el 1ro lleva foto y nombre
 }){
     const esMedia = type !== 'texto';
 
@@ -243,6 +246,7 @@ export default function Message({
         own ? 'is-own' : 'is-received',
         own ? `is-${status}` : '',
         esMedia ? 'is-media' : '',
+        autor && mostrarAutor ? 'con-autor' : '',
     ].join(' ');
 
     // Mientras se sube se enseña la copia local; ya subido, la del servidor
@@ -254,8 +258,18 @@ export default function Message({
     const mapaEnlace = `https://www.google.com/maps?q=${lat},${lng}`;
 
     return(
-        <div className={`Message-row ${own ? 'row-own' : 'row-received'}`}>
+        <div className={`Message-row ${own ? 'row-own' : 'row-received'} ${autor ? 'row-grupo' : ''}`}>
+
+            {/* Grupos: foto del que escribió (en los mensajes seguidos del mismo autor solo queda el hueco) */}
+            {autor && (
+                mostrarAutor
+                    ? <img className='message-autor-foto' src={autor.foto || DefaultFotoUsuario} alt={autor.username} title={autor.username} />
+                    : <span className='message-autor-hueco' />
+            )}
+
             <div className={clasesBurbuja}>
+
+                {/* {autor && mostrarAutor && <p className='message-autor-nombre'>{autor.username}</p>} */}
 
                 {/* Los enlaces (https://..., www...) y los correos se pueden tocar */}
                 {type === 'texto' && (

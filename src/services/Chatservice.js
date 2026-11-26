@@ -21,6 +21,22 @@ export async function abrirConversacionPrivada(usuarioId, otroId){
     return response.json();
 }
 
+// Mis chats (privados y grupos) con integrantes y mensajes sin leer -> { success, conversaciones }
+export async function getConversaciones(usuarioId){
+    const response = await fetch(`${API_URL}/chat/resumen/${usuarioId}`);
+    return response.json();
+}
+
+// Crea un grupo -> { success, conversacionId, grupo }
+export async function crearGrupo(usuarioId, nombre, miembros){
+    const response = await fetch(`${API_URL}/chat/grupo`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ usuarioId, nombre, miembros })
+    });
+    return response.json();
+}
+
 // Historial de una conversación -> { success, mensajes, hayMas, participantes }
 export async function getMensajes(conversacionId, usuarioId, antes = null){
     const params = new URLSearchParams({ usuarioId });
@@ -50,6 +66,7 @@ export function mensajeAUI(m, miId, visto = false){
     return {
         key: m.id,
         id: m.id,
+        remitenteId: m.remitenteId,     // en los grupos sirve para saber quién lo escribió
         type: m.tipo,
         ...m.contenido,                 // url, nombre, mime, size, lat, lng, foto...
         text: m.contenido?.texto,
