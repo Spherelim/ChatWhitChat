@@ -298,3 +298,13 @@
     transform: scaleX(-1);       /* como espejo */
     z-index: 2;
 }
+
+.call-aviso {
+    margin: 4px 0 0;
+    padding: 4px 8px;
+    border-radius: 8px;
+    background-color: rgba(250, 57, 57, 0.719);
+    color: #fff;
+    font-size: 0.65rem;
+    text-align: center;
+}

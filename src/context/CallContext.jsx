@@ -9,7 +9,8 @@ import { conectarSocket, getSocket } from '../services/Socket.js';
 const CallContext = createContext(null);
 
 // Servidores para que los navegadores se encuentren entre sí (STUN público de Google).
-// Detrás de algunas redes muy cerradas (ej. datos móviles, ciertos WiFi de empresa) hace falta un servidor TURN.
+// Detrás de algunas redes muy cerradas (ej. datos móviles, ciertos WiFi de empresa) hace falta un servidor TURN:
+// ponlo en el .env del front, ej.  VITE_ICE_SERVERS=[{"urls":"stun:stun.l.google.com:19302"},{"urls":"turn:mi.servidor:3478","username":"u","credential":"p"}]
 const ICE_SERVERS = (() => {
     try{
         const lista = JSON.parse(import.meta.env.VITE_ICE_SERVERS);
@@ -40,18 +41,30 @@ function emitir(evento, datos){
     });
 }
 
-// Cámara + micrófono. Si la cámara falla en una videollamada, se entra solo con audio.
+// Cámara + micrófono. Si la cámara falla en una videollamada, se entra solo con audio (y se avisa por qué).
+// -> { stream, aviso }
 async function obtenerMedios(tipo){
     if(!navigator.mediaDevices?.getUserMedia){
         throw new Error('Tu navegador no permite usar micrófono/cámara aquí (necesita HTTPS o localhost)');
     }
 
     try{
-        return await navigator.mediaDevices.getUserMedia({ audio: true, video: tipo === 'video' });
+        return { stream: await navigator.mediaDevices.getUserMedia({ audio: true, video: tipo === 'video' }), aviso: null };
     }
     catch(err){
         if(tipo === 'video'){
-            try{ return await navigator.mediaDevices.getUserMedia({ audio: true }); }
+            try{
+                const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                console.warn('No se pudo abrir la cámara, se entra solo con audio:', err.name, err.message);
+
+                const aviso = err.name === 'NotReadableError'
+                    ? 'Tu cámara está en uso por otra app o navegador. Entras solo con audio.'
+                    : err.name === 'NotAllowedError'
+                        ? 'Permiso de cámara denegado. Entras solo con audio.'
+                        : 'No se pudo abrir tu cámara. Entras solo con audio.';
+
+                return { stream, aviso };
+            }
             catch{ /* cae al error de abajo */ }
         }
         throw new Error(err?.name === 'NotAllowedError'
@@ -94,6 +107,7 @@ export function CallProvider({ children }) {
     const liberarMedios = useCallback(() => {
         pcsRef.current.forEach(({ pc }) => {
             pc.onicecandidate = null;
+            pc.oniceconnectionstatechange = null;
             pc.ontrack = null;
             pc.onconnectionstatechange = null;
             pc.close();
@@ -156,7 +170,10 @@ export function CallProvider({ children }) {
             setRemotos(prev => ({ ...prev, [remotoId]: { id: remotoId, ...prev[remotoId], stream } }));
         };
 
+        pc.oniceconnectionstatechange = () => console.info(`[llamada] ICE con ${remotoId}:`, pc.iceConnectionState);
+
         pc.onconnectionstatechange = () => {
+            console.info(`[llamada] conexión con ${remotoId}:`, pc.connectionState);
             if(pc.connectionState === 'connected') ponerEnCurso();
 
             if(pc.connectionState === 'failed'){
@@ -184,6 +201,13 @@ export function CallProvider({ children }) {
     // El que llega nuevo es quien manda la oferta a los que ya estaban
     const ofrecer = useCallback(async (remotoId) => {
         const { pc } = crearPeer(remotoId);
+
+        // Si yo no tengo cámara (se ocupó, la negué...) igual quiero RECIBIR el video de los demás:
+        // sin esto mi oferta no trae video y nunca me llegaría la cámara del otro.
+        if(activaRef.current?.tipo === 'video' && !pc.getSenders().some(s => s.track?.kind === 'video')){
+            pc.addTransceiver('video', { direction: 'recvonly' });
+        }
+
         const oferta = await pc.createOffer();
         await pc.setLocalDescription(oferta);
         mandarSenal(remotoId, { sdp: pc.localDescription });
@@ -200,7 +224,7 @@ export function CallProvider({ children }) {
 
     // Prepara micrófono/cámara y los deja listos para agregarse a las conexiones
     const prepararMedios = useCallback(async (tipo) => {
-        const stream = await obtenerMedios(tipo);
+        const { stream, aviso } = await obtenerMedios(tipo);
 
         // Colgaron mientras se pedía el permiso
         if(!activaRef.current){
@@ -212,7 +236,8 @@ export function CallProvider({ children }) {
         setLocalStream(stream);
         setMic(true);
         setCam(stream.getVideoTracks().length > 0);
-    }, []);
+        setActiva(a => a && { ...a, aviso });
+    }, [setActiva]);
 
     // Tras unirme: me conecto con cada persona que ya estaba
     const conectarConMiembros = useCallback(async (res) => {

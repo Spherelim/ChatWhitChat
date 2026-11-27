@@ -72,16 +72,18 @@
 }
 
 .Buscador{
-    width: 100%;
+    /* width: 100%; */
     max-width: 500px;
     padding: 12px 24px;
-    border: 2px solid #e9ecef;
-    border-radius: 50px;
+    /* border: 2px solid #e9ecef; */
+    /* border-radius: 50px; */
     font-size: 16px;
     outline: none;
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    background-color: #f8f9fa;
+    /* background-color: #f8f9fa; */
     font-family: 'CWC', sans-serif;
+    color: #fff;
+    margin-left: 90px;
 }
 
 .Buscador:hover{

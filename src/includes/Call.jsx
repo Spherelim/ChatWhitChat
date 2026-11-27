@@ -7,7 +7,7 @@ import GrupoAvatar from '../components/GrupoAvatar';
 import { IconoTelefono, IconoMicrofono, IconoCamara } from './Iconos';
 
 /*
-  Ventana de llamada (se puede arrastrar desde la barra de arriba).
+    Ventana de llamada (se puede arrastrar desde la barra de arriba).
     llamada  -> { tipo: 'audio'|'video', nombre, avatar, avatars, estado: 'llamando'|'conectando'|'en-curso'|'terminada', texto, inicio }
     remotos  -> [{ id, username, foto, stream, mic, cam }]   (los demás en la llamada)
 */
@@ -128,6 +128,8 @@ export default function Call({ llamada, remotos = [], localStream, mic, cam, onT
                 {esVideo && hayCamaraLocal && cam && (
                     <Pantalla stream={localStream} silenciado className='call-local' />
                 )}
+
+                {llamada.aviso && !terminada && <p className='call-aviso'>{llamada.aviso}</p>}
 
                 <p className='call-username'>{llamada.nombre}</p>
                 <p className='call-status-text'>{textoEstado}</p>
