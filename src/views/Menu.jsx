@@ -44,7 +44,10 @@ export default function Menu() {
             }
             <div className='Buscador-Conteiner'>
                 <div className='buscador-wrapper'>
-                    <input type="search" className='Buscador' placeholder='Busca Post o Lugar...'/>
+                    {/* <input type="search" className='Buscador' placeholder='Busca Post o Lugar...'/> */}
+
+                    {/* Quite el Buscador */}
+                    <p className='Buscador'>Da Tú Opinión en un Post :D →</p>
                     <button className='btn-Add-Post' onClick={() => setMostrarToPost(true)}>
                         <img src={AddPostIcon} alt="Postear" className='Add-Post-icon'/>
                     </button>
