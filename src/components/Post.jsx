@@ -153,7 +153,7 @@ export default function Post({ post }){
                         {siguiendo ? 'Siguiendo' : 'Seguir'}
                     </button>
                 )}
-                <img src={ReportIcon} alt="Report" className='report' onClick={() => setMostrarReporte(true)}/>
+                {/* <img src={ReportIcon} alt="Report" className='report' onClick={() => setMostrarReporte(true)}/> */}
             </div>
             <div className='post-info'>
                 {lugar && <p className='post-venue'>{lugar.nombre}</p>}

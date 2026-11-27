@@ -55,7 +55,7 @@ export default function Menu() {
                 
                 {
                     // quiero poner un emoji pero van a pensar que es IA
-                    user && <p className='Bienvenida'>hola {user.username}, Bienvenido :) </p>
+                    // user && <p className='Bienvenida'>hola {user.username}, Bienvenido :) </p>
                 }
 
                 {posts.map(p => <Post key={p.id} post={p} />)}

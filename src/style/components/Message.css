@@ -336,6 +336,38 @@ a.message-archivo:hover {
     text-overflow: ellipsis;
 }
 
+
+.message-itinerario-portada {
+    position: relative;
+}
+
+/* "+ Unirse": solo existe si todavía no eres integrante */
+.message-itinerario.puede-unirse {
+    cursor: pointer;
+}
+
+.message-itinerario-unirse {
+    position: absolute;
+    inset: 0;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    background-color: rgba(0, 0, 0, 0.45);
+    color: #fff;
+    font-size: 0.85rem;
+    font-weight: 700;
+
+    opacity: 0;
+    transition: opacity 0.15s ease-in-out;
+}
+
+.message-itinerario.puede-unirse:hover .message-itinerario-unirse,
+.message-itinerario.puede-unirse:focus-visible .message-itinerario-unirse {
+    opacity: 1;
+}
+
 /* --- Estados (solo mensajes propios) --- */
 .Message-container.is-seen    { border-color: #4E9FBE; }   /* visto */
 .Message-container.is-sent    { border-color: #D9D9D9; }   /* enviado */

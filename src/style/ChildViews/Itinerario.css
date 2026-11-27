@@ -462,6 +462,79 @@
     color: #8a9ba3;
 }
 
+/* ---------- Casilla "Completado" (junto al lápiz, abajo a la derecha de la portada) ---------- */
+.itinerario-Completado {
+    flex-shrink: 0;
+
+    display: flex;
+    align-items: center;
+    gap: 6px;
+
+    cursor: pointer;
+    user-select: none;
+}
+
+.itinerario-CheckBox {
+    appearance: none;
+    -webkit-appearance: none;
+
+    position: relative;
+    flex-shrink: 0;
+    width: 22px;
+    height: 22px;
+    margin: 0;
+
+    border: 2px solid #4e9fbe;
+    border-radius: 6px;
+    background-color: #d9d9d9;
+    cursor: pointer;
+
+    transition: background-color 0.2s ease-in-out, transform 0.2s ease-in-out;
+}
+
+.itinerario-CheckBox:hover {
+    transform: scale(1.08);
+}
+
+.itinerario-CheckBox:active {
+    transform: scale(0.92);
+}
+
+/* Marcada: azul con la palomita blanca */
+.itinerario-CheckBox:checked {
+    background-color: #4e9fbe;
+}
+
+.itinerario-CheckBox:checked::after {
+    content: '';
+    position: absolute;
+    left: 6px;
+    top: 2px;
+    width: 5px;
+    height: 10px;
+
+    border: solid #fff;
+    border-width: 0 2.5px 2.5px 0;
+    transform: rotate(45deg);
+}
+
+.itinerario-CheckBox:disabled {
+    opacity: 0.6;
+    cursor: default;
+}
+
+.itinerario-CheckBox:focus-visible {
+    outline: 2px solid #fff;
+    outline-offset: 2px;
+}
+
+.itinerario-CheckBox-Label {
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: #fff;
+    white-space: nowrap;
+}
+
 @media (max-width: 480px) {
     .Message-Mod {
         flex-direction: column;
@@ -473,43 +546,14 @@
         width: 22px;
         height: 22px;
     }
+
+    .itinerario-CheckBox-Label {
+        font-size: 0.75rem;
+    }
 }
 
-
-/* =====================================================
-   2) Pégalo al final de  style/components/Message.css
-   ===================================================== */
-
-.message-itinerario-portada {
-    position: relative;
-}
-
-/* "+ Unirse": solo existe si todavía no eres integrante */
-.message-itinerario.puede-unirse {
-    cursor: pointer;
-}
-
-.message-itinerario-unirse {
-    position: absolute;
-    inset: 0;
-
-    display: flex;
-    align-items: center;
-    justify-content: center;
-
-    background-color: rgba(0, 0, 0, 0.45);
-    color: #fff;
-    font-size: 0.85rem;
-    font-weight: 700;
-
-    opacity: 0;
-    transition: opacity 0.15s ease-in-out;
-}
-
-.message-itinerario.puede-unirse:hover .message-itinerario-unirse,
-.message-itinerario.puede-unirse:focus-visible .message-itinerario-unirse {
-    opacity: 1;
-}
+/* XD */
+/* hay cosas que no pude hacer bien del diseño y me estrese. */
 
 @media (hover: none) {
     .message-itinerario-unirse {

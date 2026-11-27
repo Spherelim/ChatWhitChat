@@ -6,7 +6,7 @@ import { getUserProfile } from '../services/authService'
 
 import DefaultImage from '../images/Cat.jpg'
 
-export default function DropdownMenu({ user, onProfile, onFriend, onLogout}){
+export default function DropdownMenu({ user, onProfile, onFriend, onSetings,onLogout}){
     const [isOpen, setIsOpen] = useState(false);
     const dropdownRef = useRef(null);
 
@@ -65,6 +65,11 @@ export default function DropdownMenu({ user, onProfile, onFriend, onLogout}){
     //     onExplore();
     // }
 
+    const handleAjustes = () => {
+        setIsOpen(false);
+        onSetings();
+    }
+
     const handleLogout = () => {
         setIsOpen(false);
         onLogout();
@@ -120,7 +125,7 @@ export default function DropdownMenu({ user, onProfile, onFriend, onLogout}){
                         Explorar y Itinerario
                     </button> */}
                     
-                    <button className="dropdown-item" onClick={null}>
+                    <button className="dropdown-item" onClick={handleAjustes}>
                         <svg className="dropdown-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
                             <circle cx="12" cy="12" r="3" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
                             <path

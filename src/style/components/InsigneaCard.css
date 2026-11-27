@@ -62,3 +62,41 @@
     font-size: 0.8rem;
     font-weight: 700;
 }
+/* ===== Insignia desbloqueada ===== */
+.InsigneaCard-container.is-obtenida {
+    box-shadow: 0 0 14px rgba(78, 159, 190, 0.45);
+}
+
+.InsigneaCard-imagen {
+    position: absolute;
+    inset: 12%;
+    width: 76%;
+    height: 76%;
+    object-fit: contain;
+    animation: insignea-aparece 0.5s ease-out;
+}
+
+.InsigneaCard-container.is-dorada .InsigneaCard-progreso {
+    stroke: #ffc933;
+}
+
+.InsigneaCard-container.is-dorada .InsigneaCard-fondo {
+    fill: rgba(255, 200, 60, 0.07);
+}
+
+.InsigneaCard-container.is-dorada .InsigneaCard-fraccion {
+    color: #ffe08a;
+}
+
+.InsigneaCard-container.is-dorada.is-obtenida {
+    box-shadow: 0 0 16px rgba(255, 200, 60, 0.55);
+}
+
+.InsigneaCard-container.is-dorada .InsigneaCard-imagen {
+    filter: drop-shadow(0 0 6px rgba(255, 200, 60, 0.8));
+}
+
+@keyframes insignea-aparece {
+    from { opacity: 0; transform: scale(0.6); }
+    to   { opacity: 1; transform: scale(1); }
+}

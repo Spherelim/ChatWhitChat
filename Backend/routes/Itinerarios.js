@@ -3,6 +3,7 @@ import multer from 'multer';
 import db from '../database/connection.js';
 import { urlPublica } from '../utils/urlPublica.js';
 import { guardarImagen, borrarImagen } from '../utils/imagenes.js';
+import { obtenerAjustes } from './Ajustes.js';
 
 const router = express.Router();
 
@@ -30,7 +31,7 @@ const ruta = (fn) => async (req, res) => {
 const idUsuarioDe = (req) => Number(req.body?.idUsuario ?? req.query.idUsuario);
 
 async function cargarItinerario(idItinerario) {
-    const rows = await query('SELECT ID_Itinerario, id_Usuario, Nombre, Imagen FROM Itinerario WHERE ID_Itinerario = ?', [idItinerario]);
+    const rows = await query('SELECT ID_Itinerario, id_Usuario, Nombre, Imagen, Completado FROM Itinerario WHERE ID_Itinerario = ?', [idItinerario]);
     if (rows.length === 0) throw httpError(404, 'Itinerario no encontrado');
     return rows[0];
 }
@@ -94,6 +95,46 @@ router.get('/Itinerarios/Usuario/:id', ruta(async (req, res) => {
             esDuenio: Number(r.Duenio) === idUsuario,
         })),
     });
+}));
+
+// ---------- Cuántos itinerarios COMPLETADOS tiene un usuario (los suyos y a los que se unió) ----------
+// De aquí salen las insignias del perfil.
+router.get('/Itinerarios/Completados/:id', ruta(async (req, res) => {
+    const idUsuario = Number(req.params.id);
+    if (!idUsuario) throw httpError(400, 'Faltan datos');
+
+    // ?viewer=<mi id>: si el dueño apagó "Mostrar Insigneas", los demás no ven su progreso
+    if (Number(req.query.viewer) !== idUsuario && !(await obtenerAjustes(idUsuario)).mostrarInsignias) {
+        return res.json({ success: true, oculto: true, total: 0 });
+    }
+
+    const [fila] = await query(
+        `SELECT COUNT(*) AS Total
+         FROM Itinerario i
+         WHERE i.Completado = 1
+           AND (i.id_Usuario = ?
+                OR EXISTS (SELECT 1 FROM Itinerario_Integrante x WHERE x.id_Itinerario = i.ID_Itinerario AND x.id_Usuario = ?))`,
+        [idUsuario, idUsuario]
+    );
+
+    res.json({ success: true, total: Number(fila.Total) });
+}));
+
+// ---------- Marcar / desmarcar como COMPLETADO ----------
+// body: { idUsuario, completado: true|false }. Puede cualquier integrante, y cuenta para todos los integrantes.
+router.put('/Itinerarios/:id/Completado', ruta(async (req, res) => {
+    const idItinerario = Number(req.params.id);
+    const idUsuario = idUsuarioDe(req);
+    await exigirIntegrante(idItinerario, idUsuario);
+
+    const completado = req.body.completado === true || req.body.completado === 1 || req.body.completado === '1' || req.body.completado === 'true';
+
+    const r = await query('UPDATE Itinerario SET Completado = ? WHERE ID_Itinerario = ?', [completado ? 1 : 0, idItinerario]);
+    if (r.changedRows > 0) {
+        await registrar(idItinerario, idUsuario, completado ? 'marcó el itinerario como completado' : 'marcó el itinerario como pendiente');
+    }
+
+    res.json({ success: true, completado });
 }));
 
 // ---------- Crear itinerario ----------
@@ -235,6 +276,7 @@ router.get('/Itinerarios/:id', ruta(async (req, res) => {
         itinerario: {
             id: it.ID_Itinerario, idUsuario: it.id_Usuario, nombre: it.Nombre, foto: urlPublica(it.Imagen, req),
             esDuenio: it.esDuenio,
+            completado: !!it.Completado,
         },
         integrantes: integrantes.map(u => ({
             id: u.id,
