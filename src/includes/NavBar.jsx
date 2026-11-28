@@ -106,6 +106,7 @@ export default function NavBar() {
                     // onFriend={() => AlertInformation("No disponible, En Proceso...")}
                     onFriend={handleFriend}
                     // onExplore={handleExplore}
+                    onSetings={handleSetings} // que wey se le olvido ponerlo aquí.
                     onLogout={handleLogout}
                 />
 
